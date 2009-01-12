@@ -1,0 +1,3 @@
+import $ARGS1 to infile as phcf RO
+process pgplotter infile $ARGS2
+close infile

@@ -1,0 +1,417 @@
+/*
+Copyright (C) 2005-2007 Michael Keith, University Of Manchester
+
+email: mkeith@pulsarastronomy.net
+www  : www.pulsarastronomy.net/wiki/Software/PulsarHunter
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+/*
+ * ZapFileDisplayFrame.java
+ *
+ * Created on 27 February 2007, 10:11
+ */
+
+package pulsarhunter.displaypanels;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import javax.swing.JFileChooser;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import pulsarhunter.FrequencyFilter;
+import pulsarhunter.datatypes.ZapFile;
+
+/**
+ *
+ * @author  mkeith
+ */
+public class ZapFileDisplayFrame extends javax.swing.JFrame implements TableModelListener{
+    
+    private ZapFile zapFile;
+    private MKPlot freqGraph;
+    private double maxFreq;
+    private double freqBinWidth;
+    private boolean running = true;
+    /** Creates new form ZapFileDisplayFrame */
+    public ZapFileDisplayFrame(ZapFile zapFile) {
+        initComponents();
+        this.zapFile = zapFile;
+        freqGraph = new MKPlot(Color.RED,Color.GREEN);
+        //freqGraph.setLinestyle(LineStyle.JoinTheDots);
+        this.jTextField_title.setText(zapFile.getTitle());
+        
+        this.jTable1.getModel().addTableModelListener(this);
+        
+        refresh();
+        this.jPanel3.add(freqGraph,BorderLayout.CENTER);
+    }
+    
+    
+    void refresh(){
+        this.getZapFile().setTitle(this.jTextField_title.getText());
+        try{
+            double tsamp = Double.parseDouble(this.jTextField_tsamp.getText())/1000.0/1000.0;
+            double tobs = Double.parseDouble(this.jTextField_obslen.getText());
+            this.maxFreq = 1.0/tsamp;
+            this.freqBinWidth = 1.0/tobs;
+        }catch(NumberFormatException e){
+            this.jTextField_tsamp.setText("*");
+            this.jTextField_obslen.setText("*");
+            maxFreq = 100;
+            freqBinWidth = 0.1;
+        }
+        
+        double perBlocked = 0;
+        double freqBlocked = 0;
+        double[] xAxis = new double[2*getZapFile().getFilters().size()+1];
+        double[] yAxis = new double[2*getZapFile().getFilters().size()+1];
+        int i = 0;
+        xAxis[i] = 0.0;
+        yAxis[i] = 1.0;
+        i++;
+        for(FrequencyFilter f : getZapFile().getFilters()){
+            xAxis[i] = f.getStart();
+            yAxis[i] = 1.0;
+            i++;
+            xAxis[i] = f.getEnd();
+            yAxis[i] = 0.0;
+            i++;
+            if(f.getStart() < maxFreq){
+                freqBlocked += (f.getEnd() - f.getStart());
+                perBlocked += (1.0/f.getStart() - 1.0/f.getEnd() );
+            }
+            
+        }
+        
+//        for(int j = 0; j < xAxis.length; j++){
+//            System.out.println(xAxis[j]+" "+yAxis[j]);
+//        }
+        
+        freqGraph.setVals(xAxis,yAxis);
+        freqGraph.setYmax(1.1);
+        freqGraph.setXmax(maxFreq);
+        freqGraph.setXLabel("Frequency");
+        freqGraph.setYLabel("Filter");
+        
+        ((DefaultTableModel)this.jTable1.getModel()).setRowCount(0);
+        for(FrequencyFilter f : getZapFile().getFilters()){
+            ((DefaultTableModel)this.jTable1.getModel()).addRow(new Object[]{f.getStart(),f.getEnd(),f.getCentre(),f.getRange(),f.getMatches(),f.getName()});
+            
+        }
+        
+        double percentFreqBlock = (int)(100000.0 * (freqBlocked / maxFreq))/1000.0;
+        double  percentPerBlock = (int)(100000.0 * (perBlocked * freqBinWidth))/1000.0;
+        
+        this.jLabel4.setText("Total Filters: "+getZapFile().getFilters().size()+"   "+percentFreqBlock+"% of frequencies blocked     "+percentPerBlock+"% of periods blocked");
+        
+        this.setVisible(false);
+        this.validate();
+        this.setVisible(true);
+        
+    }
+    
+    public boolean isRunning(){
+        return running;
+    }
+    
+    public void dispose(){
+        super.dispose();
+        this.running = false;
+    }
+    
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jTextField_title = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jTextField_obslen = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jTextField_tsamp = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Start", "End", "Center", "Range", "Ndetections", "Name"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Integer.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jTable1);
+
+        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+
+        jPanel2.setLayout(new java.awt.GridLayout(6, 2));
+
+        jLabel1.setText("Title");
+        jPanel2.add(jLabel1);
+
+        jPanel2.add(jTextField_title);
+
+        jLabel2.setText("ObsLength (s)");
+        jPanel2.add(jLabel2);
+
+        jTextField_obslen.setText("2100");
+        jPanel2.add(jTextField_obslen);
+
+        jLabel3.setText("SampleTime (us)");
+        jPanel2.add(jLabel3);
+
+        jTextField_tsamp.setText("250");
+        jPanel2.add(jTextField_tsamp);
+
+        jButton1.setText("Refresh");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(jButton1);
+
+        jButton2.setText("Reload");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(jButton2);
+
+        jButton3.setText("Import");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(jButton3);
+
+        jButton4.setText("Save");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(jButton4);
+
+        jButton5.setText("Add New Filter");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(jButton5);
+
+        jButton6.setText("Exit");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(jButton6);
+
+        getContentPane().add(jPanel2, java.awt.BorderLayout.NORTH);
+
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.X_AXIS));
+
+        jLabel4.setText("jLabel4");
+        jPanel4.add(jLabel4);
+
+        jPanel3.add(jPanel4, java.awt.BorderLayout.NORTH);
+
+        getContentPane().add(jPanel3, java.awt.BorderLayout.SOUTH);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+    
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        this.getZapFile().addFilter(new FrequencyFilter(0,0,0));
+        refresh();
+    }//GEN-LAST:event_jButton5ActionPerformed
+    
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        this.setVisible(false);
+        this.dispose();
+    }//GEN-LAST:event_jButton6ActionPerformed
+    
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        JFileChooser fileChooser = new JFileChooser(".");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setVisible(true);
+        if(fileChooser.showOpenDialog(this) == fileChooser.APPROVE_OPTION){
+            new ZapImportFrame(fileChooser.getSelectedFile(),this).setVisible(true);
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+    
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        try {
+            this.getZapFile().setTitle(this.jTextField_title.getText());
+            getZapFile().write();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        refresh();
+    }//GEN-LAST:event_jButton4ActionPerformed
+    
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        try {
+            getZapFile().read();
+            this.jTextField_title.setText(getZapFile().getTitle());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        refresh();
+    }//GEN-LAST:event_jButton2ActionPerformed
+    
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        refresh();
+    }//GEN-LAST:event_jButton1ActionPerformed
+    
+    public static void main(String[] args){
+        try {
+            ZapFile zapfile = new ZapFile(new File("test.zap"));
+            zapfile.read();
+            new ZapFileDisplayFrame(zapfile).setVisible(true);
+            
+            
+            
+            
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        
+    }
+    
+    public void tableChanged(TableModelEvent e) {
+        int row = e.getFirstRow();
+        int column = e.getColumn();
+        double centre;
+        double range;
+        TableModel model = (TableModel)e.getSource();
+        if(row < 0 || column < 0){
+            // System.out.println("ERR");
+            return;
+        }
+        Object val = model.getValueAt(row,column);
+        switch(column){
+            case 0:
+                getZapFile().getFilters().get(row).setStart(((Double)val).doubleValue());
+                break;
+            case 1:
+                getZapFile().getFilters().get(row).setEnd(((Double)val).doubleValue());
+                break;
+            case 2:
+                centre = ((Double)val).doubleValue();
+                getZapFile().getFilters().get(row).setCentre(centre);
+//                range = getZapFile().getFilters().get(row).getEnd() - getZapFile().getFilters().get(row).getStart();
+//
+//                getZapFile().getFilters().get(row).setStart(centre - range/2.0);
+//                getZapFile().getFilters().get(row).setEnd(centre + range/2.0);
+                break;
+            case 3:
+                range = ((Double)val).doubleValue();
+                //centre = getZapFile().getFilters().get(row).getStart() + (getZapFile().getFilters().get(row).getEnd() - getZapFile().getFilters().get(row).getStart())/2.0;
+                
+                //getZapFile().getFilters().get(row).setStart(centre - range/2.0);
+                //getZapFile().getFilters().get(row).setEnd(centre + range/2.0);
+                getZapFile().getFilters().get(row).setRange(range);
+                break;
+            case 4:
+                getZapFile().getFilters().get(row).setMatches(((Integer)val).intValue());
+                break;
+            case 5:
+                if(((String)val).equalsIgnoreCase("del")){
+                    getZapFile().getFilters().remove(row);
+                    refresh();
+                    break;
+                }
+                getZapFile().getFilters().get(row).setName((String)val);
+                break;
+                
+        }
+        
+    }
+    
+    public ZapFile getZapFile() {
+        return zapFile;
+    }
+    
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextField jTextField_obslen;
+    private javax.swing.JTextField jTextField_title;
+    private javax.swing.JTextField jTextField_tsamp;
+    // End of variables declaration//GEN-END:variables
+    
+}
+

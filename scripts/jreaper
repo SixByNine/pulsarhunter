@@ -1,0 +1,30 @@
+#!/bin/bash
+ARGS=$*
+DEBUG_SWITCH=''
+
+source ${PULSARHUNTER_HOME}/scripts/includes/env
+
+cd ${PULSARHUNTER_HOME}/jreaper/
+
+#CLASSPATH=${PULSARHUNTER_HOME}/lib/CoordLib.jar:${PULSARHUNTER_HOME}/lib/mysql-driver.jar:${PULSARHUNTER_HOME}/pulsarhunter.jar:${PULSARHUNTER_HOME}/lib/swing-layout-1.0.jar:${PULSARHUNTER_HOME}/AbsoluteLayout.jar
+
+CLASSPATH=${PULSARHUNTER_HOME}/pulsarhunter.jar
+for jarfile in `ls ${PULSARHUNTER_HOME}/lib/*.jar`
+do
+CLASSPATH=${jarfile}:${CLASSPATH}
+done
+
+
+#${JAVA_HOME}/bin/java -Dsystem.load.path=${PULSARHUNTER_HOME}/lib:$LD_LIBRARY_PATH -jar ${PULSARHUNTER_HOME}/pulsarhunter.jar --libpath=${PULSARHUNTER_HOME}/lib $ARGS
+
+mask=`umask`
+umask 002
+
+if [[ $1 == "new" ]] ; then
+	${JAVA_HOME}/bin/java $DEBUG_SWITCH -Xmx1024M  -classpath $CLASSPATH pulsarhunter.bookkeepr.jreaper.JReaper
+else
+	${JAVA_HOME}/bin/java $DEBUG_SWITCH -Xmx1024M  -classpath $CLASSPATH pulsarhunter.jreaper.JReaper "$1" "$2" "$3" "$4" "$5" "$6" "$7"
+fi
+umask $mask
+
+

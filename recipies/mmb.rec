@@ -1,0 +1,9 @@
+import $ARGS1 to infile as sumfile
+export $ARGS2.phcf to osrfile as phcf
+process tune infile osrfile 
+close infile
+import $ARGS3.clist to clistfile as osrfcandlist
+process pgplotter osrfile $ARGS2.ps/ps
+process osrf2candlist osrfile clistfile $ARGS4 $ARGS5 $ARGS6
+close osrfile
+close clistfile

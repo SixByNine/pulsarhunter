@@ -1,0 +1,20 @@
+#!/bin/bash
+ARGS=$*
+
+echo "PULSARHUNTER_HOME="${PULSARHUNTER_HOME}
+source ${PULSARHUNTER_HOME}/scripts/includes/env
+echo "Using java executable: "${JAVA_HOME}/bin/java
+
+
+CLASSPATH=${PULSARHUNTER_HOME}/lib/CoordLib.jar:${PULSARHUNTER_HOME}/pulsarhunter.jar
+
+${JAVA_HOME}/bin/java -Xms256M -Xmx1024M -classpath $CLASSPATH pulsarhunter.Phcf2Phcx $ARGS
+
+err=$?
+if [[ $err == 1 ]]
+then
+   echo
+   echo "Wrong Version of Java appears to be in use..."
+   echo "Please use Java 1.5 or above"
+fi
+exit $err

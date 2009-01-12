@@ -1,0 +1,25 @@
+#!/bin/bash
+nn=$#
+prdfile=$1
+outname=$2
+
+switches="$3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17} ${18} ${19} ${20} ${21} ${22} ${23} ${24} ${25} ${26} ${27} ${28} ${29} ${30}"
+
+if [[ $nn -gt  30 ]]
+then
+echo "Can only handle 30 args... check the script ph-best to add more"
+exit
+fi
+
+if [[ $nn -lt  2 ]]
+then
+echo "Please specify [.prd file] [output root name] {options}"
+cat ${PULSARHUNTER_HOME}/help/filter
+exit
+fi
+
+
+
+
+${PULSARHUNTER_HOME}/scripts/pulsarhunter -r filter -a "$prdfile $outname" --options="$switches"
+exit $?

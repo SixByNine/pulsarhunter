@@ -1,0 +1,3 @@
+import $ARGS1 to infile as phcf RO
+process phcfplotter infile
+close infile

@@ -1,0 +1,3 @@
+#!/bin/tcsh
+
+cp dist/pulsarhunter.jar $PULSARHUNTER_HOME/

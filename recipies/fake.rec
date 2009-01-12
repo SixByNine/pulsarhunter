@@ -1,0 +1,5 @@
+import $ARGS1 to infile
+export $ARGS2 to outfile as infile
+process insertfake infile outfile
+close infile
+close outfile

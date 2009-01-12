@@ -1,0 +1,401 @@
+/*
+Copyright (C) 2005-2007 Michael Keith, University Of Manchester
+email: mkeith@pulsarastronomy.net
+www  : www.pulsarastronomy.net/wiki/Software/PulsarHunter
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+/*
+ * PulsarHunter.java
+ *
+ * Created on 25 October 2006, 14:07
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+package pulsarhunter;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import pulsarhunter.datatypes.EpnFileFactory;
+import pulsarhunter.datatypes.OSRFAppendableJReaperCandListFactory;
+import pulsarhunter.datatypes.PolyCoFileDataFactory;
+import pulsarhunter.datatypes.sigproc.SigprocDataFactory;
+import pulsarhunter.datatypes.sigproc.SigprocDataFactory.SigprocDataType;
+import pulsarhunter.processes.folding.OptimisedSuspectPGPlotterFactory;
+import pulsarhunter.datatypes.PulsarHunterCandidateDataFactory;
+import pulsarhunter.datatypes.ValueListFactory;
+import pulsarhunter.datatypes.ZapFileFactory;
+import pulsarhunter.datatypes.sigproc.BestSumFileFactory;
+import pulsarhunter.processes.CandListCreationFactory;
+import pulsarhunter.processes.DedisperseFactory;
+import pulsarhunter.processes.DisplayPHCFFactory;
+import pulsarhunter.processes.DisplayZapFileFactory;
+import pulsarhunter.processes.FilterCandidatesFactory;
+import pulsarhunter.processes.InsertFakeSignalFactory;
+import pulsarhunter.processes.MultiProfilePlotterFactory;
+import pulsarhunter.processes.PulseVariationCalculatorFactory;
+import pulsarhunter.processes.TimeSeriesResamplerFactory;
+import pulsarhunter.processes.folding.AppendOsrfToJReaperCandListProcessFactory;
+import pulsarhunter.processes.folding.PeriodTuneFoldFactory;
+import pulsarhunter.processes.folding.SubIntegrationMakerFactory;
+import pulsarhunter.recipies.RecipeParseException;
+import pulsarhunter.recipies.RecipeParser;
+
+/**
+ *
+ * PulsarHunter is a pulsar search package. Includes a range of useful
+ * tools, including tune and jreaper.
+ *
+ * @author Michael Keith
+ *
+ * @version 1.0
+ *
+ * ChangeLog:
+ *
+ * See www.pulsarastronomy.net/wiki/Software/PulsarHunterVersionHistory
+ *
+ *
+ */
+public class PulsarHunter {
+
+    public static final String VERSION = "1.3t39";
+    public static final String DATE = "2008-11-24";
+    private PulsarHunterRegistry registry;
+    private String recipe = null;
+    private String[] recipeArgs = new String[0];
+    private boolean recipieUsage = false;
+    private boolean testMode = false;
+    public static PrintStream out;
+
+    /** Creates a new instance of PulsarHunter */
+    public PulsarHunter(String[] args) {
+        pulsarhunter.jreaper.JReaper.setNoGuiTestMode(true);
+        System.setProperty("libdir", "./lib");
+
+        PulsarHunter.out = System.out;
+        this.registry = new PulsarHunterRegistry();
+
+        parseArgs(args);
+
+
+        if (testMode) {
+            System.out.println("***Enabling Test mode***");
+        }
+
+        PulsarHunter.out.println("PulsarHunter - Version " + PulsarHunter.VERSION + " (" + DATE + ")");
+        PulsarHunter.out.println("PulsarHunter - "+recipeArgs.length+" args passed");
+        PulsarHunter.out.println("PulsarHunter - Checking for NativeLibraries");
+
+        if (BarryCenter.isAvaliable()) {
+            PulsarHunter.out.println("BaryCentre - OK!");
+        } else {
+            PulsarHunter.out.println("BaryCentre - Not Avaliable... BaryCentric corrections disabled");
+        }
+        if (PgplotInterface.isAvaliable()) {
+            PulsarHunter.out.println("PgplotInterface - OK!");
+        } else {
+            PulsarHunter.out.println("PgplotInterface - Not Avaliable... Plotting with pgplot disabled");
+        }
+
+
+
+        if (testMode) {
+            pulsarhunter.jreaper.ConfigureTest.main(new String[0]);
+        }
+
+        this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.SigprocTimeSeries));
+        this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.SigprocBandedTimeSeries));
+        this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.BestSumFile));
+        this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.PrdFile));
+        this.registry.addDataFactory(new PulsarHunterCandidateDataFactory());
+        this.registry.addDataFactory(new BestSumFileFactory());
+        this.registry.addDataFactory(new OSRFAppendableJReaperCandListFactory());
+        this.registry.addDataFactory(new ValueListFactory());
+        this.registry.addDataFactory(new ZapFileFactory());
+        this.registry.addDataFactory(new PolyCoFileDataFactory());
+        this.registry.addDataFactory(new EpnFileFactory());
+
+        this.registry.addProcessFactory(new PeriodTuneFoldFactory());
+        this.registry.addProcessFactory(new OptimisedSuspectPGPlotterFactory());
+        this.registry.addProcessFactory(new AppendOsrfToJReaperCandListProcessFactory());
+        this.registry.addProcessFactory(new FilterCandidatesFactory());
+        this.registry.addProcessFactory(new DisplayPHCFFactory());
+        this.registry.addProcessFactory(new TimeSeriesResamplerFactory());
+        this.registry.addProcessFactory(new DedisperseFactory());
+        this.registry.addProcessFactory(new DisplayZapFileFactory());
+        this.registry.addProcessFactory(new CandListCreationFactory());
+        this.registry.addProcessFactory(new SubIntegrationMakerFactory());
+        this.registry.addProcessFactory(new InsertFakeSignalFactory());
+        this.registry.addProcessFactory(new MultiProfilePlotterFactory());
+        this.registry.addProcessFactory(new PulseVariationCalculatorFactory());
+
+        try {
+            RecipeParser parser;
+            BufferedReader recipeReader;
+            if (recipe == null) {
+                System.out.println("No Recipe Chosen: Using manual input");
+                System.out.println("Welcome to PulsarHunter");
+                recipeReader = new BufferedReader(new InputStreamReader(System.in));
+                parser = new RecipeParser(registry, true, false);
+            } else {
+                recipeReader = getRecipieReader(recipe);
+                if (recipeReader == null) {
+                    System.out.println("Cannot find recipie: " + recipe);
+                    System.exit(1);
+                }
+                parser = new RecipeParser(registry, false, this.recipieUsage);
+            }
+            try {
+
+
+                parser.parse(recipeReader, recipeArgs);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (RecipeParseException ex) {
+                System.out.println();
+                System.out.println();
+                System.out.println("Fatal Error:");
+                System.out.println("============");
+                System.out.println(ex.getMessage());
+                if (ex.getCause() != null) {
+                    System.out.println(ex.getCause().getMessage());
+                }
+                System.out.println();
+                System.out.println("Sorry, cannot continue processing with this error... exiting\n");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+    private BufferedReader getRecipieReader(String recipie) throws IOException {
+        File f = new File(recipie);
+        if (f.exists()) {
+            return new BufferedReader(new FileReader(f));
+        } else {
+            f = new File(recipie + ".rec");
+            if (f.exists()) {
+                return new BufferedReader(new FileReader(f));
+            } else {
+
+                String path = System.getProperty("recdir");
+                if (path != null) {
+                    f = new File(path + File.separator + recipie + ".rec");
+                    if (f.exists()) {
+                        return new BufferedReader(new FileReader(f));
+                    }
+                } else {
+
+                }
+            }
+        }
+        return null;
+
+    }
+
+    private void parseArgs(String[] args) {
+        /* if(args.length < 1){
+        printHelp();
+        }*/
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].length() < 2) {
+                continue;
+            }
+            if (args[i].startsWith("--")) {
+                if (args[i].startsWith("--help")) {
+                    printHelp();
+                    continue;
+                }
+                if (args[i].startsWith("--args")) {
+                    this.recipeArgs = args[++i].trim().split(" ");
+                    continue;
+                }
+                if (args[i].startsWith("--libdir")) {
+                    String[] elems = args[i].trim().split("=");
+                    if (elems.length != 2) {
+                        System.err.println("Option libdir requires an argument --libdir=path");
+                        printHelp();
+                    }
+                    System.out.println("Native library directory set to " + elems[1]);
+                    System.setProperty("libdir", elems[1]);
+                    continue;
+                }
+                if (args[i].startsWith("--recdir")) {
+                    String[] elems = args[i].trim().split("=");
+                    if (elems.length != 2) {
+                        System.err.println("Option recdir requires an argument --recdir=path");
+                        printHelp();
+                    }
+                    System.out.println("Recipie directory set to " + elems[1]);
+                    System.setProperty("recdir", elems[1]);
+                    continue;
+                }
+                if (args[i].startsWith("--sw-")) {
+                    String[] elems = args[i].trim().split("=", 2);
+
+                    if (elems.length != 2) {
+                        System.err.println("Option --sw requires an argument --sw-key=\"-some -switches\"");
+                        printHelp();
+                    }
+
+                    String key = elems[0].substring(5);
+
+                    this.registry.addSwitches(key, elems[1]);
+                    continue;
+                }
+
+                if (args[i].startsWith("--recipe")) {
+
+                    String[] elems = args[i].trim().split("=");
+                    if (elems.length != 2) {
+                        System.err.println("Argument recipe requires an argument --recipe=somefile");
+                        printHelp();
+                    }
+
+                    this.recipe = elems[1];
+                    continue;
+                }
+
+                if (args[i].startsWith("--test")) {
+                    testMode = true;
+                    continue;
+                }
+
+                if (args[i].startsWith("--options")) {
+                    String[] elems = args[i].trim().split("=", 2);
+                    if (elems.length != 2) {
+                        System.err.println("Option --options requires an argument --options=\"-some -switches\"");
+                        printHelp();
+                    }
+
+                    this.registry.getOptions().parseArgs(elems[1]);
+
+                    continue;
+                }
+
+
+                System.err.println("Argument " + args[i] + " not understood");
+
+
+            } else if (args[i].startsWith("-")) {
+                for (char c : args[i].toCharArray()) {
+                    switch (c) {
+                        case 'r':
+                            this.recipe = args[++i];
+                            break;
+                        case 'a':
+                            this.recipeArgs = args[++i].trim().split(" ");
+                            break;
+                        case 'o':
+                            this.registry.getOptions().parseArgs(args[++i]);
+                        case 'h':
+                            printHelp();
+                            break;
+                        case '-':
+                            break;
+                        default:
+                            System.err.println("Short Argument -" + c + " not understood");
+                            printHelp();
+                            break;
+                    }
+                }
+            } else {
+                // error!
+                System.err.println("Argument " + args[i] + " not understood");
+            }
+        }
+    }
+
+    public void printHelp() {
+        if (this.recipe == null) {
+            System.out.println("PulsarHunter - Tools for finding pulsars");
+            System.out.println("\t-h\t--help\tShow this help, or show help on recipie");
+            System.out.println("\t-r file\t--recipe=file\tSpecify recipe to run");
+            System.out.println("\t-a \"a1 a2\"\t--args=\"a1 a2\"\tSpecify args to the recipe");
+            System.out.println("\t\t--libdir=dir\tSpecify dir to look for native libraries");
+            System.out.println("\t\t--recdir=dir\tSpecify dir to look for recipies");
+            System.out.println("\t\t--sw-[key]=\"-some -switch\"\t pass a set of switches to the recipie");
+            System.exit(-1);
+        } else {
+            this.recipieUsage = true;
+            System.out.println("Option -h interpreted as recipie usage");
+        }
+
+    }
+
+    public static void main(String[] args) {
+        PulsarHunter ph = new PulsarHunter(args);
+    }
+
+    private class CmdOption {
+
+        private char flag;
+        private String longOption;
+        private int nargs;
+        private boolean on;
+        private String[] values;
+
+        CmdOption(char flag, String longOption, int nargs) {
+            this.flag = flag;
+            this.longOption = longOption;
+            this.nargs = nargs;
+            this.values = new String[nargs];
+            setOn(false);
+        }
+
+        public char getFlag() {
+            return flag;
+        }
+
+        public String getLongOption() {
+            return longOption;
+        }
+
+        public int getNargs() {
+            return nargs;
+        }
+
+        public boolean isOn() {
+            return on;
+        }
+
+        public void setOn(boolean on) {
+            this.on = on;
+        }
+
+        public String[] getValues() {
+            return values;
+        }
+
+        public void setValue(int i, String value) {
+            this.values[i] = value;
+        }
+    }
+
+    public static void loadLibrary(String lib) {
+        String libpath = System.getProperty("libdir");
+        String libname = System.mapLibraryName(lib);
+        File f = new File(libpath + File.separator + libname);
+        System.load(f.getAbsolutePath());
+    }
+}

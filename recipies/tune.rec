@@ -1,0 +1,6 @@
+import $ARGS1 to infile
+import $ARGS2.phcx.gz to outfile as phcf
+process tune infile outfile
+close infile
+process pgplotter outfile $ARGS2.ps/ps
+close outfile

@@ -1,0 +1,22 @@
+#!/bin/bash
+nn=$#
+if=$1
+
+switches="$2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17} ${18} ${19} ${20}"
+
+if [[ $nn -gt  20 ]]
+then
+echo "Can only handle 20 args... check the script ph-tune to add more"
+exit
+fi
+
+if [[ $nn -lt  1 ]]
+then
+echo "Please specify [phcffile]"
+exit
+fi
+
+
+
+${PULSARHUNTER_HOME}/scripts/pulsarhunter -r viewphcf -a "$if" --options="$switches"
+exit $?

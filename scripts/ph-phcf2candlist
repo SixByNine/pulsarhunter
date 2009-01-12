@@ -1,0 +1,36 @@
+#!/bin/bash
+nn=$#
+
+phcffile=$1
+candlist=$2
+
+
+switches="$3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17} ${18} ${19} ${20}"
+
+if [[ $nn -gt  20 ]]
+then
+echo "Can only handle 20 args... check the script ph-phcf2candlist to add more"
+exit
+fi
+
+if [[ $nn -lt  4 ]]
+then
+echo "Please specify [phcffile] [candlist] {options}"
+echo ""
+echo "Options:"
+echo "-resdir [somedir]		The results dir"
+echo "-searchtype [int]		Search type"
+echo "				0=standard"
+echo "				1=accn"
+echo "				2=long period"
+echo "				3=unknown/other"
+echo "-beamid [somebeam]	overwrite the beam ID, Def: source id"				
+exit
+fi
+
+
+#CMD='${PULSARHUNTER_HOME}/scripts/pulsarhunter -r basictune -a "'$if' '$of'" --sw-tune="'$switches'"'
+
+#echo $CMD
+
+${PULSARHUNTER_HOME}/scripts/pulsarhunter -r phcf2candlist -a "$phcffile $candlist" --sw-clist="$switches"

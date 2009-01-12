@@ -1,0 +1,4 @@
+import $ARGS1 to infile
+import $ARGS2 to dmlist as valuelist
+process dedisperse infile dmlist $ARGS3
+close infile

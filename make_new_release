@@ -1,0 +1,73 @@
+#!/bin/bash
+
+OUT_DIR="/nfs/wwwpeople/Michael.Keith/pulsarhunter"
+EXT_URI="http://www.atnf.csiro.au/people/Michael.Keith/pulsarhunter"
+MAX_FILES=10
+
+
+echo "make new release"
+PREV_VER=`grep 'VERSION = ' ./src/pulsarhunter/PulsarHunter.java | awk '{print $7}' | sed -e 's:[";]::g' `
+
+PREV_DATE=`grep 'DATE = ' ./src/pulsarhunter/PulsarHunter.java | awk '{print $7}' | sed -e 's:[";]::g'`
+
+PREV_MV=`echo $PREV_VER | sed -e 's:[tr]: :g' | awk '{print $1}'`
+PREV_REL=`echo $PREV_VER | sed -e 's:[tr]: :g' | awk '{print $2}'`
+
+NEW_REL=`echo $PREV_REL | awk '{print ($0 + 1)}'`
+NEW_DATE=`date +%Y-%m-%d`
+
+echo "Current Version: $PREV_MV"
+echo "Previous release: $PREV_REL ($PREV_DATE)"
+echo ""
+echo "New release: ${PREV_MV}?$NEW_REL ($NEW_DATE)"
+echo ""
+echo "(r)elease or (t)esting:"
+read R_TYPE
+
+if [ $R_TYPE != 'r' ] ; then
+	R_TYPE='t'
+	echo "TESTING"
+else
+	echo "RELEASE"
+fi
+
+
+echo sed -e "s:$PREV_VER:${PREV_MV}${R_TYPE}$NEW_REL:"
+sed -e "s:$PREV_VER:${PREV_MV}${R_TYPE}$NEW_REL:" < ./src/pulsarhunter/PulsarHunter.java > ./src/pulsarhunter/PulsarHunter.java.new
+
+mv ./src/pulsarhunter/PulsarHunter.java ./src/pulsarhunter/PulsarHunter.java.bak
+mv ./src/pulsarhunter/PulsarHunter.java.new ./src/pulsarhunter/PulsarHunter.java
+
+sed -e "s:$PREV_DATE:$NEW_DATE:" < ./src/pulsarhunter/PulsarHunter.java > ./src/pulsarhunter/PulsarHunter.java.new
+ mv ./src/pulsarhunter/PulsarHunter.java.new ./src/pulsarhunter/PulsarHunter.java
+
+ant clean
+ant jar
+if [ $? != 0 ] ; then
+	echo "ANT error!"
+	exit 2
+fi
+
+NEW_VER="${PREV_MV}${R_TYPE}$NEW_REL"
+NEW_FILE="pulsarhunter_v${PREV_MV}${R_TYPE}$NEW_REL.tar.gz"
+
+cp dist/pulsarhunter.jar .
+tar --exclude='*CVS*' -chzf $NEW_FILE pulsarhunter.jar scripts/* help/* recipies/* lib/*.jar
+
+rm pulsarhunter.jar
+mv $NEW_FILE $OUT_DIR/
+cd $OUT_DIR
+
+mv pulsarhunter.update pulsarhunter.update.bak
+if [ $R_TYPE == 'r' ] ; then
+	echo "latest-stable $NEW_DATE $EXT_URI/$NEW_FILE" > pulsarhunter.update
+	cat pulsarhunter.update.bak | grep "latest-testing" >> pulsarhunter.update       
+else
+	cat pulsarhunter.update.bak | grep "latest-stable" > pulsarhunter.update
+	echo "latest-testing $NEW_DATE $EXT_URI/$NEW_FILE" >> pulsarhunter.update
+fi
+
+echo "$NEW_VER $NEW_DATE $EXT_URI/$NEW_FILE" >> pulsarhunter.update
+cat pulsarhunter.update.bak | grep -v "latest" | head -n $MAX_FILES >> pulsarhunter.update
+
+

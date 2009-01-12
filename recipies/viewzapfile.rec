@@ -1,0 +1,3 @@
+import $ARGS1 to infile as zapfile
+process displayzapfile infile
+close infile

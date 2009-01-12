@@ -1,0 +1,45 @@
+#!/bin/bash
+nn=$#
+
+args=$*
+
+phcffile=''
+done=''
+for i in $args ; do
+	if [[ -e "$i"  && $done -ne 1 ]] ; then
+		phcffile="$phcffile $i"
+	else
+		done=1
+		switches="$switches $i"
+	fi
+done
+
+switches="$switches"
+
+if [[ $nn -lt  1 ]]
+then
+echo "Please specify [input dirs] {options}"
+echo ""
+echo "Options:"
+echo "-reswd [somedir]          The current working directory as viewed by JReaper"
+echo "{-resdir [somedir]        The results dir as viewed by JReaper (depricated)}"
+#echo "-searchtype [int]		Search type"
+#echo "				0=standard"
+#echo "				1=accn"
+#echo "				2=long period"
+#echo "				3=unknown/other"
+echo  "-beamid [beamid]         overwride the beamid"
+echo ""
+echo "NOTE: ph-dir2candlist now reads multiple dirs."
+echo "      please use -reswd instead of -resdir!"
+exit
+fi
+
+
+#CMD='${PULSARHUNTER_HOME}/scripts/pulsarhunter -r basictune -a "'$if' '$of'" --sw-tune="'$switches'"'
+
+#echo $CMD
+
+
+${PULSARHUNTER_HOME}/scripts/pulsarhunter -r dir2candlist -a "$phcffile" --options="$switches"
+exit $?

@@ -1,0 +1,29 @@
+#!/bin/bash
+nn=$#
+if=$1
+of=$2
+switches="$3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17} ${18} ${19} ${20} ${21} ${22} ${23} ${24} ${25} ${26} ${27} ${28} ${29} ${30}"
+
+if [[ $nn -gt  30 ]]
+then
+echo "Can only handle 30 args... check the script ph-tune to add more"
+exit
+fi
+
+if [[ $nn -lt  3 ]]
+then
+echo "Please specify [datafile] [root of output] [tune params]"
+cat ${PULSARHUNTER_HOME}/help/tune
+exit
+fi
+
+of=`echo $of | sed 's%\.phcf$%%'   | sed 's%\.phcx.gz$%%' | sed 's%\.phcx$%%'`
+
+rm -f $of".phcx.gz" > /dev/null
+
+#CMD='${PULSARHUNTER_HOME}/scripts/pulsarhunter -r basictune -a "'$if' '$of'" --sw-tune="'$switches'"'
+
+#echo $CMD
+
+${PULSARHUNTER_HOME}/scripts/pulsarhunter -r tune -a "$if $of" --options="$switches"
+exit $?

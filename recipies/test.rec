@@ -1,0 +1,5 @@
+echo --------
+echo Look above here to see if the native libaries were loaded ok
+echo --------
+echo exiting
+end

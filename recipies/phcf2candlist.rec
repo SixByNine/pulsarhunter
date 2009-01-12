@@ -1,0 +1,5 @@
+import $ARGS1 to phcfile as phcf RO
+import $ARGS2 to clistfile as phcfcandlist
+process phcf2candlist phcfile clistfile
+close phcfile
+close clistfile

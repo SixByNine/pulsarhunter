@@ -1,0 +1,28 @@
+#!/bin/bash
+nn=$#
+if=$1
+clistf=$3
+of=$2
+resdir=$4
+
+switches="$5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17} ${18} ${19} ${20}"
+
+if [[ $nn -gt  20 ]]
+then
+echo "Can only handle 20 args... check the script ph-tune to add more"
+exit
+fi
+
+if [[ $nn -lt  4 ]]
+then
+echo "Please specify [sumfile] [root of output] [beamID] [results_dir] [tune params]"
+cat ${PULSARHUNTER_HOME}/help/tune
+exit
+fi
+
+
+#CMD='${PULSARHUNTER_HOME}/scripts/pulsarhunter -r basictune -a "'$if' '$of'" --sw-tune="'$switches'"'
+
+#echo $CMD
+
+${PULSARHUNTER_HOME}/scripts/pulsarhunter -r mmb -a "$if $of $clistf 1 $resdir $clistf" --sw-tune="$switches"

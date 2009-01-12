@@ -1,0 +1,33 @@
+
+Tune Params:
+===========
+
+-period      set the topocentric center period (ms)
+-bary-period set the barycentric center period (ms)
+-accn        set the centre acceleration (m/s/s)
+-jerk        set the centre jerk (adot) (m/s/s/s)
+
+-useaccn     search in accn space
+-usejerk     search in jerk space
+
+-period-range set the period search range (ms)
+-accn-range   set the acceleration search range (m/s/s)
+-jerk-range   set the jerk (adot) search range (m/s/s/s)
+-dm-range     set the dm search range (cm^-3/pc)
+-period-range set the period search step size (ms)
+-accn-range   set the acceleration search step size (m/s/s)
+-jerk-range   set the jerk (adot) search step size (m/s/s/s)
+-dm-range     set the dm search step size (cm^-3/pc)
+
+-harmonic     multiply the period by this value
+
+-nbins        set the number of bins in the output profile
+-nsub         set the number of subints to use
+-ibands       give comma seperated list of bands to ignore
+-isub         give comma seperated list of subints to ignore
+-iloudsints   specify rms threashold above which subints are ignored (compared to mean rms)
+
+Untested Options:
+-fudge-initial-snr Force set the 'initial snr' to be the folded, but unoptimised snr
+-interactive       Use the 'interactive RFI zapper'. Useful, but far from finished.
+        

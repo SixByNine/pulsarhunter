@@ -1,0 +1,8 @@
+
+CANDIDATE FILTER (BEST) OPTIONS
+===============================
+-minsnr [val]		Do not return results with SNR < 'val'
+-maxresults [val]	Do not return more than 'val' results
+-userecon		Sort results by Reconstructed SNR
+-zapfile [zapfile]	Use the specified zapfile to kill freqs
+-nophcx			Don't produce the output phcx files

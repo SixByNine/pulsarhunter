@@ -1,0 +1,58 @@
+#!/bin/bash
+
+export PULSARHUNTER_UPDATE="http://www.pulsarastronomy.net/pulsarhunter.update/"
+source ${PULSARHUNTER_HOME}/scripts/includes/env
+
+
+echo "PULSARHUNTER UPDATE..."
+echo "======================"
+echo ""
+echo "Please make sure that you have stopped all"
+echo "pulsarhunter processes!"
+echo ""
+echo "Doing a ps -fA to check for pulsarhunter on localhost"
+ps -fA | grep pulsarhunter | grep -v "grep"
+echo ""
+echo ""
+echo "\$PULSARHUNTER_HOME=$PULSARHUNTER_HOME"
+cd $PULSARHUNTER_HOME
+echo ""
+echo "Checking for updates..."
+wget -nv -O pulsarhunter.update $PULSARHUNTER_UPDATE
+echo ""
+echo "Versions Avaliable:"
+echo "-------------------"
+awk '{print $1" ("$2")"}' < pulsarhunter.update 
+echo ""
+echo -n "Choose a new version (def: latest-stable): "
+read -e VER
+if [ ! $VER ] ; then
+	VER="latest-stable"
+	echo "using latest-stable"
+fi
+GETFILE=`cat pulsarhunter.update | grep $VER | head -n 1 | awk '{print $3}'`
+echo "getting file..."
+echo $GETFILE
+wget -nv -O update.tar.gz $GETFILE
+if [ $? != 0 ] ; then
+	exit 1
+
+fi
+
+echo ""
+echo "unpacking file..."
+tar -xzvf update.tar.gz
+rm update.tar.gz
+
+chmod +x scripts/*
+chmod g+rwx scripts/*
+chmod g+rw recipies/*
+chmod g+rw lib/*
+chmod g+rw *
+
+
+echo ""
+echo "testing..."
+scripts/pulsarhunter --test
+echo "done (check for errors in test!)"
+
