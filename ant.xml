@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="pulsarhunter" default="build" basedir=".">
+
+	<property name="src" location="src/" />
+	<property name="build" location="build/" />
+	<property name="dist" location="dist/" />
+	<property name="lib" location="lib/" />
+
+	<target name="check">
+		<condition property="havelib">
+			<available file="${lib}/CoordLib.jar" />
+		</condition>
+		<fail unless="havelib" message="Please download and install required libs in ./lib" >
+		</fail>
+
+
+		
+	</target>
+
+	<target name="build" depends="check">
+		<mkdir dir="${build}" />
+		<mkdir dir="${dist}" />
+		<javac srcdir="${src}" destdir="${build}">
+			<classpath>
+				<pathelement path="${classpath}"/>
+
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+
+		</javac>
+		<jar jarfile="pulsarhunter.jar" basedir="${build}" />
+	</target>
+
+	<target name="run" depends="build">
+
+	</target>
+
+	<target name="clean" >
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+
+</project>
