@@ -19,7 +19,6 @@
 
 	<target name="build" depends="check">
 		<mkdir dir="${build}" />
-		<mkdir dir="${dist}" />
 		<javac srcdir="${src}" destdir="${build}">
 			<classpath>
 				<pathelement path="${classpath}"/>
@@ -28,7 +27,6 @@
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
-
 		</javac>
 		<jar jarfile="pulsarhunter.jar" basedir="${build}" />
 	</target>
