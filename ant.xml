@@ -28,7 +28,7 @@
 				</fileset>
 			</classpath>
 		</javac>
-		<jar jarfile="pulsarhunter.jar" basedir="${build}" />
+		<jar jarfile="pulsarhunter.jar" basedir="${build}" manifest="manifest"/>
 	</target>
 
 	<target name="run" depends="build">
