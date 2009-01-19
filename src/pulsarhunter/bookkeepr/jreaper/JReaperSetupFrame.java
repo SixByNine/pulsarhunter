@@ -68,8 +68,9 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
             e.printStackTrace();
         }
         
+        String url = "";
         String usr=jreaper.getUser();
-        String url=connection.getRemoteHost().getUrl();
+        if(connection.getRemoteHost()!=null)url=connection.getRemoteHost().getUrl();
         clearConnection();
 
         if (connection.getRemoteHost() != null) {

@@ -89,8 +89,9 @@ public class BookKeeprConnection {
 
     private void contact(String uri) throws BookKeeprCommunicationException {
         try {
+            URI hostUri=new URI(uri);
             synchronized (httpClient) {
-                HttpGet req = new HttpGet(uri);
+                HttpGet req = new HttpGet(hostUri);
                 HttpResponse resp = httpClient.execute(req);
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     try {
@@ -99,10 +100,11 @@ public class BookKeeprConnection {
                         in.close();
 
                         if (xmlable instanceof BookkeeprHost) {
+                            //uri = this.remoteHost.getUrl();
                             this.remoteHost = (BookkeeprHost) xmlable;
 
-                            uri = this.remoteHost.getUrl();
-                            this.remoteHost.setUrl(uri);
+
+                            this.remoteHost.setUrl("http://"+hostUri.getHost()+":"+hostUri.getPort());
                             status = "Connected (" + this.remoteHost.getStatus() + ")";
                         } else {
                             status = "Server Error";
@@ -367,7 +369,7 @@ public class BookKeeprConnection {
 
                         if (xmlable instanceof ViewedCandidatesIndex) {
                             ViewedCandidatesIndex p = (ViewedCandidatesIndex) xmlable;
-                            
+
                             return p;
                         } else {
                             resp.getEntity().consumeContent();
