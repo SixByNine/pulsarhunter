@@ -68,8 +68,18 @@ public class JReaper {
     private RawCandidateBasic[] candArray;
     private HashMap<Long, ArrayList<ClassifiedCandidate>> candClasses;
     private HashMap<Long, ArrayList<ClassifiedCandidate>> candPossClasses;
-    private HashMap<Long, Psrxml> psrxmlHeaders;
+    private HashMap<Long, Psrxml> clistIdToPsrxmlHeaders;
+    private HashMap<Long, CandidateListStub> clistIdToCandListHeaders;
 
+    public HashMap<Long, CandidateListStub> getClistIdToCandListHeaders() {
+        return clistIdToCandListHeaders;
+    }
+
+    public HashMap<Long, Psrxml> getClistIdToPsrxmlHeaders() {
+        return clistIdToPsrxmlHeaders;
+    }
+
+    
     public void start() {
         closeWindow();
 
@@ -110,8 +120,10 @@ public class JReaper {
     }
 
     public void goToPlot(ArrayList<CandidateListStub> clistStubs) {
-        this.psrxmlHeaders = new HashMap<Long, Psrxml>();
+        this.clistIdToPsrxmlHeaders = new HashMap<Long, Psrxml>();
+        this.clistIdToCandListHeaders = new HashMap<Long, CandidateListStub>();
         JReaperSetupFrame gui = null;
+        
         if (this.currentWindow instanceof JReaperSetupFrame) {
             gui = (JReaperSetupFrame) this.currentWindow;
         } else {
@@ -128,6 +140,7 @@ public class JReaper {
         ArrayList<CandidateList> candlists = new ArrayList<CandidateList>();
         ArrayList<RawCandidateBasic> cands = new ArrayList<RawCandidateBasic>();
         for (CandidateListStub stub : clistStubs) {
+            this.clistIdToCandListHeaders.put(stub.getId(), stub);
             CandidateList clist = null;
             try {
                 clist = connection.getCandidateList(stub.getId());
@@ -410,14 +423,14 @@ public class JReaper {
         if (basic != null) {
 
             long clistId = basic.getCandidateListId();
-            Psrxml header = this.psrxmlHeaders.get(clistId);
+            Psrxml header = this.clistIdToPsrxmlHeaders.get(clistId);
 
             try {
                 cand = connection.getRawCandidate(basic.getId());
                 if (header == null) {
                     CandidateList clist = this.connection.getCandidateList(clistId);
                     header = this.connection.getPsrxmlForCandidateList(clist);
-                    this.psrxmlHeaders.put(clistId, header);
+                    this.clistIdToPsrxmlHeaders.put(clistId, header);
                 }
             } catch (BookKeeprCommunicationException ex) {
                 Logger.getLogger(JReaper.class.getName()).log(Level.WARNING, "Could not get raw candidate from database", ex);
@@ -439,6 +452,7 @@ public class JReaper {
     void clickOn(double xposn, double yposn) {
         if (currentWindow instanceof MainView) {
             RawCandidateBasic basic = ((MainView) currentWindow).getNearest(xposn, yposn);
+            
             if (basic != null) {
 
                 JReaperCandidateFrame window = this.getWindow(basic);
@@ -588,9 +602,9 @@ public class JReaper {
         }
     }
 
-    public RawCandidateBasic[] refine(RawCandidateBasic[] masterData, Hashtable<PlotType.axisType, Double> minVals, Hashtable<PlotType.axisType, Double> maxVals, String[] excludeBeams, long[] excludeCandListIds) {
+    public RawCandidateBasic[] refine(RawCandidateBasic[] masterData, Hashtable<PlotType.axisType, Double> minVals, Hashtable<PlotType.axisType, Double> maxVals, ArrayList<Long> excludeCandListIds) {
         ArrayList<RawCandidateBasic> cData = new ArrayList<RawCandidateBasic>();
-        Arrays.sort(excludeBeams, String.CASE_INSENSITIVE_ORDER);
+        Collections.sort(excludeCandListIds);
         PlotType pt = new PlotType(null, null);
 
         for (int i = 0; i < masterData.length; i++) {
@@ -611,7 +625,7 @@ public class JReaper {
             }
 
             // don't include if we have the candlist id marked as exclude
-            if (Arrays.binarySearch(excludeCandListIds, masterData[i].getCandidateListId()) >= 0) {
+            if (Collections.binarySearch(excludeCandListIds, masterData[i].getCandidateListId()) >= 0) {
                 add = false;
             }
             if (add) {
@@ -621,4 +635,6 @@ public class JReaper {
 
         return cData.toArray(new RawCandidateBasic[0]);
     }
+    
+    
 }

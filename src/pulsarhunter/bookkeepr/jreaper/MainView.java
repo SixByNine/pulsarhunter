@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package pulsarhunter.bookkeepr.jreaper;
 
+import bookkeepr.xmlable.CandidateListStub;
 import bookkeepr.xmlable.RawCandidateBasic;
 import coordlib.Beam;
 import java.awt.Color;
@@ -29,7 +30,9 @@ import java.awt.EventQueue;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
@@ -61,7 +64,7 @@ public class MainView extends javax.swing.JFrame {
     private Hashtable<PlotType.axisType, JTextField> limitFieldsMin = new Hashtable<PlotType.axisType, JTextField>();
     private Hashtable<PlotType.axisType, JTextField> limitFieldsMax = new Hashtable<PlotType.axisType, JTextField>();
     private JCheckBox[] beamChecks;
-    private ArrayList<Beam> beams;
+    private HashMap<JCheckBox,CandidateListStub> checksToClists = new HashMap<JCheckBox, CandidateListStub>();
     private PlotType pType = new PlotType(PlotType.axisType.BaryPeriod, PlotType.axisType.FoldSNR);
     private boolean memClearActive = false;
     private RefreshThread refreshThread;
@@ -70,7 +73,7 @@ public class MainView extends javax.swing.JFrame {
     private PlotPointDrawer currentDrawer;
 
     /** Creates new form MainView */
-    public MainView(RawCandidateBasic[] masterData, JReaper jreaper) {
+    public MainView(RawCandidateBasic[] masterData, final JReaper jreaper) {
         initComponents();
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         if (screenSize.width > 2 * screenSize.height) {
@@ -84,7 +87,6 @@ public class MainView extends javax.swing.JFrame {
         this.currentDrawer = drawers[0];
         curData = masterData;
         plot = new ClickableGraph(curData, getPType(), jreaper, this, currentDrawer);
-        this.beams = searchForBeams(masterData);
         Logger.getLogger(MainView.class.getName()).log(Level.INFO, "Loaded: " + masterData.length + " cands");
 
 
@@ -111,11 +113,13 @@ public class MainView extends javax.swing.JFrame {
                 zMaxField.setEnabled(zAxisCheck.isSelected());
                 zCapCheck.setEnabled(zAxisCheck.isSelected());
 
+                
+                Collection<CandidateListStub> beams = jreaper.getClistIdToCandListHeaders().values();
                 beamChecks = new JCheckBox[beams.size()];
-                for (int i = 0; i < beamChecks.length; i++) {
+                int i =0;
+                for (CandidateListStub clist : beams) {
                     beamChecks[i] = new JCheckBox();
-                    beamChecks[i].setText(beams.get(i).getName()); // text MUSt be the name of the beam!!! +" \t("+(int)beams.get(i).getCoord().getGl()+", "+(int)beams.get(i).getCoord().getGb()+")");
-
+                    beamChecks[i].setText(clist.getName()); // text MUSt be the name of the beam!!! +" \t("+(int)beams.get(i).getCoord().getGl()+", "+(int)beams.get(i).getCoord().getGb()+")");
                     beamChecks[i].setSelected(true);
                     beamChecks[i].addActionListener(new java.awt.event.ActionListener() {
 
@@ -124,6 +128,8 @@ public class MainView extends javax.swing.JFrame {
                         }
                     });
                     jPanel_beamList.add(beamChecks[i]);
+                    checksToClists.put(beamChecks[i], clist);
+                    i++;
                 }
 
                 harmonicPanel.setName("Harmonics");
@@ -340,17 +346,7 @@ public class MainView extends javax.swing.JFrame {
     public void clickArea(final double x1, final double x2, final double y1, final double y2, final boolean viewed) {
     }
 
-    private ArrayList<Beam> searchForBeams(RawCandidateBasic[] masterData) {
-        ArrayList<Beam> beams = new ArrayList<Beam>();
-//        for (int i = 0; i < masterData.length; i++) {
-//            for (int j = 0; j < masterData[i].length; j++) {
-//                if (!beams.contains(masterData[i][j].getBeam())) {
-//                    beams.add(masterData[i][j].getBeam());
-//                }
-//            }
-//        }
-        return beams;
-    }
+    
     double lowx,  highx,  lowy,  highy;
     boolean zoomed = false;
 
@@ -395,10 +391,10 @@ public class MainView extends javax.swing.JFrame {
         Thread thread = new Thread() {
 
             public void run() {
-                ArrayList<String> excludes = new ArrayList<String>();
+                ArrayList<Long> excludes = new ArrayList<Long>();
                 for (int i = 0; i < beamChecks.length; i++) {
                     if (!beamChecks[i].isSelected()) {
-                        excludes.add(beamChecks[i].getText());
+                        excludes.add(checksToClists.get(beamChecks[i]).getId());
                     }
                 }
 
@@ -435,10 +431,9 @@ public class MainView extends javax.swing.JFrame {
                 }
 
 
-                String[] excludeBeams = new String[excludes.size()];
-                System.arraycopy(excludes.toArray(), 0, excludeBeams, 0, excludes.size());
+                
                 //MainView.this.curData = Main.getInstance().getDataLibrary().getRefiner().refine(MainView.this.masterData,snrmin,dmmin,new boolean[]{MainView.this.series1Check.isSelected(),MainView.this.series2Check.isSelected(),MainView.this.series3Check.isSelected(),MainView.this.series4Check.isSelected()},excludeBeams);
-                MainView.this.curData = jreaper.refine(MainView.this.masterData, minVals, maxVals, excludeBeams, new long[0]);
+                MainView.this.curData = jreaper.refine(MainView.this.masterData, minVals, maxVals, excludes);
                 MainView.this.replot();
             }
         };
