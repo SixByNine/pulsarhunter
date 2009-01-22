@@ -23,5 +23,5 @@ of=`echo $of | sed 's%\.phcf$%%'   | sed 's%\.phcx.gz$%%' | sed 's%\.phcx$%%'`
 
 #echo $CMD
 
-${PULSARHUNTER_HOME}/scripts/pulsarhunter -r tune -a "$if $of" --sw-tune="$switches"
+${PULSARHUNTER_HOME}/scripts/pulsarhunter -r tune -a "$if $of" --options="$switches"
 exit $?

@@ -113,7 +113,7 @@
                           <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="15" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -200,7 +200,7 @@
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jButton_existingConfButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="26" max="32767" attributes="0"/>
+                              <EmptySpace pref="29" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -345,7 +345,7 @@
                               </Group>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Component id="jButton2" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="57" max="32767" attributes="0"/>
+                              <EmptySpace pref="58" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -513,7 +513,7 @@
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jButton3" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="22" max="32767" attributes="0"/>
+                              <EmptySpace pref="23" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -658,15 +658,44 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="1019" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="1009" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="738" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="735" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
+            </Container>
+            <Container class="javax.swing.JPanel" name="jPanel_header">
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Observation">
+                    <Property name="tabTitle" type="java.lang.String" value="Observation"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+                <Property name="columns" type="int" value="2"/>
+                <Property name="rows" type="int" value="1"/>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JButton" name="jButton_headerBrowser">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="View in Browser"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton_headerBrowserActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="jButton5">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="jButton5"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
             </Container>
           </SubComponents>
         </Container>

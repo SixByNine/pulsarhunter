@@ -7,9 +7,11 @@ package pulsarhunter.bookkeepr.jreaper;
 
 import bookkeepr.xmlable.RawCandidateBasic;
 import bookkeepr.xmlable.ClassifiedCandidate;
+import bookkeepr.xmlable.Psrxml;
 import bookkeepr.xmlable.RawCandidateMatched;
 import coordlib.Coordinate;
 import java.awt.BorderLayout;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import pulsarhunter.jreaper.CandClass;
 import pulsarhunter.jreaper.HarmonicType;
@@ -30,11 +33,15 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
 
     private JReaper jreaper;
     private RawCandidateBasic cand;
+    private Psrxml header;
+    private String url;
 
     /** Creates new form JReaperCandidateFrame */
-    public JReaperCandidateFrame(RawCandidateBasic cand, JReaper jreaper) {
+    public JReaperCandidateFrame(RawCandidateBasic cand, Psrxml header, JReaper jreaper, String url) {
         this.jreaper = jreaper;
         this.cand = cand;
+        this.header = header;
+        this.url=url;
         initComponents();
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         if (screenSize.width > 2 * screenSize.height) {
@@ -121,6 +128,16 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
         this.jPanel_plots.add(displayPanel, BorderLayout.CENTER);
     }
 
+    private void fillHeader() {
+        
+        
+        this.jPanel_header.add(new JLabel("Source ID"));
+        this.jPanel_header.add(new JLabel(header.getSourceName()));
+        
+        
+
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -180,6 +197,9 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
         jLabel17 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
+        jPanel_header = new javax.swing.JPanel();
+        jButton_headerBrowser = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -310,7 +330,7 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
                     .add(jLabel_existingHarm))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jButton_existingConfButton)
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Create New Classified Candidate"));
@@ -363,7 +383,7 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
                         .add(jComboBox_candClass, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jButton2)
-                .addContainerGap(57, Short.MAX_VALUE))
+                .addContainerGap(58, Short.MAX_VALUE))
         );
 
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Nearby Classified Candidates/Known Psrs"));
@@ -520,7 +540,7 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
                     .add(jComboBox_harmtype, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jButton3)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
@@ -544,7 +564,7 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
                 .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Candidate Classification", jPanel1);
@@ -553,14 +573,29 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 1019, Short.MAX_VALUE)
+            .add(0, 1009, Short.MAX_VALUE)
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 738, Short.MAX_VALUE)
+            .add(0, 735, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Scores", jPanel7);
+
+        jPanel_header.setLayout(new java.awt.GridLayout(1, 2));
+
+        jButton_headerBrowser.setText("View in Browser");
+        jButton_headerBrowser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_headerBrowserActionPerformed(evt);
+            }
+        });
+        jPanel_header.add(jButton_headerBrowser);
+
+        jButton5.setText("jButton5");
+        jPanel_header.add(jButton5);
+
+        jTabbedPane1.addTab("Observation", jPanel_header);
 
         jPanel4.add(jTabbedPane1);
 
@@ -781,12 +816,23 @@ private void jButton_existingConfButtonActionPerformed(java.awt.event.ActionEven
 
     }
 }//GEN-LAST:event_jButton_existingConfButtonActionPerformed
+
+private void jButton_headerBrowserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_headerBrowserActionPerformed
+        try {
+            Browser.openUrl(url);
+        } catch (IOException ex) {
+            Logger.getLogger(JReaperCandidateFrame.class.getName()).log(Level.SEVERE, "Couldn't open your browser, sorry!", ex);
+        }
+}//GEN-LAST:event_jButton_headerBrowserActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton_close;
     private javax.swing.JButton jButton_existingConfButton;
+    private javax.swing.JButton jButton_headerBrowser;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JComboBox jComboBox_candClass;
@@ -828,6 +874,7 @@ private void jButton_existingConfButtonActionPerformed(java.awt.event.ActionEven
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel_header;
     private javax.swing.JPanel jPanel_plots;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextField1;

@@ -4,6 +4,7 @@
  */
 package pulsarhunter.bookkeepr.jreaper;
 
+import bookkeepr.xml.StringConvertable;
 import bookkeepr.xml.XMLAble;
 import bookkeepr.xml.XMLReader;
 import bookkeepr.xml.XMLWriter;
@@ -14,6 +15,7 @@ import bookkeepr.xmlable.CandidateListStub;
 import bookkeepr.xmlable.ClassifiedCandidate;
 import bookkeepr.xmlable.ClassifiedCandidateIndex;
 import bookkeepr.xmlable.Processing;
+import bookkeepr.xmlable.Psrxml;
 import bookkeepr.xmlable.RawCandidate;
 import bookkeepr.xmlable.RawCandidateMatched;
 import bookkeepr.xmlable.ViewedCandidates;
@@ -557,6 +559,49 @@ public class BookKeeprConnection {
                 } else {
                     resp.getEntity().consumeContent();
                     throw new BookKeeprCommunicationException("Got a " + resp.getStatusLine().getStatusCode() + " from the BookKeepr");
+                }
+            }
+        } catch (HttpException ex) {
+            throw new BookKeeprCommunicationException(ex);
+
+        } catch (IOException ex) {
+            throw new BookKeeprCommunicationException(ex);
+
+        } catch (URISyntaxException ex) {
+            throw new BookKeeprCommunicationException(ex);
+
+        }
+    }
+    
+    
+    public Psrxml getPsrxmlForCandidateList(CandidateList clist) throws BookKeeprCommunicationException{
+         try {
+            synchronized (httpClient) {
+
+                
+                long psrxmlid = clist.getPsrxmlId();
+                HttpGet req = new HttpGet(remoteHost.getUrl() + "/id/"+StringConvertable.ID.toString(psrxmlid));
+                HttpResponse resp = httpClient.execute(req);
+
+                if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    try {
+                        InputStream in = resp.getEntity().getContent();
+                        XMLAble xmlable = XMLReader.read(in);
+                        in.close();
+                        if (xmlable instanceof Psrxml) {
+                            Psrxml psrxml = (Psrxml) xmlable;
+                            return psrxml;
+                        } else {
+                            throw new BookKeeprCommunicationException("BookKeepr returned the wrong thing for psrxml id "+psrxmlid);
+                        }
+                    } catch (SAXException ex) {
+                        Logger.getLogger(BookKeeprConnection.class.getName()).log(Level.WARNING, "Got a malformed message from the bookkeepr", ex);
+                        throw new BookKeeprCommunicationException(ex);
+                    }
+                } else {
+                    resp.getEntity().consumeContent();
+
+                    throw new BookKeeprCommunicationException("Got a " + resp.getStatusLine().getStatusCode() + " from the BookKeepr  ("+remoteHost.getUrl() + "/id/"+StringConvertable.ID+")");
                 }
             }
         } catch (HttpException ex) {

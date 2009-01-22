@@ -6,6 +6,7 @@ package pulsarhunter.bookkeepr.jreaper;
 
 import bookkeepr.DummyIdAble;
 import bookkeepr.xml.IdAble;
+import bookkeepr.xml.StringConvertable;
 import bookkeepr.xml.XMLAble;
 import bookkeepr.xml.XMLReader;
 import bookkeepr.xml.XMLWriter;
@@ -40,6 +41,7 @@ import bookkeepr.xml.display.GenerateRawCandidatePlot;
 import bookkeepr.xml.display.JPanelCandidatePlot;
 import bookkeepr.xml.display.RasterImageCandidatePlot;
 import bookkeepr.xmlable.JReaperSettings;
+import bookkeepr.xmlable.Psrxml;
 import bookkeepr.xmlable.RawCandidateMatched;
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,6 +68,7 @@ public class JReaper {
     private RawCandidateBasic[] candArray;
     private HashMap<Long, ArrayList<ClassifiedCandidate>> candClasses;
     private HashMap<Long, ArrayList<ClassifiedCandidate>> candPossClasses;
+    private HashMap<Long, Psrxml> psrxmlHeaders;
 
     public void start() {
         closeWindow();
@@ -107,6 +110,7 @@ public class JReaper {
     }
 
     public void goToPlot(ArrayList<CandidateListStub> clistStubs) {
+        this.psrxmlHeaders = new HashMap<Long, Psrxml>();
         JReaperSetupFrame gui = null;
         if (this.currentWindow instanceof JReaperSetupFrame) {
             gui = (JReaperSetupFrame) this.currentWindow;
@@ -336,7 +340,7 @@ public class JReaper {
 
     }
 
-    void clickArea(final double xposn1,final  double xposn2,final  double yposn1,final  double yposn2,final  boolean clickSelected) {
+    void clickArea(final double xposn1, final double xposn2, final double yposn1, final double yposn2, final boolean clickSelected) {
         Thread task = new Thread() {
 
             public void run() {
@@ -405,13 +409,25 @@ public class JReaper {
 
         if (basic != null) {
 
+            long clistId = basic.getCandidateListId();
+            Psrxml header = this.psrxmlHeaders.get(clistId);
+
             try {
                 cand = connection.getRawCandidate(basic.getId());
+                if (header == null) {
+                    CandidateList clist = this.connection.getCandidateList(clistId);
+                    header = this.connection.getPsrxmlForCandidateList(clist);
+                    this.psrxmlHeaders.put(clistId, header);
+                }
             } catch (BookKeeprCommunicationException ex) {
                 Logger.getLogger(JReaper.class.getName()).log(Level.WARNING, "Could not get raw candidate from database", ex);
                 return null;
             }
-            JReaperCandidateFrame window = new JReaperCandidateFrame(basic, this);
+
+
+
+
+            JReaperCandidateFrame window = new JReaperCandidateFrame(basic, header, this,this.connection.getRemoteHost().getUrl()+"/cand/"+StringConvertable.ID.toString(basic.getId()));
             JPanelCandidatePlot plot = new JPanelCandidatePlot();
             GenerateRawCandidatePlot.generate(plot, cand, Colourmap.defaultGreyColmap, Color.RED, Color.BLUE);
             window.addDisplayPanel(plot);
@@ -424,30 +440,23 @@ public class JReaper {
         if (currentWindow instanceof MainView) {
             RawCandidateBasic basic = ((MainView) currentWindow).getNearest(xposn, yposn);
             if (basic != null) {
-                RawCandidate cand = null;
-                try {
-                    cand = connection.getRawCandidate(basic.getId());
-                } catch (BookKeeprCommunicationException ex) {
-                    Logger.getLogger(JReaper.class.getName()).log(Level.WARNING, "Could not get raw candidate from database", ex);
-                    return;
-                }
-                JReaperCandidateFrame window = new JReaperCandidateFrame(basic, this);
-                JPanelCandidatePlot plot = new JPanelCandidatePlot();
-                GenerateRawCandidatePlot.generate(plot, cand, Colourmap.defaultGreyColmap, Color.RED, Color.BLUE);
-                window.addDisplayPanel(plot);
 
-                BufferedImage img = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
-                RasterImageCandidatePlot imgPlot = new RasterImageCandidatePlot(img);
-                GenerateRawCandidatePlot.generate(imgPlot, cand, Colourmap.defaultGreyColmap, Color.RED, Color.BLUE);
+                JReaperCandidateFrame window = this.getWindow(basic);
 
-                try {
-                    ImageIO.write(img, "png", new FileOutputStream("test.png"));
-                } catch (IOException ex) {
-                    Logger.getLogger(JReaper.class.getName()).log(Level.SEVERE, null, ex);
+//                BufferedImage img = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
+//                RasterImageCandidatePlot imgPlot = new RasterImageCandidatePlot(img);
+//                GenerateRawCandidatePlot.generate(imgPlot, cand, Colourmap.defaultGreyColmap, Color.RED, Color.BLUE);
+//
+//                try {
+//                    ImageIO.write(img, "png", new FileOutputStream("test.png"));
+//                } catch (IOException ex) {
+//                    Logger.getLogger(JReaper.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+                if (window != null) {
+                    window.setVisible(true);
+                    this.setViewed(basic);
+                    ((MainView) currentWindow).replot();
                 }
-                window.setVisible(true);
-                this.setViewed(basic);
-                ((MainView) currentWindow).replot();
 
             }
 
