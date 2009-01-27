@@ -27,6 +27,7 @@ import coordlib.Beam;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -64,7 +66,7 @@ public class MainView extends javax.swing.JFrame {
     private Hashtable<PlotType.axisType, JTextField> limitFieldsMin = new Hashtable<PlotType.axisType, JTextField>();
     private Hashtable<PlotType.axisType, JTextField> limitFieldsMax = new Hashtable<PlotType.axisType, JTextField>();
     private JCheckBox[] beamChecks;
-    private HashMap<JCheckBox,CandidateListStub> checksToClists = new HashMap<JCheckBox, CandidateListStub>();
+    private HashMap<JCheckBox, CandidateListStub> checksToClists = new HashMap<JCheckBox, CandidateListStub>();
     private PlotType pType = new PlotType(PlotType.axisType.BaryPeriod, PlotType.axisType.FoldSNR);
     private boolean memClearActive = false;
     private RefreshThread refreshThread;
@@ -113,13 +115,14 @@ public class MainView extends javax.swing.JFrame {
                 zMaxField.setEnabled(zAxisCheck.isSelected());
                 zCapCheck.setEnabled(zAxisCheck.isSelected());
 
-                
+
                 Collection<CandidateListStub> beams = jreaper.getClistIdToCandListHeaders().values();
                 beamChecks = new JCheckBox[beams.size()];
-                int i =0;
+                int i = 0;
                 for (CandidateListStub clist : beams) {
                     beamChecks[i] = new JCheckBox();
                     beamChecks[i].setText(clist.getName()); // text MUSt be the name of the beam!!! +" \t("+(int)beams.get(i).getCoord().getGl()+", "+(int)beams.get(i).getCoord().getGb()+")");
+
                     beamChecks[i].setSelected(true);
                     beamChecks[i].addActionListener(new java.awt.event.ActionListener() {
 
@@ -133,7 +136,7 @@ public class MainView extends javax.swing.JFrame {
                 }
 
                 harmonicPanel.setName("Harmonics");
-                JPanel[] panels = new JPanel[]{selectSurveyPanel, harmonicPanel, excludeBeamsPanel};
+                JPanel[] panels = new JPanel[]{selectSurveyPanel, harmonicPanel, excludeBeamsPanel, historyPanel};
                 paneChooser.setModel(new DefaultComboBoxModel(panels));
                 customPanel.removeAll();
                 customPanel.add((Component) paneChooser.getSelectedItem(), java.awt.BorderLayout.CENTER);
@@ -249,7 +252,7 @@ public class MainView extends javax.swing.JFrame {
     public RawCandidateBasic getNearest(double x, double y) {
         return getPType().getNearest(curData, x, y, plot.getXscale(), plot.getYscale());
     }
-    private ArrayBlockingQueue<JFrame> frameQueue = new ArrayBlockingQueue<JFrame>(500);
+    private ArrayBlockingQueue<JReaperCandidateFrame> frameQueue = new ArrayBlockingQueue<JReaperCandidateFrame>(500);
 //
 
     public void clickOnHold(double x, double y) {
@@ -295,9 +298,14 @@ public class MainView extends javax.swing.JFrame {
         Thread thread = new Thread() {
 
             public void run() {
-                JFrame f = frameQueue.poll();
+                JReaperCandidateFrame f = frameQueue.poll();
                 while (f != null) {
+                    jreaper.addToViewedHistory(f.getCand());
+                    replot();
+
                     f.setVisible(true);
+                    f.toFront();
+
                     while (f.isVisible()) {
                         try {
                             this.sleep(500);
@@ -345,9 +353,7 @@ public class MainView extends javax.swing.JFrame {
 
     public void clickArea(final double x1, final double x2, final double y1, final double y2, final boolean viewed) {
     }
-
-    
-    double lowx,  highx,  lowy,  highy;
+    double lowx,   highx,   lowy,   highy;
     boolean zoomed = false;
 
     public void zoom(double lowx, double highx, double lowy, double highy) {
@@ -431,7 +437,7 @@ public class MainView extends javax.swing.JFrame {
                 }
 
 
-                
+
                 //MainView.this.curData = Main.getInstance().getDataLibrary().getRefiner().refine(MainView.this.masterData,snrmin,dmmin,new boolean[]{MainView.this.series1Check.isSelected(),MainView.this.series2Check.isSelected(),MainView.this.series3Check.isSelected(),MainView.this.series4Check.isSelected()},excludeBeams);
                 MainView.this.curData = jreaper.refine(MainView.this.masterData, minVals, maxVals, excludes);
                 MainView.this.replot();
@@ -452,7 +458,7 @@ public class MainView extends javax.swing.JFrame {
 
 
                     if (getPType().hasZ()) {
-                        double minval = Double.MIN_VALUE,  maxval = Double.MAX_VALUE;
+                        double minval = Double.MIN_VALUE, maxval = Double.MAX_VALUE;
                         try {
                             minval = Double.parseDouble(zMinField.getText());
                             maxval = Double.parseDouble(zMaxField.getText());
@@ -540,12 +546,32 @@ public class MainView extends javax.swing.JFrame {
 
                     plot.changeData(curData, getPType(), currentDrawer);
 
+
+                    MainView.this.historyContentPanel.removeAll();
+                    System.out.println(jreaper.getViewedHistory().length);
+
+                    RawCandidateBasic[] histAr = jreaper.getViewedHistory();
+                    for (int x = histAr.length - 1; x >= 0; x--) {
+                        final RawCandidateBasic rc = histAr[x];
+                        StringBuffer sb = new StringBuffer();
+                        Formatter frm = new Formatter(sb);
+                        frm.format("p%4.3f d%03.1f s%03.1f", rc.getBaryPeriod(), rc.getDm(), rc.getFoldSnr());
+                        JButton but = new JButton(sb.toString());
+                        but.addActionListener(new java.awt.event.ActionListener() {
+
+                            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                                jreaper.clickOn(rc);
+                            }
+                        });
+                        MainView.this.historyContentPanel.add(but);
+                        but.setFont(new Font("Dialogue", Font.BOLD, 10));
+                    }
+
+
                     MainView.this.repaint();
                 }
             }
         };
-
-
         if (EventQueue.isDispatchThread()) {
             task.run();
         } else {
@@ -597,6 +623,9 @@ public class MainView extends javax.swing.JFrame {
         jPanel_limits = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jButton6 = new javax.swing.JButton();
+        historyPanel = new NamedJPanel("History");
+        jScrollPane2 = new javax.swing.JScrollPane();
+        historyContentPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -873,6 +902,15 @@ public class MainView extends javax.swing.JFrame {
 
         jFrame_setLimits.getContentPane().add(jPanel8, java.awt.BorderLayout.SOUTH);
 
+        historyPanel.setLayout(new java.awt.BorderLayout());
+
+        historyContentPanel.setLayout(new javax.swing.BoxLayout(historyContentPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        jScrollPane2.setViewportView(historyContentPanel);
+
+        historyPanel.add(jScrollPane2, java.awt.BorderLayout.CENTER);
+
+        historyPanel.getAccessibleContext().setAccessibleName("History");
+
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("JReaper 5");
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -1064,7 +1102,7 @@ public class MainView extends javax.swing.JFrame {
 
         jPanel6.add(jPanel10);
 
-        jPanel11.setLayout(new java.awt.GridLayout());
+        jPanel11.setLayout(new java.awt.GridLayout(1, 0));
 
         jLabel2.setText("BookKeepr Status:");
         jPanel11.add(jLabel2);
@@ -1315,6 +1353,7 @@ public class MainView extends javax.swing.JFrame {
                 } else {
                     val = Double.parseDouble(this.limitFieldsMin.get(axisType).getText());
                 }
+
             } catch (NumberFormatException ex) {
             }
 
@@ -1323,18 +1362,21 @@ public class MainView extends javax.swing.JFrame {
             } else {
                 this.limitFieldsMin.get(axisType).setText(this.altLimitMin.get(axisType).toString());
             }
+
             this.altLimitMin.remove(axisType);
             this.altLimitMin.put(axisType, val);
 
 
 
-            val = Double.MAX_VALUE;
+            val =
+                    Double.MAX_VALUE;
             try {
                 if (this.limitFieldsMax.get(axisType).getText().equals("")) {
                     val = Double.MAX_VALUE;
                 } else {
                     val = Double.parseDouble(this.limitFieldsMax.get(axisType).getText());
                 }
+
             } catch (NumberFormatException ex) {
             }
 
@@ -1343,6 +1385,7 @@ public class MainView extends javax.swing.JFrame {
             } else {
                 this.limitFieldsMax.get(axisType).setText(this.altLimitMax.remove(axisType).toString());
             }
+
             this.altLimitMax.remove(axisType);
             this.altLimitMax.put(axisType, val);
 
@@ -1389,6 +1432,7 @@ public class MainView extends javax.swing.JFrame {
             if (c instanceof JCheckBox) {
                 ((JCheckBox) c).setSelected(!((JCheckBox) c).isSelected());
             }
+
         }
         refine();
     }//GEN-LAST:event_jButton_selectBeams_invertActionPerformed
@@ -1462,6 +1506,7 @@ public class MainView extends javax.swing.JFrame {
                 } else {
                     MainView.this.setPType(new PlotType((PlotType.axisType) xAxisChooser.getSelectedItem(), (PlotType.axisType) yAxisChooser.getSelectedItem()));
                 }
+
                 MainView.this.replot();
 
             }
@@ -1480,6 +1525,7 @@ public class MainView extends javax.swing.JFrame {
                 } else {
                     MainView.this.setPType(new PlotType((PlotType.axisType) xAxisChooser.getSelectedItem(), (PlotType.axisType) yAxisChooser.getSelectedItem()));
                 }
+
                 MainView.this.replot();
 
             }
@@ -1513,6 +1559,7 @@ public class MainView extends javax.swing.JFrame {
                 } else {
                     MainView.this.setPType(new PlotType((PlotType.axisType) xAxisChooser.getSelectedItem(), (PlotType.axisType) yAxisChooser.getSelectedItem()));
                 }
+
                 MainView.this.replot();
 
             }
@@ -1531,6 +1578,7 @@ public class MainView extends javax.swing.JFrame {
                 } else {
                     MainView.this.setPType(new PlotType((PlotType.axisType) xAxisChooser.getSelectedItem(), (PlotType.axisType) yAxisChooser.getSelectedItem()));
                 }
+
                 MainView.this.replot();
 
             }
@@ -1586,6 +1634,7 @@ private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
         public void run() {
             jreaper.saveViewedToDatabase();
             replot();
+
         }
     }.start();
 }//GEN-LAST:event_jMenuItem4ActionPerformed
@@ -1603,6 +1652,7 @@ private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             jreaper.reSyncClassifiedWithDatabase();
             jreaper.markClassifiedCands();
             replot();
+
         }
     }.run();
 
@@ -1618,6 +1668,7 @@ private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         if (memClearActive) {
             enabled = "Memclear on";
         }
+
         formatter.format("Mem: %d/%d MB (%s)", (int) (memused / 1e6), (int) (totalmem / 1e6), enabled);
         this.jProgressBar_mem.setMaximum(100);
         this.jProgressBar_mem.setValue((int) (100 * ((double) memused / (double) totalmem)));
@@ -1663,6 +1714,8 @@ private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JCheckBox hideFundBox;
     private javax.swing.JCheckBox hideIntBox;
     private javax.swing.JCheckBox hideNIBox;
+    private javax.swing.JPanel historyContentPanel;
+    private javax.swing.JPanel historyPanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -1723,6 +1776,7 @@ private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JProgressBar jProgressBar_mem;
     private javax.swing.JProgressBar jProgressBar_precache;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;

@@ -33,6 +33,7 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
 
     private JReaper jreaper;
     private RawCandidateBasic cand;
+
     private Psrxml header;
     private String url;
 
@@ -136,6 +137,11 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
         
         
 
+    }
+    
+    
+    public RawCandidateBasic getCand() {
+        return cand;
     }
 
     /** This method is called from within the constructor to

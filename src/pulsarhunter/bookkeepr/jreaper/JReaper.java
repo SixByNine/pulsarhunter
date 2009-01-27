@@ -46,6 +46,7 @@ import bookkeepr.xmlable.RawCandidateMatched;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.util.concurrent.ArrayBlockingQueue;
 import javax.sql.rowset.spi.XmlWriter;
 import org.xml.sax.SAXException;
 import pulsarhunter.jreaper.CandClass;
@@ -70,6 +71,7 @@ public class JReaper {
     private HashMap<Long, ArrayList<ClassifiedCandidate>> candPossClasses;
     private HashMap<Long, Psrxml> clistIdToPsrxmlHeaders;
     private HashMap<Long, CandidateListStub> clistIdToCandListHeaders;
+    private ArrayBlockingQueue<RawCandidateBasic> recentViewed;
 
     public HashMap<Long, CandidateListStub> getClistIdToCandListHeaders() {
         return clistIdToCandListHeaders;
@@ -79,7 +81,6 @@ public class JReaper {
         return clistIdToPsrxmlHeaders;
     }
 
-    
     public void start() {
         closeWindow();
 
@@ -122,8 +123,9 @@ public class JReaper {
     public void goToPlot(ArrayList<CandidateListStub> clistStubs) {
         this.clistIdToPsrxmlHeaders = new HashMap<Long, Psrxml>();
         this.clistIdToCandListHeaders = new HashMap<Long, CandidateListStub>();
+        recentViewed = new ArrayBlockingQueue<RawCandidateBasic>(100);
         JReaperSetupFrame gui = null;
-        
+
         if (this.currentWindow instanceof JReaperSetupFrame) {
             gui = (JReaperSetupFrame) this.currentWindow;
         } else {
@@ -440,7 +442,7 @@ public class JReaper {
 
 
 
-            JReaperCandidateFrame window = new JReaperCandidateFrame(basic, header, this,this.connection.getRemoteHost().getUrl()+"/cand/"+StringConvertable.ID.toString(basic.getId()));
+            JReaperCandidateFrame window = new JReaperCandidateFrame(basic, header, this, this.connection.getRemoteHost().getUrl() + "/cand/" + StringConvertable.ID.toString(basic.getId()));
             JPanelCandidatePlot plot = new JPanelCandidatePlot();
             GenerateRawCandidatePlot.generate(plot, cand, Colourmap.defaultGreyColmap, Color.RED, Color.BLUE);
             window.addDisplayPanel(plot);
@@ -449,13 +451,24 @@ public class JReaper {
         return null;
     }
 
-    void clickOn(double xposn, double yposn) {
+    void addToViewedHistory(RawCandidateBasic basic) {
+        this.recentViewed.remove(basic);
+        while (!this.recentViewed.offer(basic)) {
+            this.recentViewed.poll();
+        }
+    }
+
+    RawCandidateBasic[] getViewedHistory() {
+        return this.recentViewed.toArray(new RawCandidateBasic[0]);
+    }
+
+    void clickOn(RawCandidateBasic basic) {
         if (currentWindow instanceof MainView) {
-            RawCandidateBasic basic = ((MainView) currentWindow).getNearest(xposn, yposn);
-            
+
             if (basic != null) {
 
                 JReaperCandidateFrame window = this.getWindow(basic);
+                this.addToViewedHistory(basic);
 
 //                BufferedImage img = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
 //                RasterImageCandidatePlot imgPlot = new RasterImageCandidatePlot(img);
@@ -468,12 +481,19 @@ public class JReaper {
 //                }
                 if (window != null) {
                     window.setVisible(true);
+                    window.toFront();
                     this.setViewed(basic);
                     ((MainView) currentWindow).replot();
                 }
-
             }
+        }
+    }
 
+    void clickOn(double xposn, double yposn) {
+        if (currentWindow instanceof MainView) {
+            RawCandidateBasic basic = ((MainView) currentWindow).getNearest(xposn, yposn);
+
+            clickOn(basic);
         }
     }
 
@@ -635,6 +655,4 @@ public class JReaper {
 
         return cData.toArray(new RawCandidateBasic[0]);
     }
-    
-    
 }
