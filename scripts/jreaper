@@ -20,7 +20,7 @@ done
 mask=`umask`
 umask 002
 
-if [[ $1 == "new" ]] ; then
+if [[ "x$ARGS" == "xnew" ]] ; then
 	${JAVA_HOME}/bin/java $DEBUG_SWITCH -Xmx1024M  -classpath $CLASSPATH pulsarhunter.bookkeepr.jreaper.JReaper
 else
 	${JAVA_HOME}/bin/java $DEBUG_SWITCH -Xmx1024M  -classpath $CLASSPATH pulsarhunter.jreaper.JReaper "$1" "$2" "$3" "$4" "$5" "$6" "$7"
