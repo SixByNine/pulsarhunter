@@ -33,17 +33,17 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
 
     private JReaper jreaper;
     private RawCandidateBasic cand;
-
     private Psrxml header;
     private String url;
+    private int nViewsLeft = 0;
 
     /** Creates new form JReaperCandidateFrame */
     public JReaperCandidateFrame(RawCandidateBasic cand, Psrxml header, JReaper jreaper, String url) {
+        initComponents();
         this.jreaper = jreaper;
         this.cand = cand;
         this.header = header;
-        this.url=url;
-        initComponents();
+        this.url = url;
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         if (screenSize.width > 2 * screenSize.height) {
             setBounds((screenSize.width / 2 - this.getWidth()) / 2, (screenSize.height - this.getHeight()) / 2, this.getWidth(), this.getHeight());
@@ -95,6 +95,26 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
         }
         jComboBox1ItemStateChanged(null);
         this.getCandsNear();
+        this.fillHeader();
+    }
+
+    void swapContents(JReaperCandidateFrame f2) {
+        this.remove(this.jPanel4);
+        JPanel old = this.jPanel4;
+        this.jPanel4 = f2.jPanel4;
+        this.add(this.jPanel4);
+        f2.jPanel4 = old;
+        repaint();
+    }
+
+    public int getNViewsLeft() {
+        return nViewsLeft;
+    }
+
+    public void setNViewsLeft(int nViewsLeft) {
+        this.nViewsLeft = nViewsLeft;
+        if(nViewsLeft==0)this.jButton_close.setText("Close");
+        else this.jButton_close.setText("Close ("+nViewsLeft+" Candidates left to view)");
     }
 
     public void getCandsNear() {
@@ -130,16 +150,59 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
     }
 
     private void fillHeader() {
-        
-        
         this.jPanel_header.add(new JLabel("Source ID"));
         this.jPanel_header.add(new JLabel(header.getSourceName()));
-        
-        
+
+        this.jPanel_header.add(new JLabel("Start Coordinate"));
+        this.jPanel_header.add(new JLabel(header.getStartCoordinate().toString(false)));
+        this.jPanel_header.add(new JLabel(""));
+        this.jPanel_header.add(new JLabel(header.getStartCoordinate().toString(true)));
+
+        this.jPanel_header.add(new JLabel("Centre Freq Channel 1 (MHz)"));
+        this.jPanel_header.add(new JLabel(String.valueOf(header.getCentreFreqFirstChannel())));
+
+        this.jPanel_header.add(new JLabel("Channel Offset (MHz)"));
+        this.jPanel_header.add(new JLabel(String.valueOf(header.getChannelOffset())));
+
+        this.jPanel_header.add(new JLabel("Observing time actual/requested"));
+        this.jPanel_header.add(new JLabel(header.getActualObsTime() + " / " + header.getRequestedObsTime()));
+
+
+
+        this.jPanel_header.add(new JLabel("Start time (UTC)"));
+        this.jPanel_header.add(new JLabel(header.getUtc()));
+
+        this.jPanel_header.add(new JLabel("Start Az/El"));
+        this.jPanel_header.add(new JLabel(header.getStartAz() + ", " + header.getStartEl()));
+
+        this.jPanel_header.add(new JLabel("End Az/El"));
+        this.jPanel_header.add(new JLabel(header.getEndAz() + ", " + header.getEndEl()));
+
+        this.jPanel_header.add(new JLabel("Start PA"));
+        this.jPanel_header.add(new JLabel(header.getStartParalacticAngle() + ", " + header.getStartParalacticAngle()));
+
+        this.jPanel_header.add(new JLabel("End PA"));
+        this.jPanel_header.add(new JLabel(header.getEndParalacticAngle() + ", " + header.getEndParalacticAngle()));
+
+        this.jPanel_header.add(new JLabel("Telescope"));
+        this.jPanel_header.add(new JLabel(header.getTelescopeIdentifyingString()));
+        this.jPanel_header.add(new JLabel("Receiver"));
+        this.jPanel_header.add(new JLabel(header.getReceiverIdentifyingString()));
+        this.jPanel_header.add(new JLabel("Backend"));
+        this.jPanel_header.add(new JLabel(header.getBackendIdentifyingString()));
+
+        this.jPanel_header.add(new JLabel("Obs Programme"));
+        this.jPanel_header.add(new JLabel(header.getObservingProgramme()));
+
+        this.jPanel_header.add(new JLabel("Observer"));
+        this.jPanel_header.add(new JLabel(header.getObserverName()));
+
+        this.jPanel_header.add(new JLabel("Obs Type"));
+        this.jPanel_header.add(new JLabel(header.getObservationType()));
+
 
     }
-    
-    
+
     public RawCandidateBasic getCand() {
         return cand;
     }
@@ -588,7 +651,7 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Scores", jPanel7);
 
-        jPanel_header.setLayout(new java.awt.GridLayout(1, 2));
+        jPanel_header.setLayout(new java.awt.GridLayout(18, 2));
 
         jButton_headerBrowser.setText("View in Browser");
         jButton_headerBrowser.addActionListener(new java.awt.event.ActionListener() {
@@ -611,8 +674,14 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
 private void jButton_closeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_closeActionPerformed
-    this.setVisible(false);
-    this.dispose();
+
+    if (nViewsLeft <= 0) {
+        this.setVisible(false);
+        this.dispose();
+    } else {
+        this.setNViewsLeft(nViewsLeft-1);
+    }
+
 
 }//GEN-LAST:event_jButton_closeActionPerformed
 
@@ -824,11 +893,11 @@ private void jButton_existingConfButtonActionPerformed(java.awt.event.ActionEven
 }//GEN-LAST:event_jButton_existingConfButtonActionPerformed
 
 private void jButton_headerBrowserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_headerBrowserActionPerformed
-        try {
-            Browser.openUrl(url);
-        } catch (IOException ex) {
-            Logger.getLogger(JReaperCandidateFrame.class.getName()).log(Level.SEVERE, "Couldn't open your browser, sorry!", ex);
-        }
+    try {
+        Browser.openUrl(url);
+    } catch (IOException ex) {
+        Logger.getLogger(JReaperCandidateFrame.class.getName()).log(Level.SEVERE, "Couldn't open your browser, sorry!", ex);
+    }
 }//GEN-LAST:event_jButton_headerBrowserActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

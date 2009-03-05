@@ -141,6 +141,10 @@ public class JReaper {
 
         ArrayList<CandidateList> candlists = new ArrayList<CandidateList>();
         ArrayList<RawCandidateBasic> cands = new ArrayList<RawCandidateBasic>();
+        int nclist = 0;
+        int nerr = 0;
+        int ncands = 0;
+
         for (CandidateListStub stub : clistStubs) {
             this.clistIdToCandListHeaders.put(stub.getId(), stub);
             CandidateList clist = null;
@@ -148,6 +152,7 @@ public class JReaper {
                 clist = connection.getCandidateList(stub.getId());
             } catch (BookKeeprCommunicationException ex) {
                 Logger.getLogger(JReaper.class.getName()).log(Level.SEVERE, null, ex);
+                nerr++;
                 continue;
             }
             for (RawCandidateBasic basic : clist.getRawCandidateBasicList()) {
@@ -155,6 +160,10 @@ public class JReaper {
             }
             candlists.add(clist);
             cands.addAll(clist.getRawCandidateBasicList());
+            nclist++;
+            ncands += clist.getNcands();
+            gui.setLoadingPane(clistStubs.size(), nclist, nerr, ncands);
+
         }
         Collections.sort(cands, IdAble.COMPARATOR);
         this.myViewedCandidates = new ViewedCandidates();
@@ -165,8 +174,10 @@ public class JReaper {
         markViewedCands(user);
         markClassifiedCands();
 
+        gui.setLoadingPaneDone();
+    }
 
-
+    public void goToPlotDone() {
         // Make the main view appear!
         closeWindow();
 

@@ -67,10 +67,12 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         String url = "";
-        String usr=jreaper.getUser();
-        if(connection.getRemoteHost()!=null)url=connection.getRemoteHost().getUrl();
+        String usr = jreaper.getUser();
+        if (connection.getRemoteHost() != null) {
+            url = connection.getRemoteHost().getUrl();
+        }
         clearConnection();
 
         if (connection.getRemoteHost() != null) {
@@ -85,6 +87,12 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
     public void showLoadingPane() {
         this.remove(jPanel_centre);
         this.add(jPanel_loadingPanel, BorderLayout.CENTER);
+    }
+
+    public void setLoadingPaneDone() {
+        this.jButton_loadDone.setEnabled(true);
+        this.jLabel_loadingLabel.setText("DONE!");
+        this.jLabel_loadingLabel.setForeground(Color.GREEN);
     }
 
     public void setLoadingPane(int toLoad, int loaded, int failed, int totalCands) {
@@ -113,6 +121,8 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
         jLabel_failed = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jLabel_totalCands = new javax.swing.JLabel();
+        jLabel_loadingLabel = new javax.swing.JLabel();
+        jButton_loadDone = new javax.swing.JButton();
         jPanel_centre = new javax.swing.JPanel();
         jPanel_server = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -169,22 +179,28 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
 
         jLabel_totalCands.setText("jLabel13");
 
+        jLabel_loadingLabel.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
+        jLabel_loadingLabel.setText("Loading.......");
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel12, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel11, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel10, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel9, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel_toLoad)
-                    .add(jLabel_loaded)
-                    .add(jLabel_failed)
-                    .add(jLabel_totalCands))
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel12, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel11, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel10, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel9, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jLabel_toLoad)
+                            .add(jLabel_loaded)
+                            .add(jLabel_failed)
+                            .add(jLabel_totalCands)))
+                    .add(jLabel_loadingLabel))
                 .addContainerGap(454, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -206,16 +222,28 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel12)
                     .add(jLabel_totalCands))
-                .addContainerGap(221, Short.MAX_VALUE))
+                .add(18, 18, 18)
+                .add(jLabel_loadingLabel)
+                .addContainerGap(189, Short.MAX_VALUE))
         );
+
+        jButton_loadDone.setText("Continue");
+        jButton_loadDone.setEnabled(false);
+        jButton_loadDone.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_loadDoneActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout jPanel_loadingPanelLayout = new org.jdesktop.layout.GroupLayout(jPanel_loadingPanel);
         jPanel_loadingPanel.setLayout(jPanel_loadingPanelLayout);
         jPanel_loadingPanelLayout.setHorizontalGroup(
             jPanel_loadingPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel_loadingPanelLayout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_loadingPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jPanel_loadingPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jButton_loadDone, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 756, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel_loadingPanelLayout.setVerticalGroup(
@@ -223,7 +251,9 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
             .add(jPanel_loadingPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(189, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 26, Short.MAX_VALUE)
+                .add(jButton_loadDone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 136, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -293,7 +323,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                         .add(jLabel8)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel_user, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(132, Short.MAX_VALUE))
+                .addContainerGap(122, Short.MAX_VALUE))
         );
         jPanel_serverLayout.setVerticalGroup(
             jPanel_serverLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -392,7 +422,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .add(jPanel_subpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
                     .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 194, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(48, Short.MAX_VALUE))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
         jPanel_subpanelLayout.setVerticalGroup(
             jPanel_subpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -492,7 +522,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .add(jPanel_centreLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButton2)
                     .add(jButton7))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel_centre, java.awt.BorderLayout.CENTER);
@@ -507,7 +537,6 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
 private void jTextField_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_urlActionPerformed
-// TODO add your handling code here:
 }//GEN-LAST:event_jTextField_urlActionPerformed
 
 private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -578,6 +607,10 @@ private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     this.setVisible(false);
     this.dispose();
 }//GEN-LAST:event_jButton7ActionPerformed
+
+private void jButton_loadDoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_loadDoneActionPerformed
+    this.jreaper.goToPlotDone();
+}//GEN-LAST:event_jButton_loadDoneActionPerformed
 
     private void reSelectList() {
 
@@ -704,6 +737,7 @@ private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton_loadDone;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -718,6 +752,7 @@ private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabel_failed;
     private javax.swing.JLabel jLabel_loaded;
+    private javax.swing.JLabel jLabel_loadingLabel;
     private javax.swing.JLabel jLabel_status;
     private javax.swing.JLabel jLabel_toLoad;
     private javax.swing.JLabel jLabel_totalCands;

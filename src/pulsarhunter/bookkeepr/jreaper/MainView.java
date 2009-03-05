@@ -299,23 +299,38 @@ public class MainView extends javax.swing.JFrame {
 
             public void run() {
                 JReaperCandidateFrame f = frameQueue.poll();
-                while (f != null) {
+
+                int nvl = frameQueue.size();
+                f.setNViewsLeft(nvl);
+                while (true) {
                     jreaper.addToViewedHistory(f.getCand());
                     replot();
 
                     f.setVisible(true);
                     f.toFront();
 
-                    while (f.isVisible()) {
+                    while (f.getNViewsLeft() == nvl && f.isVisible()) {
                         try {
-                            this.sleep(500);
+                            this.sleep(200);
                         } catch (InterruptedException e) {
                         }
                     }
-                    f = frameQueue.poll();
+                    nvl--;
+
+                    JReaperCandidateFrame f2 = frameQueue.poll();
+                    if (f2 == null) {
+                        MainView.this.clickOnReleaseRunning = false;
+                        break;
+                    }
+                    f.swapContents(f2);
+                    f2.dispose();
+
+                    replot();
                 }
-                MainView.this.clickOnReleaseRunning = false;
                 replot();
+                f.setVisible(false);
+                f.dispose();
+
             }
         };
         thread.start();
@@ -353,7 +368,7 @@ public class MainView extends javax.swing.JFrame {
 
     public void clickArea(final double x1, final double x2, final double y1, final double y2, final boolean viewed) {
     }
-    double lowx,   highx,   lowy,   highy;
+    double lowx, highx, lowy, highy;
     boolean zoomed = false;
 
     public void zoom(double lowx, double highx, double lowy, double highy) {

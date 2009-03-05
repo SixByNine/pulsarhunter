@@ -21,9 +21,12 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
+              <Group type="102" alignment="1" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jPanel1" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="jButton_loadDone" alignment="0" pref="756" max="32767" attributes="0"/>
+                      <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -33,7 +36,9 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="189" max="32767" attributes="0"/>
+                  <EmptySpace pref="26" max="32767" attributes="0"/>
+                  <Component id="jButton_loadDone" min="-2" pref="136" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -52,19 +57,24 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="jLabel12" alignment="0" max="32767" attributes="1"/>
-                          <Component id="jLabel11" alignment="0" max="32767" attributes="1"/>
-                          <Component id="jLabel10" alignment="0" max="32767" attributes="1"/>
-                          <Component id="jLabel9" alignment="0" pref="233" max="32767" attributes="1"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel_toLoad" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel_loaded" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel_failed" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel_totalCands" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="jLabel12" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="jLabel11" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="jLabel10" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="jLabel9" alignment="0" pref="233" max="32767" attributes="1"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabel_toLoad" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel_loaded" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel_failed" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel_totalCands" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <Component id="jLabel_loadingLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="454" max="32767" attributes="0"/>
                   </Group>
@@ -93,7 +103,9 @@
                           <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel_totalCands" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="221" max="32767" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="jLabel_loadingLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="189" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -139,8 +151,25 @@
                 <Property name="text" type="java.lang.String" value="jLabel13"/>
               </Properties>
             </Component>
+            <Component class="javax.swing.JLabel" name="jLabel_loadingLabel">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Dialog" size="24" style="1"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Loading......."/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
+        <Component class="javax.swing.JButton" name="jButton_loadDone">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Continue"/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton_loadDoneActionPerformed"/>
+          </Events>
+        </Component>
       </SubComponents>
     </Container>
   </NonVisualComponents>
