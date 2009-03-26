@@ -10,17 +10,18 @@ import bookkeepr.xmlable.Processing;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractListModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 import pulsarhunter.jreaper.gui.ImagePanel;
 
@@ -31,6 +32,8 @@ import pulsarhunter.jreaper.gui.ImagePanel;
 public class JReaperSetupFrame extends javax.swing.JFrame {
 
     private HashMap<String, ArrayList<CandidateListStub>> candListStubs = new HashMap<String, ArrayList<CandidateListStub>>();
+    private HashMap<String, ArrayList<CandidateListStub>> dateCandListStubs = new HashMap<String, ArrayList<CandidateListStub>>();
+    private ArrayList<String> allDates = new ArrayList<String>();
     private ArrayList<CandidateListStub> loadedCandidateListStubs = new ArrayList<CandidateListStub>();
     private JReaper jreaper;
     private BookKeeprConnection connection;
@@ -151,6 +154,10 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
         jList3 = new javax.swing.JList();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jComboBox_startDate = new javax.swing.JComboBox();
+        jLabel14 = new javax.swing.JLabel();
+        jComboBox_endDate = new javax.swing.JComboBox();
         jButton2 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
         jPanel_top = new javax.swing.JPanel();
@@ -179,7 +186,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
 
         jLabel_totalCands.setText("jLabel13");
 
-        jLabel_loadingLabel.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
+        jLabel_loadingLabel.setFont(new java.awt.Font("Dialog", 1, 24));
         jLabel_loadingLabel.setText("Loading.......");
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
@@ -450,6 +457,14 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        jLabel13.setText("Filter by observation date:");
+
+        jComboBox_startDate.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel14.setText("to");
+
+        jComboBox_endDate.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         org.jdesktop.layout.GroupLayout jPanel_clistsLayout = new org.jdesktop.layout.GroupLayout(jPanel_clists);
         jPanel_clists.setLayout(jPanel_clistsLayout);
         jPanel_clistsLayout.setHorizontalGroup(
@@ -459,13 +474,24 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .add(jPanel_clistsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel_subpanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jPanel_clistsLayout.createSequentialGroup()
-                        .add(jTextField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton3)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel4)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton4)))
+                        .add(jPanel_clistsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel_clistsLayout.createSequentialGroup()
+                                .add(jLabel13)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jComboBox_startDate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 161, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jLabel14)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jComboBox_endDate, 0, 247, Short.MAX_VALUE))
+                            .add(jPanel_clistsLayout.createSequentialGroup()
+                                .add(jTextField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButton3)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(jLabel4)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButton4)))
+                        .add(92, 92, 92)))
                 .addContainerGap())
         );
         jPanel_clistsLayout.setVerticalGroup(
@@ -477,7 +503,13 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                     .add(jButton3)
                     .add(jLabel4)
                     .add(jButton4))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel_clistsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel13)
+                    .add(jLabel14)
+                    .add(jComboBox_endDate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jComboBox_startDate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel_subpanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -522,7 +554,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .add(jPanel_centreLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButton2)
                     .add(jButton7))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel_centre, java.awt.BorderLayout.CENTER);
@@ -533,7 +565,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
         jPanel_top.setLayout(new java.awt.BorderLayout());
         getContentPane().add(jPanel_top, java.awt.BorderLayout.PAGE_START);
 
-        setBounds(0, 0, 780, 637);
+        setBounds(0, 0, 780, 655);
     }// </editor-fold>//GEN-END:initComponents
 
 private void jTextField_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_urlActionPerformed
@@ -665,6 +697,8 @@ private void jButton_loadDoneActionPerformed(java.awt.event.ActionEvent evt) {//
         this.jList1.setEnabled(enabled);
         this.jList2.setEnabled(enabled);
         this.jList3.setEnabled(enabled);
+        this.jComboBox_endDate.setEnabled(enabled);
+        this.jComboBox_startDate.setEnabled(enabled);
 
         final ArrayList<String> processes = new ArrayList<String>(this.candListStubs.keySet());
         this.jList1.setModel(new AbstractListModel() {
@@ -683,27 +717,29 @@ private void jButton_loadDoneActionPerformed(java.awt.event.ActionEvent evt) {//
 
     private void clearConnection() {
         this.candListStubs.clear();
+        this.allDates.clear();
+        this.dateCandListStubs.clear();
         this.setClistPanelEnabled(false);
         jreaper.setUser("noone");
         this.jLabel_user.setText(jreaper.getUser());
     }
 
-    private void serverConnected() {
-        // clear out the old connection
-        clearConnection();
+    private void clistFilterChanged() {
+        ArrayList<CandidateListStub> clists = new ArrayList<CandidateListStub>();
 
-        jreaper.setUser(this.jTextField_user.getText());
+//          this.dateCandListStubs.get(date);
 
+        int startDate = this.jComboBox_startDate.getSelectedIndex();
+        int endDate = this.jComboBox_endDate.getSelectedIndex();
 
-        List<CandidateListStub> clists = null;
-        HashMap<Long, Processing> processes = new HashMap<Long, Processing>();
-        try {
-            clists = connection.getAllCandLists();
-        } catch (BookKeeprCommunicationException ex) {
-            Logger.getLogger(JReaperSetupFrame.class.getName()).log(Level.WARNING, null, ex);
-            return;
+        for (int i = startDate; i <= endDate; i++) {
+            clists.addAll(this.dateCandListStubs.get(allDates.get(i)));
         }
+
+        HashMap<Long, Processing> processes = new HashMap<Long, Processing>();
+
         for (CandidateListStub cl : clists) {
+
             Processing p = processes.get(cl.getProcessingId());
             if (p == null) {
                 try {
@@ -729,6 +765,49 @@ private void jButton_loadDoneActionPerformed(java.awt.event.ActionEvent evt) {//
         this.setClistPanelEnabled(true);
         jreaper.connected();
     }
+
+    private void serverConnected() {
+        // clear out the old connection
+        clearConnection();
+
+        jreaper.setUser(this.jTextField_user.getText());
+
+        List<CandidateListStub> clists = null;
+        HashMap<Long, Processing> processes = new HashMap<Long, Processing>();
+        try {
+            clists = connection.getAllCandLists();
+        } catch (BookKeeprCommunicationException ex) {
+            Logger.getLogger(JReaperSetupFrame.class.getName()).log(Level.WARNING, null, ex);
+            return;
+        }
+        for (CandidateListStub cl : clists) {
+
+            String date = cl.getObservedDate();
+
+            if (date == null) {
+                date = "UNK";
+            }
+            ArrayList<CandidateListStub> list = candListStubs.get(date);
+            if (list == null) {
+                list = new ArrayList<CandidateListStub>();
+                candListStubs.put(date, list);
+            }
+            list.add(cl);
+            this.allDates.add(date);
+        }
+        Collections.sort(allDates);
+        if(allDates.isEmpty()){
+           allDates.add("NO DATA"); 
+        }
+        this.jComboBox_startDate.setModel(new DefaultComboBoxModel(allDates.toArray()));
+        this.jComboBox_startDate.setSelectedIndex(0);
+        this.jComboBox_endDate.setModel(new DefaultComboBoxModel(allDates.toArray()));
+        this.jComboBox_endDate.setSelectedIndex(allDates.size()-1);
+        
+        this.jLabel_user.setText(jreaper.getUser());
+        this.setClistPanelEnabled(true);
+        jreaper.connected();
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -738,10 +817,14 @@ private void jButton_loadDoneActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton_loadDone;
+    private javax.swing.JComboBox jComboBox_endDate;
+    private javax.swing.JComboBox jComboBox_startDate;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

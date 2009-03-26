@@ -207,7 +207,7 @@ public class MainView extends javax.swing.JFrame {
             while (!stop) {
                 try {
                     count++;
-                    this.sleep(500);
+                    this.sleep(5000);
                     checkmem();
 
                     if (count > 10) {
