@@ -197,10 +197,89 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_quikgray
 	quikgray(datArr,nx,ny,nxx);
 
 	(*env)->ReleaseFloatArrayElements(env,dat,datArr,0);
+}
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgshls
+ * Signature: (IFFF)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgshls
+  (JNIEnv *env, jclass cl, jint ci, jfloat h , jfloat s, jfloat l){
+	cpgshls(ci,h,s,l);
+}
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgsci
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsci
+  (JNIEnv *env, jclass cl, jint ci){
+	cpgsci(ci);
+}
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgcirc
+ * Signature: (FFF)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgcirc
+  (JNIEnv *env, jclass cl, jfloat x, jfloat y , jfloat r){
+	cpgcirc(x,y,r);
+}
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgsfs
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsfs
+  (JNIEnv *env, jclass cl, jint v){
+	cpgsfs(v);
+}
 
 
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgslw
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgslw
+  (JNIEnv *env, jclass cl , jint w){
+	cpgslw(w);
+}
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgtxt
+ * Signature: (FFFFLjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgtxt
+  (JNIEnv *env, jclass cl, jfloat x, jfloat y, jfloat angle, jfloat fjust, jstring text){
+
+	char *textStr = (char*)(*env)->GetStringUTFChars(env,text,NULL);
+        jint strlen =  (*env)->GetStringUTFLength(env,text);
+
+
+        cpgptxt(x,y,angle,fjust,textStr);
+
+        (*env)->ReleaseStringUTFChars(env,text,textStr);
 
 }
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgscf
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgscf
+  (JNIEnv *env, jclass cl , jint val){
+	cpgscf(val);
+}
+
+
 
 void MKtestMe(){
 

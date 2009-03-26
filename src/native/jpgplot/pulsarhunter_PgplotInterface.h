@@ -13,7 +13,7 @@ extern "C" {
  * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgopen
-  (JNIEnv *env, jclass cl, jstring device);
+  (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
@@ -21,7 +21,31 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgopen
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgclose
-  (JNIEnv *env, jclass cl);
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgtext
+ * Signature: (Ljava/lang/String;FF)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgtext
+  (JNIEnv *, jclass, jstring, jfloat, jfloat);
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgsch
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsch
+  (JNIEnv *, jclass, jfloat);
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgscf
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgscf
+  (JNIEnv *, jclass, jint);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
@@ -29,7 +53,7 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgclose
  * Signature: (FFFF)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsvp
-  (JNIEnv *env, jclass cl, jfloat xleft, jfloat xright, jfloat ybot, jfloat ytop);
+  (JNIEnv *, jclass, jfloat, jfloat, jfloat, jfloat);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
@@ -37,7 +61,7 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsvp
  * Signature: (FFFF)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgswin
-  (JNIEnv *env, jclass cl,  jfloat xleft, jfloat xright, jfloat ybot, jfloat ytop);
+  (JNIEnv *, jclass, jfloat, jfloat, jfloat, jfloat);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
@@ -45,7 +69,7 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgswin
  * Signature: ([F)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgqwin
-  (JNIEnv *env, jclass cl, jfloatArray retVal);
+  (JNIEnv *, jclass, jfloatArray);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
@@ -53,7 +77,7 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgqwin
  * Signature: (FF)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgmove
-  (JNIEnv *env, jclass cl, jfloat x, jfloat y);
+  (JNIEnv *, jclass, jfloat, jfloat);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
@@ -61,11 +85,7 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgmove
  * Signature: (FF)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgdraw
-  (JNIEnv *env, jclass cl, jfloat x, jfloat y);
-
-JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsch
-(JNIEnv *env, jclass cl, jfloat x);
-
+  (JNIEnv *, jclass, jfloat, jfloat);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
@@ -73,27 +93,23 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsch
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pglab
-  (JNIEnv *env, jclass cl, jstring x, jstring y, jstring top);
+  (JNIEnv *, jclass, jstring, jstring, jstring);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
  * Method:    pggray
- * Signature: ([FIIIIIIFFF)V
+ * Signature: ([FIIIIIIFF[F)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pggray
-  (JNIEnv *env, jclass cl, jfloatArray arr, jint idim, jint jdim, jint i1, jint i2, jint j1, jint j2, jfloat fg, jfloat bg, jfloatArray tr);
+  (JNIEnv *, jclass, jfloatArray, jint, jint, jint, jint, jint, jint, jfloat, jfloat, jfloatArray);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
  * Method:    pgbox
- * Signature: (Ljava/lang/String;FFLjava/lang/String;FI)V
+ * Signature: (Ljava/lang/String;FILjava/lang/String;FI)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgbox
-  (JNIEnv *env, jclass cl, jstring xopt, jfloat xtic, jint nxsub , jstring yopt, jfloat ytic, jint nysub);
-
-JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgtext
-(JNIEnv *env, jclass cl, jstring text, jfloat x, jfloat y);
-
+  (JNIEnv *, jclass, jstring, jfloat, jint, jstring, jfloat, jint);
 
 /*
  * Class:     pulsarhunter_PgplotInterface
@@ -101,9 +117,55 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgtext
  * Signature: ([FIII)V
  */
 JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_quikgray
-  (JNIEnv *env, jclass cl, jfloatArray dat, jint nx, jint ny, jint nxx);
+  (JNIEnv *, jclass, jfloatArray, jint, jint, jint);
 
-void MKtestMe();
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgshls
+ * Signature: (IFFF)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgshls
+  (JNIEnv *, jclass, jint, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgsci
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsci
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgcirc
+ * Signature: (FFF)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgcirc
+  (JNIEnv *, jclass, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgsfs
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsfs
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgslw
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgslw
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgtxt
+ * Signature: (FFFFLjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgtxt
+  (JNIEnv *, jclass, jfloat, jfloat, jfloat, jfloat, jstring);
 
 #ifdef __cplusplus
 }
