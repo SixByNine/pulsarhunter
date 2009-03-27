@@ -460,10 +460,20 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
         jLabel13.setText("Filter by observation date:");
 
         jComboBox_startDate.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox_startDate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox_startDateActionPerformed(evt);
+            }
+        });
 
         jLabel14.setText("to");
 
         jComboBox_endDate.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox_endDate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox_endDateActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout jPanel_clistsLayout = new org.jdesktop.layout.GroupLayout(jPanel_clists);
         jPanel_clists.setLayout(jPanel_clistsLayout);
@@ -644,6 +654,15 @@ private void jButton_loadDoneActionPerformed(java.awt.event.ActionEvent evt) {//
     this.jreaper.goToPlotDone();
 }//GEN-LAST:event_jButton_loadDoneActionPerformed
 
+private void jComboBox_startDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_startDateActionPerformed
+this.clistFilterChanged();
+}//GEN-LAST:event_jComboBox_startDateActionPerformed
+
+private void jComboBox_endDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_endDateActionPerformed
+this.clistFilterChanged();
+
+}//GEN-LAST:event_jComboBox_endDateActionPerformed
+
     private void reSelectList() {
 
         final Object[] objArr = this.jList1.getSelectedValues();
@@ -787,24 +806,26 @@ private void jButton_loadDoneActionPerformed(java.awt.event.ActionEvent evt) {//
             if (date == null) {
                 date = "UNK";
             }
-            ArrayList<CandidateListStub> list = candListStubs.get(date);
+            ArrayList<CandidateListStub> list = dateCandListStubs.get(date);
             if (list == null) {
                 list = new ArrayList<CandidateListStub>();
-                candListStubs.put(date, list);
+                dateCandListStubs.put(date, list);
+                this.allDates.add(date);
+
             }
             list.add(cl);
-            this.allDates.add(date);
         }
         Collections.sort(allDates);
-        if(allDates.isEmpty()){
-           allDates.add("NO DATA"); 
+        if (allDates.isEmpty()) {
+            allDates.add("NO DATA");
         }
         this.jComboBox_startDate.setModel(new DefaultComboBoxModel(allDates.toArray()));
         this.jComboBox_startDate.setSelectedIndex(0);
         this.jComboBox_endDate.setModel(new DefaultComboBoxModel(allDates.toArray()));
-        this.jComboBox_endDate.setSelectedIndex(allDates.size()-1);
-        
+        this.jComboBox_endDate.setSelectedIndex(allDates.size() - 1);
+
         this.jLabel_user.setText(jreaper.getUser());
+        this.clistFilterChanged();
         this.setClistPanelEnabled(true);
         jreaper.connected();
     }
