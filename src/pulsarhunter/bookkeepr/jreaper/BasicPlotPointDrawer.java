@@ -22,69 +22,75 @@ public class BasicPlotPointDrawer implements PlotPointDrawer {
     private static final Color trans127_blue = new Color(0, 0, 255, 127);
     private static final Color trans32_red = new Color(255, 0, 0, 32);
     private static final Color trans32_green = new Color(0, 255, 0, 32);
-
+    private static final Color defaultCol = new Color(102, 0, 204);
     public BasicPlotPointDrawer() {
     }
 
+    /*
+     * Removed transparency as it slows it down a lot!!! 
+     * 
+     */
     public void drawPoint(Graphics graphics, int x, int y, CandClass cl, HarmonicType htype, boolean possibleMatch, int zcolor, boolean viewed) {
         Color color;
-        ((Graphics2D) graphics).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        /// AA makes it too slow!
+//        ((Graphics2D) graphics).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+       
+//        if (zcolor >= 0) {
+//            color = colourZaxis[255 - zcolor];
+//            color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 64);
+//            graphics.setColor(color);
+//
+//            graphics.fillOval(x - 6, y - 6, 12, 12);
+//        }
+        if (htype != HarmonicType.None) {
+            color = new Color(255, 0, 0, 32);
 
-        if (zcolor >= 0) {
-            color = colourZaxis[255 - zcolor];
-            color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 64);
-            graphics.setColor(color);
-
-            graphics.fillOval(x - 6, y - 6, 12, 12);
-        }
-        color = new Color(255, 0, 0, 32);
-
-        if (cl == CandClass.Class1) {
-            color = Color.BLACK;
-        }
-        if (cl == CandClass.Class2) {
-            color = Color.GRAY;
-        }
-        if (cl == CandClass.Class3) {
-            color = Color.LIGHT_GRAY;
-        }
-        if (cl == CandClass.KnownPsr) {
-            color = Color.ORANGE;
-        }
-        graphics.setColor(color);
-        color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 128);
-
-        if (possibleMatch) {
-
-
-            if (htype == HarmonicType.Principal) {
-                graphics.fillPolygon(new int[]{x, x - 5, x, x + 5}, new int[]{y + 5, y, y - 5, y}, 4);
-            } else {
-                graphics.drawLine(x + 3, y - 3, x - 3,
-                        y + 3);
-                graphics.drawLine(x - 3, y - 3, x + 3,
-                        y + 3);
-
+            if (cl == CandClass.Class1) {
+                color = Color.BLACK;
             }
+            if (cl == CandClass.Class2) {
+                color = Color.GRAY;
+            }
+            if (cl == CandClass.Class3) {
+                color = Color.LIGHT_GRAY;
+            }
+            if (cl == CandClass.KnownPsr) {
+                color = Color.ORANGE;
+            }
+            graphics.setColor(color);
+            color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 128);
 
-        } else if (htype == HarmonicType.None) {
+            if (possibleMatch) {
+
+
+                if (htype == HarmonicType.Principal) {
+                    graphics.fillPolygon(new int[]{x, x - 5, x, x + 5}, new int[]{y + 5, y, y - 5, y}, 4);
+                } else {
+                    graphics.drawLine(x + 3, y - 3, x - 3,
+                            y + 3);
+                    graphics.drawLine(x - 3, y - 3, x + 3,
+                            y + 3);
+
+                }
+
+            } else if (htype == HarmonicType.None) {
 //            graphics.drawLine(x + 4, y - 4, x - 4,
 //                    y + 4);
 //            graphics.drawLine(x - 4, y - 4, x + 4,
 //                    y + 4);
-        } else if (htype == HarmonicType.Principal) {
-            graphics.fillOval(x - 4, y - 4, 8, 8);
-        } else if (htype == HarmonicType.Integer) {
-            graphics.fillPolygon(new int[]{-4 + x, 4 + x, 4 + x}, new int[]{0 + y, 4 + y, -4 + y}, 3);
-        } else if (htype == HarmonicType.SimpleNonInteger) {
-            graphics.fillPolygon(new int[]{4 + x, -4 + x, -4 + x}, new int[]{0 + y, 4 + y, -4 + y}, 3);
-        } else if (htype == HarmonicType.ComplexNonInteger) {
-            graphics.fillPolygon(new int[]{x, -4 + x, -4 + x}, new int[]{0 + y, 4 + y, -4 + y}, 3);
-            graphics.fillPolygon(new int[]{x, 4 + x, 4 + x}, new int[]{0 + y, 4 + y, -4 + y}, 3);
+            } else if (htype == HarmonicType.Principal) {
+                graphics.fillOval(x - 4, y - 4, 8, 8);
+            } else if (htype == HarmonicType.Integer) {
+                graphics.fillPolygon(new int[]{-4 + x, 4 + x, 4 + x}, new int[]{0 + y, 4 + y, -4 + y}, 3);
+            } else if (htype == HarmonicType.SimpleNonInteger) {
+                graphics.fillPolygon(new int[]{4 + x, -4 + x, -4 + x}, new int[]{0 + y, 4 + y, -4 + y}, 3);
+            } else if (htype == HarmonicType.ComplexNonInteger) {
+                graphics.fillPolygon(new int[]{x, -4 + x, -4 + x}, new int[]{0 + y, 4 + y, -4 + y}, 3);
+                graphics.fillPolygon(new int[]{x, 4 + x, 4 + x}, new int[]{0 + y, 4 + y, -4 + y}, 3);
+            }
+
         }
-
-
-        color = new Color(102, 0, 204, 160);
+        color = defaultCol;
         if (zcolor >= 0) {
             color = colourZaxis[255 - zcolor];
 
@@ -96,11 +102,8 @@ public class BasicPlotPointDrawer implements PlotPointDrawer {
 
         if (viewed) {
             graphics.fillRect(x - 1, y - 1, 3, 3);
-
-
         } else {
-            graphics.drawLine(x, y - 3, x,
-                    y + 3);
+            graphics.drawLine(x, y - 3, x, y + 3);
             graphics.drawLine(x - 3, y, x + 3,
                     y);
             graphics.fillRect(x - 1, y - 1, 3, 3);

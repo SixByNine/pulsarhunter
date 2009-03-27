@@ -90,7 +90,7 @@ public class ClickableGraph extends Plot {
                     // Create the stripes in data form (arrays).
                     inZmode = plotType.hasZ();
                     for (int i = 0; i < data.length; i++) {
-                        addPoint(0, plotType.getXval(data[i]), plotType.getYval(data[i]), false,(long)CandStatus.setZAxis(plotType.getZval(data[i]),data[i].getPlotStatus()));
+                        addPoint(0, plotType.getXval(data[i]), plotType.getYval(data[i]), false, (long) CandStatus.setZAxis(plotType.getZval(data[i]), data[i].getPlotStatus()));
 
                     //0x0000ClVi
                     }
@@ -413,7 +413,7 @@ public class ClickableGraph extends Plot {
     @Override
     protected void _drawPoint(Graphics graphics,
             int dataset, long xpos, long ypos,
-            boolean clip,long id) {
+            boolean clip, long id) {
 
         // If the point is not out of range, draw it.
         boolean pointinside = ypos <= _lry && ypos >= _uly &&
@@ -425,12 +425,14 @@ public class ClickableGraph extends Plot {
             boolean viewed = CandStatus.isViewed((int) id);
             CandClass cl = CandStatus.getCandClass((int) id);
             HarmonicType htype = CandStatus.getHarmonicType((int) id);
-            boolean possible = CandStatus.getPossible((int)id);
+            boolean possible = CandStatus.getPossible((int) id);
             int zcol = CandStatus.getZAxis((int) id);
             if (!inZmode) {
                 zcol = -1;
             }
             pointDrawer.drawPoint(graphics,xposi, yposi, cl, htype, possible, zcol, viewed);
+
+
 
 
         }
