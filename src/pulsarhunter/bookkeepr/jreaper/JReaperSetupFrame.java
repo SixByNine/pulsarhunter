@@ -805,6 +805,8 @@ this.clistFilterChanged();
 
             if (date == null) {
                 date = "UNK";
+            } else {
+                date = date.substring(0,10);
             }
             ArrayList<CandidateListStub> list = dateCandListStubs.get(date);
             if (list == null) {
