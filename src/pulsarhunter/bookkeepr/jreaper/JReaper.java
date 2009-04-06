@@ -153,6 +153,8 @@ public class JReaper {
             } catch (BookKeeprCommunicationException ex) {
                 Logger.getLogger(JReaper.class.getName()).log(Level.SEVERE, null, ex);
                 nerr++;
+                gui.setLoadingPane(clistStubs.size(), nclist, nerr, ncands);
+
                 continue;
             }
             for (RawCandidateBasic basic : clist.getRawCandidateBasicList()) {
@@ -173,8 +175,12 @@ public class JReaper {
         candArray = cands.toArray(new RawCandidateBasic[0]);
         markViewedCands(user);
         markClassifiedCands();
-
-        gui.setLoadingPaneDone();
+        if(nerr == 0){
+            gui.setLoadingPaneDone();
+        } else{
+            gui.setLoadingPaneError();
+        }
+        
     }
 
     public void goToPlotDone() {
