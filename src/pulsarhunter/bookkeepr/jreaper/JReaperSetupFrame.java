@@ -98,6 +98,12 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
         this.jLabel_loadingLabel.setForeground(Color.GREEN);
     }
 
+    public void setLoadingPaneError() {
+        this.jButton_loadDone.setEnabled(true);
+        this.jLabel_loadingLabel.setText("ERROR!");
+        this.jLabel_loadingLabel.setForeground(Color.RED);
+    }
+    
     public void setLoadingPane(int toLoad, int loaded, int failed, int totalCands) {
         this.jLabel_toLoad.setText(String.valueOf(toLoad));
         this.jLabel_loaded.setText(String.valueOf(loaded));

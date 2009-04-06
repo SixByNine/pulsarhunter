@@ -180,7 +180,7 @@ public class BookKeeprConnection {
                         throw new BookKeeprCommunicationException(ex);
                     }
                 } else {
-
+                    resp.getEntity().consumeContent();
                     throw new BookKeeprCommunicationException("Got a " + resp.getStatusLine().getStatusCode() + " from the BookKeepr");
                 }
             }
