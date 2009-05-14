@@ -90,6 +90,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
     public void showLoadingPane() {
         this.remove(jPanel_centre);
         this.add(jPanel_loadingPanel, BorderLayout.CENTER);
+
     }
 
     public void setLoadingPaneDone() {
@@ -336,7 +337,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                         .add(jLabel8)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel_user, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(122, Short.MAX_VALUE))
+                .addContainerGap(132, Short.MAX_VALUE))
         );
         jPanel_serverLayout.setVerticalGroup(
             jPanel_serverLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -435,7 +436,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .add(jPanel_subpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
                     .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 194, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addContainerGap(48, Short.MAX_VALUE))
         );
         jPanel_subpanelLayout.setVerticalGroup(
             jPanel_subpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -498,7 +499,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(jLabel14)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jComboBox_endDate, 0, 247, Short.MAX_VALUE))
+                                .add(jComboBox_endDate, 0, 257, Short.MAX_VALUE))
                             .add(jPanel_clistsLayout.createSequentialGroup()
                                 .add(jTextField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -570,7 +571,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .add(jPanel_centreLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButton2)
                     .add(jButton7))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel_centre, java.awt.BorderLayout.CENTER);
@@ -581,7 +582,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
         jPanel_top.setLayout(new java.awt.BorderLayout());
         getContentPane().add(jPanel_top, java.awt.BorderLayout.PAGE_START);
 
-        setBounds(0, 0, 780, 655);
+        setBounds(0, 0, 780, 688);
     }// </editor-fold>//GEN-END:initComponents
 
 private void jTextField_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_urlActionPerformed
@@ -638,6 +639,7 @@ private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 }//GEN-LAST:event_jButton6ActionPerformed
 
 private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    System.out.println("GOTOPLOT");
     Thread thread = new Thread() {
 
         @Override
@@ -647,16 +649,19 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         }
     };
     thread.start();
-    this.setVisible(false);
-    this.dispose();
+    this.jButton2.setEnabled(false);
+    //this.setVisible(false);
+    //this.dispose();
 }//GEN-LAST:event_jButton2ActionPerformed
 
 private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+    System.out.println("QUIT");
     this.setVisible(false);
     this.dispose();
 }//GEN-LAST:event_jButton7ActionPerformed
 
 private void jButton_loadDoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_loadDoneActionPerformed
+
     this.jreaper.goToPlotDone();
 }//GEN-LAST:event_jButton_loadDoneActionPerformed
 

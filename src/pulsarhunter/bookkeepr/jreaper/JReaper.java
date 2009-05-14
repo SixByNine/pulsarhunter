@@ -126,13 +126,13 @@ public class JReaper {
         recentViewed = new ArrayBlockingQueue<RawCandidateBasic>(100);
         JReaperSetupFrame gui = null;
 
-        if (this.currentWindow instanceof JReaperSetupFrame) {
-            gui = (JReaperSetupFrame) this.currentWindow;
-        } else {
+//        if (this.currentWindow instanceof JReaperSetupFrame) {
+//            gui = (JReaperSetupFrame) this.currentWindow;
+//        } else {
             closeWindow();
             gui = new JReaperSetupFrame(this, connection);
             this.currentWindow = gui;
-        }
+//        }
         gui.setVisible(false);
         gui.showLoadingPane();
         gui.setLoadingPane(clistStubs.size(), 0, 0, 0);

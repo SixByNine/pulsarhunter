@@ -104,6 +104,9 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
         this.jPanel4 = f2.jPanel4;
         this.add(this.jPanel4);
         f2.jPanel4 = old;
+        RawCandidateBasic oldc = this.cand;
+        this.cand = f2.cand;
+        f2.cand = oldc;
         repaint();
     }
 
@@ -113,8 +116,11 @@ public class JReaperCandidateFrame extends javax.swing.JFrame {
 
     public void setNViewsLeft(int nViewsLeft) {
         this.nViewsLeft = nViewsLeft;
-        if(nViewsLeft==0)this.jButton_close.setText("Close");
-        else this.jButton_close.setText("Close ("+nViewsLeft+" Candidates left to view)");
+        if (nViewsLeft == 0) {
+            this.jButton_close.setText("Close");
+        } else {
+            this.jButton_close.setText("Close (" + nViewsLeft + " Candidates left to view)");
+        }
     }
 
     public void getCandsNear() {
@@ -679,7 +685,7 @@ private void jButton_closeActionPerformed(java.awt.event.ActionEvent evt) {//GEN
         this.setVisible(false);
         this.dispose();
     } else {
-        this.setNViewsLeft(nViewsLeft-1);
+        this.setNViewsLeft(nViewsLeft - 1);
     }
 
 
@@ -899,7 +905,6 @@ private void jButton_headerBrowserActionPerformed(java.awt.event.ActionEvent evt
         Logger.getLogger(JReaperCandidateFrame.class.getName()).log(Level.SEVERE, "Couldn't open your browser, sorry!", ex);
     }
 }//GEN-LAST:event_jButton_headerBrowserActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
