@@ -67,6 +67,7 @@ public class JReaper {
     private ArrayList<ClassifiedCandidate> classifiedCands;
     private ViewedCandidates myViewedCandidates;
     private RawCandidateBasic[] candArray;
+    private RawCandidateBasic[] refinedCandArray=null;
     private HashMap<Long, ArrayList<ClassifiedCandidate>> candClasses;
     private HashMap<Long, ArrayList<ClassifiedCandidate>> candPossClasses;
     private HashMap<Long, Psrxml> clistIdToPsrxmlHeaders;
@@ -115,6 +116,7 @@ public class JReaper {
     public void restart() {
         closeWindow();
         this.candArray = null;
+        this.refinedCandArray = null;
         System.gc();
         currentWindow = new JReaperSetupFrame(this, connection);
         currentWindow.setVisible(true);
@@ -187,7 +189,7 @@ public class JReaper {
         // Make the main view appear!
         closeWindow();
 
-        currentWindow = new MainView(candArray, this);
+        currentWindow = new MainView(this);
         currentWindow.setVisible(true);
     }
 
@@ -387,7 +389,7 @@ public class JReaper {
                         }
                     });
 
-                    for (RawCandidateBasic c : JReaper.this.candArray) {
+                    for (RawCandidateBasic c : JReaper.this.getRefinedCandArray()) {
                         double xval = mv.getPType().getXval(c);
                         double yval = mv.getPType().getYval(c);
                         if ((xval < xposn1 && xval > xposn2) && (yval > yposn1 && yval < yposn2)) {
@@ -401,6 +403,7 @@ public class JReaper {
 //                                continue;
 //                            }
                             }
+                            
                             try {
 
                                 mv.clickOnHold(c);
@@ -639,37 +642,44 @@ public class JReaper {
         }
     }
 
-    public RawCandidateBasic[] refine(RawCandidateBasic[] masterData, Hashtable<PlotType.axisType, Double> minVals, Hashtable<PlotType.axisType, Double> maxVals, ArrayList<Long> excludeCandListIds) {
+    public void refine(Hashtable<PlotType.axisType, Double> minVals, Hashtable<PlotType.axisType, Double> maxVals, ArrayList<Long> excludeCandListIds) {
         ArrayList<RawCandidateBasic> cData = new ArrayList<RawCandidateBasic>();
         Collections.sort(excludeCandListIds);
         PlotType pt = new PlotType(null, null);
 
-        for (int i = 0; i < masterData.length; i++) {
-//                    if(masterData[i][j].getSNR() > SNRlimit && masterData[i][j].getDM() > DMmin && Arrays.binarySearch(excludeBeams,masterData[i][j].getBeam().getName(),String.CASE_INSENSITIVE_ORDER) <0)
-//                        cData[i].add(masterData[i][j]);
+        for (int i = 0; i < this.candArray.length; i++) {
             boolean add = true;
             for (PlotType.axisType axisType : minVals.keySet()) {
-                if (pt.getVal(masterData[i], axisType) < minVals.get(axisType)) {
+                if (pt.getVal(this.candArray[i], axisType) < minVals.get(axisType)) {
                     add = false;
                     break;
                 }
             }
             for (PlotType.axisType axisType : maxVals.keySet()) {
-                if (pt.getVal(masterData[i], axisType) > maxVals.get(axisType)) {
+                if (pt.getVal(this.candArray[i], axisType) > maxVals.get(axisType)) {
                     add = false;
                     break;
                 }
             }
 
             // don't include if we have the candlist id marked as exclude
-            if (Collections.binarySearch(excludeCandListIds, masterData[i].getCandidateListId()) >= 0) {
+            if (Collections.binarySearch(excludeCandListIds, this.candArray[i].getCandidateListId()) >= 0) {
                 add = false;
             }
             if (add) {
-                cData.add(masterData[i]);
+                cData.add(this.candArray[i]);
             }
         }
 
-        return cData.toArray(new RawCandidateBasic[0]);
+        this.refinedCandArray = cData.toArray(new RawCandidateBasic[0]);
+    }
+
+    public RawCandidateBasic[] getCandArray() {
+        return candArray;
+    }
+
+    public RawCandidateBasic[] getRefinedCandArray() {
+        if(refinedCandArray==null)return this.getCandArray();
+        return refinedCandArray;
     }
 }
