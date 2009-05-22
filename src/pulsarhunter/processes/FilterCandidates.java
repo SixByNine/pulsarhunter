@@ -404,7 +404,6 @@ public class FilterCandidates implements PulsarHunterProcess {
 //
 
 
-
                 SNRBlock block = new SNRBlock(dmIndex, new double[]{sr.getPeriod()}, acIndex, adIndex);
 
                 block.setBarrycenter(dataFile.getHeader().isBarryCentered());

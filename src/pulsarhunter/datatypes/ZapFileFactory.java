@@ -54,7 +54,7 @@ public class ZapFileFactory implements DataFactory {
             File f = new File(filename);
             zapfile = new ZapFile(f);
             zapfile.read(f);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new IncorrectDataTypeException("Cannot read zapfile "+filename,ex);
         }
         return zapfile;

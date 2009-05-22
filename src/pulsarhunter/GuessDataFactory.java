@@ -56,12 +56,15 @@ public class GuessDataFactory implements DataFactory{
         for(String name : this.registry.getDataFactoryList()){
             if(name.equals(this.getName())) continue;
             try{
+//                System.out.print("Trying: "+name);
                 result = this.registry.getDataFactory(name).loadData(filename,buf);
             } catch (IncorrectDataTypeException e){
+//                System.out.println("FAIL");
                 result = null;
 //                e.printStackTrace();
                 continue;
             }
+//            System.out.println("OK");
             // If we are here then we managed to parse the data file!
             PulsarHunter.out.println(" Importing file as "+name);
             break;

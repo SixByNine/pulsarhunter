@@ -314,7 +314,7 @@ public class PeriodTuneFold implements PulsarHunterProcess{
         
         // root rms sum of squares.
         rms = Math.sqrt(rms);
-        //System.out.println("RMS in data is:"+rms);
+//	System.out.println("RMS in data is:"+rms);
         // for(int b = 0; b < timeSeries.length; b++){
         //    System.out.println("RMS in band "+b+": "+rmsInBand[b]);
         // }
@@ -993,7 +993,7 @@ public class PeriodTuneFold implements PulsarHunterProcess{
         double[] bestProfile =null;
         // rms in profile
         double rmsp = rmss*Math.sqrt(nsub);
-        
+        System.out.println("rmsp="+rmsp);
         double sHalf = (nsub/2.0);
         
         

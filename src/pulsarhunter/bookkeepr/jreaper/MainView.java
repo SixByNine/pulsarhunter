@@ -57,8 +57,6 @@ import javax.swing.SwingUtilities;
  */
 public class MainView extends javax.swing.JFrame {
 
-    private RawCandidateBasic[] masterData;
-    private RawCandidateBasic[] curData;
     private ClickableGraph plot;
     private JReaper jreaper;
     private Hashtable<PlotType.axisType, Double> altLimitMax = new Hashtable<PlotType.axisType, Double>();
@@ -75,7 +73,7 @@ public class MainView extends javax.swing.JFrame {
     private PlotPointDrawer currentDrawer;
 
     /** Creates new form MainView */
-    public MainView(RawCandidateBasic[] masterData, final JReaper jreaper) {
+    public MainView(final JReaper jreaper) {
         initComponents();
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         if (screenSize.width > 2 * screenSize.height) {
@@ -83,13 +81,11 @@ public class MainView extends javax.swing.JFrame {
         } else {
             setBounds((screenSize.width - this.getWidth()) / 2, (screenSize.height - this.getHeight()) / 2, this.getWidth(), this.getHeight());
         }
-        this.masterData = masterData;
         this.jreaper = jreaper;
         this.asUser = jreaper.getUser();
         this.currentDrawer = drawers[0];
-        curData = masterData;
-        plot = new ClickableGraph(curData, getPType(), jreaper, this, currentDrawer);
-        Logger.getLogger(MainView.class.getName()).log(Level.INFO, "Loaded: " + masterData.length + " cands");
+        plot = new ClickableGraph(this.jreaper.getCandArray(), getPType(), jreaper, this, currentDrawer);
+        Logger.getLogger(MainView.class.getName()).log(Level.INFO, "Loaded: " + this.jreaper.getCandArray().length + " cands");
 
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -250,7 +246,7 @@ public class MainView extends javax.swing.JFrame {
     }
 
     public RawCandidateBasic getNearest(double x, double y) {
-        return getPType().getNearest(curData, x, y, plot.getXscale(), plot.getYscale());
+        return getPType().getNearest(this.jreaper.getRefinedCandArray(), x, y, plot.getXscale(), plot.getYscale());
     }
     private ArrayBlockingQueue<JReaperCandidateFrame> frameQueue = new ArrayBlockingQueue<JReaperCandidateFrame>(500);
 //
@@ -259,7 +255,7 @@ public class MainView extends javax.swing.JFrame {
 
         if (this.galacticPlotButton.isSelected()) {
         } else {
-            RawCandidateBasic c = getPType().getNearest(curData, x, y, plot.getXscale(), plot.getYscale());
+            RawCandidateBasic c = getPType().getNearest(this.jreaper.getRefinedCandArray(), x, y, plot.getXscale(), plot.getYscale());
             if (c == null) {
                 return;
             }
@@ -454,7 +450,7 @@ public class MainView extends javax.swing.JFrame {
 
 
                 //MainView.this.curData = Main.getInstance().getDataLibrary().getRefiner().refine(MainView.this.masterData,snrmin,dmmin,new boolean[]{MainView.this.series1Check.isSelected(),MainView.this.series2Check.isSelected(),MainView.this.series3Check.isSelected(),MainView.this.series4Check.isSelected()},excludeBeams);
-                MainView.this.curData = jreaper.refine(MainView.this.masterData, minVals, maxVals, excludes);
+                jreaper.refine(minVals, maxVals, excludes);
                 MainView.this.replot();
             }
         };
@@ -478,12 +474,12 @@ public class MainView extends javax.swing.JFrame {
                             minval = Double.parseDouble(zMinField.getText());
                             maxval = Double.parseDouble(zMaxField.getText());
                         } catch (Exception e) {
-                            getPType().calibrateZ(curData);
+                            getPType().calibrateZ(jreaper.getRefinedCandArray());
                         }
                         if (zCapCheck.isSelected()) {
-                            getPType().calibrateZ(curData, maxval, minval);
+                            getPType().calibrateZ(jreaper.getRefinedCandArray(), maxval, minval);
                         } else {
-                            getPType().calibrateZ(curData);
+                            getPType().calibrateZ(jreaper.getRefinedCandArray());
                         }
                     }
                     jMenu_as.removeAll();
@@ -559,7 +555,7 @@ public class MainView extends javax.swing.JFrame {
                     }
 
 
-                    plot.changeData(curData, getPType(), currentDrawer);
+                    plot.changeData(jreaper.getRefinedCandArray(), getPType(), currentDrawer);
 
 
                     MainView.this.historyContentPanel.removeAll();
