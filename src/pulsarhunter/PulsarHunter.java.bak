@@ -73,8 +73,8 @@ import pulsarhunter.recipies.RecipeParser;
  */
 public class PulsarHunter {
 
-    public static final String VERSION = "1.3t47";
-    public static final String DATE = "2009-05-14";
+    public static final String VERSION = "1.3r49";
+    public static final String DATE = "2009-05-22";
     private PulsarHunterRegistry registry;
     private String recipe = null;
     private String[] recipeArgs = new String[0];
@@ -117,6 +117,7 @@ public class PulsarHunter {
         if (testMode) {
             pulsarhunter.jreaper.ConfigureTest.main(new String[0]);
         }
+        this.registry.addDataFactory(new AccelSearchOutputFactory());
 
         this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.SigprocTimeSeries));
         this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.SigprocBandedTimeSeries));
@@ -129,7 +130,6 @@ public class PulsarHunter {
         this.registry.addDataFactory(new ZapFileFactory());
         this.registry.addDataFactory(new PolyCoFileDataFactory());
         this.registry.addDataFactory(new EpnFileFactory());
-        this.registry.addDataFactory(new AccelSearchOutputFactory());
 
         this.registry.addProcessFactory(new PeriodTuneFoldFactory());
         this.registry.addProcessFactory(new OptimisedSuspectPGPlotterFactory());
