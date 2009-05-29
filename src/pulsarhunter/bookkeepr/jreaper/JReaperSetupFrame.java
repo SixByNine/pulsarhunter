@@ -32,8 +32,9 @@ import pulsarhunter.jreaper.gui.ImagePanel;
 public class JReaperSetupFrame extends javax.swing.JFrame {
 
     private HashMap<String, ArrayList<CandidateListStub>> candListStubs = new HashMap<String, ArrayList<CandidateListStub>>();
-    private HashMap<String, ArrayList<CandidateListStub>> dateCandListStubs = new HashMap<String, ArrayList<CandidateListStub>>();
-    private ArrayList<String> allDates = new ArrayList<String>();
+    private HashMap<Long, ArrayList<CandidateListStub>> procCandListStubs = new HashMap<Long, ArrayList<CandidateListStub>>();
+//    private ArrayList<String> allDates = new ArrayList<String>();
+    HashMap<Long, Processing> processes;
     private ArrayList<CandidateListStub> loadedCandidateListStubs = new ArrayList<CandidateListStub>();
     private JReaper jreaper;
     private BookKeeprConnection connection;
@@ -104,7 +105,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
         this.jLabel_loadingLabel.setText("ERROR!");
         this.jLabel_loadingLabel.setForeground(Color.RED);
     }
-    
+
     public void setLoadingPane(int toLoad, int loaded, int failed, int totalCands) {
         this.jLabel_toLoad.setText(String.valueOf(toLoad));
         this.jLabel_loaded.setText(String.valueOf(loaded));
@@ -163,8 +164,6 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jComboBox_startDate = new javax.swing.JComboBox();
-        jLabel14 = new javax.swing.JLabel();
-        jComboBox_endDate = new javax.swing.JComboBox();
         jButton2 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
         jPanel_top = new javax.swing.JPanel();
@@ -337,7 +336,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                         .add(jLabel8)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel_user, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(132, Short.MAX_VALUE))
+                .addContainerGap(122, Short.MAX_VALUE))
         );
         jPanel_serverLayout.setVerticalGroup(
             jPanel_serverLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -354,7 +353,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                     .add(jLabel8)
                     .add(jLabel_status)
                     .add(jLabel_user))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
 
         jPanel_clists.setBorder(javax.swing.BorderFactory.createTitledBorder("Candidate Lists"));
@@ -368,7 +367,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
 
         jPanel_subpanel.setOpaque(false);
 
-        jLabel5.setText("Processing Runs");
+        jLabel5.setText("Observation Days");
 
         jList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -436,7 +435,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .add(jPanel_subpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
                     .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 194, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(48, Short.MAX_VALUE))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
         jPanel_subpanelLayout.setVerticalGroup(
             jPanel_subpanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -464,21 +463,12 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jLabel13.setText("Filter by observation date:");
+        jLabel13.setText("Filter by Processing Run:");
 
         jComboBox_startDate.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         jComboBox_startDate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox_startDateActionPerformed(evt);
-            }
-        });
-
-        jLabel14.setText("to");
-
-        jComboBox_endDate.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jComboBox_endDate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox_endDateActionPerformed(evt);
             }
         });
 
@@ -495,11 +485,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                             .add(jPanel_clistsLayout.createSequentialGroup()
                                 .add(jLabel13)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jComboBox_startDate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 161, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jLabel14)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jComboBox_endDate, 0, 257, Short.MAX_VALUE))
+                                .add(jComboBox_startDate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 506, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(jPanel_clistsLayout.createSequentialGroup()
                                 .add(jTextField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -508,7 +494,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                                 .add(jLabel4)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(jButton4)))
-                        .add(92, 92, 92)))
+                        .add(41, 41, 41)))
                 .addContainerGap())
         );
         jPanel_clistsLayout.setVerticalGroup(
@@ -523,8 +509,6 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel_clistsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel13)
-                    .add(jLabel14)
-                    .add(jComboBox_endDate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jComboBox_startDate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel_subpanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -571,7 +555,7 @@ public class JReaperSetupFrame extends javax.swing.JFrame {
                 .add(jPanel_centreLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButton2)
                     .add(jButton7))
-                .addContainerGap(49, Short.MAX_VALUE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel_centre, java.awt.BorderLayout.CENTER);
@@ -650,8 +634,8 @@ private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     };
     thread.start();
     this.jButton2.setEnabled(false);
-    //this.setVisible(false);
-    //this.dispose();
+//this.setVisible(false);
+//this.dispose();
 }//GEN-LAST:event_jButton2ActionPerformed
 
 private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
@@ -666,13 +650,8 @@ private void jButton_loadDoneActionPerformed(java.awt.event.ActionEvent evt) {//
 }//GEN-LAST:event_jButton_loadDoneActionPerformed
 
 private void jComboBox_startDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_startDateActionPerformed
-this.clistFilterChanged();
+    this.clistFilterChanged();
 }//GEN-LAST:event_jComboBox_startDateActionPerformed
-
-private void jComboBox_endDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_endDateActionPerformed
-this.clistFilterChanged();
-
-}//GEN-LAST:event_jComboBox_endDateActionPerformed
 
     private void reSelectList() {
 
@@ -727,18 +706,18 @@ this.clistFilterChanged();
         this.jList1.setEnabled(enabled);
         this.jList2.setEnabled(enabled);
         this.jList3.setEnabled(enabled);
-        this.jComboBox_endDate.setEnabled(enabled);
         this.jComboBox_startDate.setEnabled(enabled);
 
-        final ArrayList<String> processes = new ArrayList<String>(this.candListStubs.keySet());
+        final ArrayList<String> dates = new ArrayList<String>(this.candListStubs.keySet());
+        Collections.sort(dates);
         this.jList1.setModel(new AbstractListModel() {
 
             public int getSize() {
-                return processes.size();
+                return dates.size();
             }
 
             public Object getElementAt(int index) {
-                return processes.get(index);
+                return dates.get(index);
             }
         });
         reSelectList();
@@ -747,8 +726,7 @@ this.clistFilterChanged();
 
     private void clearConnection() {
         this.candListStubs.clear();
-        this.allDates.clear();
-        this.dateCandListStubs.clear();
+        this.procCandListStubs.clear();
         this.setClistPanelEnabled(false);
         jreaper.setUser("noone");
         this.jLabel_user.setText(jreaper.getUser());
@@ -759,36 +737,25 @@ this.clistFilterChanged();
 
 //          this.dateCandListStubs.get(date);
 
-        int startDate = this.jComboBox_startDate.getSelectedIndex();
-        int endDate = this.jComboBox_endDate.getSelectedIndex();
+        Object[] processings = this.jComboBox_startDate.getSelectedObjects();
 
-        for (int i = startDate; i <= endDate; i++) {
-            clists.addAll(this.dateCandListStubs.get(allDates.get(i)));
+        for (Object proc : processings) {
+            clists.addAll(this.procCandListStubs.get((Long) proc));
         }
 
-        HashMap<Long, Processing> processes = new HashMap<Long, Processing>();
+        processes = new HashMap<Long, Processing>();
 
         for (CandidateListStub cl : clists) {
 
-            Processing p = processes.get(cl.getProcessingId());
-            if (p == null) {
-                try {
-                    p = connection.getProcess(cl.getProcessingId());
-                } catch (BookKeeprCommunicationException ex) {
-                    Logger.getLogger(JReaperSetupFrame.class.getName()).log(Level.WARNING, "Couldn't get a matching 'Processing' object for candidate list " + Long.toHexString(cl.getId()));
-                    ArrayList<CandidateListStub> list = candListStubs.get("Lost");
-                    if (list == null) {
-                        list = new ArrayList<CandidateListStub>();
-                        candListStubs.put("Lost", list);
-                    }
-                    list.add(cl);
-                    continue;
-                }
+            String date = cl.getObservedDate();
 
-                processes.put(p.getId(), p);
-                candListStubs.put(p.toString(), new ArrayList<CandidateListStub>());
+            if (date == null) {
+                date = "UNK";
+            } else {
+                date = date.substring(0, 10);
             }
-            ArrayList<CandidateListStub> list = candListStubs.get(p.toString());
+
+            ArrayList<CandidateListStub> list = candListStubs.get(date);
             list.add(cl);
         }
         this.jLabel_user.setText(jreaper.getUser());
@@ -817,25 +784,38 @@ this.clistFilterChanged();
             if (date == null) {
                 date = "UNK";
             } else {
-                date = date.substring(0,10);
+                date = date.substring(0, 10);
             }
-            ArrayList<CandidateListStub> list = dateCandListStubs.get(date);
+
+            ArrayList<CandidateListStub> list = candListStubs.get(date);
             if (list == null) {
                 list = new ArrayList<CandidateListStub>();
-                dateCandListStubs.put(date, list);
-                this.allDates.add(date);
+                candListStubs.put(date, list);
+            }
+            list.add(cl);
 
+            Processing noProc = new Processing();
+            noProc.setId(0);
+            Processing p = processes.get(cl.getProcessingId());
+            if (p == null) {
+                try {
+                    p = connection.getProcess(cl.getProcessingId());
+                } catch (BookKeeprCommunicationException ex) {
+                    Logger.getLogger(JReaperSetupFrame.class.getName()).log(Level.WARNING, "Couldn't get a matching 'Processing' object for candidate list " + Long.toHexString(cl.getId()));
+                    p = noProc;
+
+                }
+                processes.put(p.getId(), p);
+            }
+            list = procCandListStubs.get(p.getId());
+            if (list == null) {
+                list = new ArrayList<CandidateListStub>();
+                procCandListStubs.put(p.getId(), list);
             }
             list.add(cl);
         }
-        Collections.sort(allDates);
-        if (allDates.isEmpty()) {
-            allDates.add("NO DATA");
-        }
-        this.jComboBox_startDate.setModel(new DefaultComboBoxModel(allDates.toArray()));
+        this.jComboBox_startDate.setModel(new DefaultComboBoxModel(processes.keySet().toArray()));
         this.jComboBox_startDate.setSelectedIndex(0);
-        this.jComboBox_endDate.setModel(new DefaultComboBoxModel(allDates.toArray()));
-        this.jComboBox_endDate.setSelectedIndex(allDates.size() - 1);
 
         this.jLabel_user.setText(jreaper.getUser());
         this.clistFilterChanged();
@@ -851,14 +831,12 @@ this.clistFilterChanged();
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton_loadDone;
-    private javax.swing.JComboBox jComboBox_endDate;
     private javax.swing.JComboBox jComboBox_startDate;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

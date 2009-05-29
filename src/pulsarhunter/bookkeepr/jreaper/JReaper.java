@@ -146,6 +146,7 @@ public class JReaper {
         int nclist = 0;
         int nerr = 0;
         int ncands = 0;
+        this.myViewedCandidates = new ViewedCandidates();
 
         for (CandidateListStub stub : clistStubs) {
             this.clistIdToCandListHeaders.put(stub.getId(), stub);
@@ -170,7 +171,6 @@ public class JReaper {
             this.myViewedCandidates.addViewedClist(clist.getId());
         }
         Collections.sort(cands, IdAble.COMPARATOR);
-        this.myViewedCandidates = new ViewedCandidates();
         reSyncViewedWithDatabase();
         reSyncClassifiedWithDatabase();
 
