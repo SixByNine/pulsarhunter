@@ -167,7 +167,7 @@ public class JReaper {
             nclist++;
             ncands += clist.getNcands();
             gui.setLoadingPane(clistStubs.size(), nclist, nerr, ncands);
-
+            this.myViewedCandidates.addViewedClist(clist.getId());
         }
         Collections.sort(cands, IdAble.COMPARATOR);
         this.myViewedCandidates = new ViewedCandidates();
