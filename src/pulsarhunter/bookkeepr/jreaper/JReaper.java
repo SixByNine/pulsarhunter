@@ -354,6 +354,7 @@ public class JReaper {
     public void classifyToExistingCandidate(ClassifiedCandidate cand, RawCandidateBasic basic, HarmonicType htype) throws BookKeeprCommunicationException {
         RawCandidateMatched m = new RawCandidateMatched(htype, basic);
         m.setConfirmed(true);
+        m.setUser(user);
         connection.postToClassifiedCandidate(cand, m);
     }
 
@@ -363,7 +364,8 @@ public class JReaper {
         cc.setName(name);
         cc.setOriginalRawCandId(cand.getId());
         cc.setPreferedCandidate(new RawCandidateMatched(HarmonicType.Principal, cand));
-
+        cc.getPreferedCandidate().setConfirmed(true);
+        cc.getPreferedCandidate().setUser(user);
         cc.setCoordinate(cand.getCandlistCoordinate());
         connection.postClassifiedCandidate(cc);
     }
