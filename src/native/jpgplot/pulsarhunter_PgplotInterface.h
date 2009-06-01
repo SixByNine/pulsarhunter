@@ -161,6 +161,14 @@ JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgslw
 
 /*
  * Class:     pulsarhunter_PgplotInterface
+ * Method:    pgsls
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_pulsarhunter_PgplotInterface_pgsls
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     pulsarhunter_PgplotInterface
  * Method:    pgtxt
  * Signature: (FFFFLjava/lang/String;)V
  */
