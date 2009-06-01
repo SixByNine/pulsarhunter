@@ -153,32 +153,40 @@ public class PgplotInterface {
         }
         PgplotInterface.pgshls(ci, h, s, l);
     }
-    
-    public void jpgcirc(float x, float y, float r){
+
+    public void jpgcirc(float x, float y, float r) {
         if (!active) {
             throw new RuntimeException("Cannot plot using this plotter as it is no longer active.");
         }
-        PgplotInterface.pgcirc(x,y,r);
+        PgplotInterface.pgcirc(x, y, r);
     }
-    
-    
-     public void jpgsfs(int fs) {
+
+    public void jpgsfs(int fs) {
         if (!active) {
             throw new RuntimeException("Cannot plot using this plotter as it is no longer active.");
         }
         PgplotInterface.pgsfs(fs);
     }
-public void jpgscf(int fs) {
+
+    public void jpgscf(int fs) {
         if (!active) {
             throw new RuntimeException("Cannot plot using this plotter as it is no longer active.");
         }
         PgplotInterface.pgscf(fs);
     }
+
     public void jpgslw(int lw) {
         if (!active) {
             throw new RuntimeException("Cannot plot using this plotter as it is no longer active.");
         }
         PgplotInterface.pgslw(lw);
+    }
+
+    public void jpgsls(int ls) {
+        if (!active) {
+            throw new RuntimeException("Cannot plot using this plotter as it is no longer active.");
+        }
+        PgplotInterface.pgsls(ls);
     }
 
     public void jpgptxt(float x, float y, float angle, float fjust, String text) {
@@ -187,7 +195,6 @@ public void jpgscf(int fs) {
         }
         PgplotInterface.pgtxt(x, y, angle, fjust, text);
     }
-    
     private static boolean avaliable = false;
 
     public static boolean isAvaliable() {
@@ -197,7 +204,7 @@ public void jpgscf(int fs) {
      *  Try and load the libary on class load... Otherwise we set avaliable to false.
      *
      */
-    
+
 
     static {
 
@@ -213,7 +220,7 @@ public void jpgscf(int fs) {
         } catch (java.lang.UnsatisfiedLinkError err) {
             System.err.println(err.getMessage());
             err.printStackTrace();
-            
+
             // err.printStackTrace();
 
 
@@ -229,9 +236,8 @@ public void jpgscf(int fs) {
 
     private static native void pgsch(float val);
 
-    
     private static native void pgscf(int val);
-    
+
     private static native void pgsvp(float xleft, float xright, float ybot, float ytop);
 
     private static native void pgswin(float xleft, float xright, float ybot, float ytop);
@@ -257,8 +263,11 @@ public void jpgscf(int fs) {
     private static native void pgcirc(float x, float y, float r);
 
     private static native void pgsfs(int ci);
+
     private static native void pgslw(int ci);
-    
+
+    private static native void pgsls(int ci);
+
     private static native void pgtxt(float x, float y, float angle, float fjust, String text);
 }
 
