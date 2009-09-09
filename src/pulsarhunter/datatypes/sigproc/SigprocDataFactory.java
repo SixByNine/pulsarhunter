@@ -57,6 +57,7 @@ public class SigprocDataFactory implements DataFactory {
         if(file.exists()){
             if(type==SigprocDataType.BestSumFile)return loadSumFile(file);
             if(type==SigprocDataType.PrdFile)return loadPrdFile(file);
+            if(file.getName().endsWith(".prd"))throw new IncorrectDataTypeException("SigprocDataFactory: Looks like a .prd file");
             
             SigprocHeader head = null;
             try{

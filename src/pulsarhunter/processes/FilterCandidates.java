@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.HashMap;
 import pulsarhunter.BarryCenter;
 import pulsarhunter.FrequencyFilter;
 import pulsarhunter.PulsarHunter;
@@ -69,13 +70,14 @@ public class FilterCandidates implements PulsarHunterProcess {
     private boolean useAccn = false;
     private boolean ignorePeriodLessThan4Tsamp = true;
     private boolean dumpHamonics = false;
+    private boolean writesum = false;
     private int maxResults = Integer.MAX_VALUE;
     private double minProfileBins;
     private boolean nophcx = false;
     private FrequencyFilter[] filters = new FrequencyFilter[0];
 
     /** Creates a new instance of FilterCandidates */
-    public FilterCandidates(BasicSearchResultData dataFile, PeriodSearchResultGroup.SortField snrField, double matchRangeFactor, String fileRoot, double snrMin, int maxResults, boolean dumpHarmonics, double minProfileBins, boolean nophcx) {
+    public FilterCandidates(BasicSearchResultData dataFile, PeriodSearchResultGroup.SortField snrField, double matchRangeFactor, String fileRoot, double snrMin, int maxResults, boolean dumpHarmonics, double minProfileBins, boolean nophcx, boolean writesum) {
         this.rawSearchResults = dataFile.getSearchResults();
         this.dataFile = dataFile;
         this.snrField = snrField;
@@ -84,6 +86,7 @@ public class FilterCandidates implements PulsarHunterProcess {
         this.snrMin = snrMin;
         this.maxResults = maxResults;
         this.dumpHamonics = dumpHarmonics;
+	this.writesum = writesum;
         this.minProfileBins = minProfileBins;
         this.nophcx = nophcx;
     }
@@ -341,6 +344,40 @@ public class FilterCandidates implements PulsarHunterProcess {
                 dmIndex = new double[]{sr.getDM()};
             }
 
+	    if (writesum){
+		    File sumfile = new File(fileRoot + "_" + nStr + ".sum");
+		    try{
+			    PrintStream sumout = new PrintStream(new FileOutputStream(sumfile));
+			    sumout.println("\t"+fname);
+			    sumout.printf("%f\t%f\t%f\t%d\n",sr.getPeriod(),sr.getDM(), sr.getSpectralSignalToNoise(),sr.getHarmfold());
+			    HashMap<Double,Double> dmsnr = new HashMap<Double,Double>();
+			    for (BasicSearchResult searchResult : g.getDmPdotPddotCube()) {
+				    Double oldv = dmsnr.get((Double)searchResult.getDM());
+				    if (oldv!=null){
+					    if(oldv.doubleValue() < searchResult.getSpectralSignalToNoise()){
+						    dmsnr.remove(searchResult.getDM());
+						    dmsnr.put(searchResult.getDM(),searchResult.getSpectralSignalToNoise());
+					    }
+				    } else {
+					    dmsnr.put(searchResult.getDM(),searchResult.getSpectralSignalToNoise());
+				    }
+			    }
+			    int v=0;
+			    ArrayList<Double> sorted = new ArrayList<Double>(dmsnr.keySet());
+			    Collections.sort(sorted);
+			    for (Double key : sorted){
+				    v++;
+				    sumout.printf("\t%d\t%f\t%f\n",v,key.doubleValue(),dmsnr.get(key).doubleValue());
+
+			    }
+
+			    sumout.close();
+		    } catch (FileNotFoundException e){
+			    e.printStackTrace();
+		    }
+
+	    }
+
             if (!nophcx) {
                 PHCSection sec = new PHCSection("FFT");
 
@@ -402,7 +439,6 @@ public class FilterCandidates implements PulsarHunterProcess {
 //                }
 //            }
 //
-
 
 
                 SNRBlock block = new SNRBlock(dmIndex, new double[]{sr.getPeriod()}, acIndex, adIndex);

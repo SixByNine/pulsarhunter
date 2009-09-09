@@ -39,6 +39,7 @@ import pulsarhunter.processes.folding.OptimisedSuspectPGPlotterFactory;
 import pulsarhunter.datatypes.PulsarHunterCandidateDataFactory;
 import pulsarhunter.datatypes.ValueListFactory;
 import pulsarhunter.datatypes.ZapFileFactory;
+import pulsarhunter.datatypes.presto.AccelSearchOutputFactory;
 import pulsarhunter.datatypes.sigproc.BestSumFileFactory;
 import pulsarhunter.processes.CandListCreationFactory;
 import pulsarhunter.processes.DedisperseFactory;
@@ -72,8 +73,8 @@ import pulsarhunter.recipies.RecipeParser;
  */
 public class PulsarHunter {
 
-    public static final String VERSION = "1.3r43";
-    public static final String DATE = "2009-04-01";
+    public static final String VERSION = "1.3r50";
+    public static final String DATE = "2009-05-22";
     private PulsarHunterRegistry registry;
     private String recipe = null;
     private String[] recipeArgs = new String[0];
@@ -97,7 +98,7 @@ public class PulsarHunter {
         }
 
         PulsarHunter.out.println("PulsarHunter - Version " + PulsarHunter.VERSION + " (" + DATE + ")");
-        PulsarHunter.out.println("PulsarHunter - "+recipeArgs.length+" args passed");
+        PulsarHunter.out.println("PulsarHunter - " + recipeArgs.length + " args passed");
         PulsarHunter.out.println("PulsarHunter - Checking for NativeLibraries");
 
         if (BarryCenter.isAvaliable()) {
@@ -116,6 +117,7 @@ public class PulsarHunter {
         if (testMode) {
             pulsarhunter.jreaper.ConfigureTest.main(new String[0]);
         }
+        this.registry.addDataFactory(new AccelSearchOutputFactory());
 
         this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.SigprocTimeSeries));
         this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.SigprocBandedTimeSeries));
@@ -205,7 +207,6 @@ public class PulsarHunter {
                         return new BufferedReader(new FileReader(f));
                     }
                 } else {
-
                 }
             }
         }

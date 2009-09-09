@@ -68,6 +68,7 @@ public class FilterCandidatesFactory implements ProcessFactory {
         int maxResults = 999;
         boolean useAccn = false;
         boolean dumpHarmonics = false;
+	boolean writesum=false;
         double matchfactor = 0.0025;
         double minProfileBins = 4.0;
         boolean nophcx=false;
@@ -99,6 +100,9 @@ public class FilterCandidatesFactory implements ProcessFactory {
         if (reg.getOptions().getArg(Option.dumpharmonics)!=null){
             dumpHarmonics = (Boolean)reg.getOptions().getArg(Option.dumpharmonics);
         }
+	if (reg.getOptions().getArg(Option.writesum)!=null){
+		writesum = (Boolean)reg.getOptions().getArg(Option.writesum);
+	}
         if (reg.getOptions().getArg(Option.zapfile)!=null){
             String zapfilename = (String)reg.getOptions().getArg(Option.zapfile);
             ZapFile zapFile = null;
@@ -160,7 +164,7 @@ public class FilterCandidatesFactory implements ProcessFactory {
 //        }
         
         
-        FilterCandidates proc =  new FilterCandidates((BasicSearchResultData)dat,snrField,matchfactor,rootname,minsnr,maxResults,dumpHarmonics,minProfileBins,nophcx);
+        FilterCandidates proc =  new FilterCandidates((BasicSearchResultData)dat,snrField,matchfactor,rootname,minsnr,maxResults,dumpHarmonics,minProfileBins,nophcx,writesum);
         proc.setUseAccn(useAccn);
         proc.setFilters(filters);
         return proc;
