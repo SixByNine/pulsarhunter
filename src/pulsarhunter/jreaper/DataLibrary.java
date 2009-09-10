@@ -196,9 +196,15 @@ public class DataLibrary{
     public void importClistsFromDir(File file) {
         importClistsFromDir(file,null);
     }
-    
+
+
     public void importClistsFromDir(final File file,String group) {
-        final LoadingSplash lsplash = new LoadingSplash();
+        importClistsFromDir(file, group,null);
+    }
+    public void importClistsFromDir(final File file,String group,final LoadingSplash corelsplash) {
+        final LoadingSplash lsplash;
+        if(corelsplash==null)lsplash = new LoadingSplash();
+        else lsplash=corelsplash;
         // System.out.println("Reading Dir "+file.getName());
         File[] fList = file.listFiles(new FileFilter(){
             public boolean accept(File pathname){
@@ -213,8 +219,8 @@ public class DataLibrary{
             for(final File f : fList){
                 final int count = i++;
                 if(f.isDirectory()) {
-                    if(group == null) importClistsFromDir(f,f.getName());
-                    else importClistsFromDir(f,group);
+                    if(group == null) importClistsFromDir(f,f.getName(),lsplash);
+                    else importClistsFromDir(f,group,lsplash);
                 } else if(f.getName().endsWith(".clist.gz") || f.getName().endsWith(".clist")){
                     if(!data.contains(f)){
                         
@@ -235,12 +241,14 @@ public class DataLibrary{
             }
             
         }
+        if(corelsplash==null){
         java.awt.EventQueue.invokeLater(new Runnable(){
             public void run(){
                 lsplash.setVisible(false);
                 lsplash.dispose();
             }
         });
+        }
     }
     
     
