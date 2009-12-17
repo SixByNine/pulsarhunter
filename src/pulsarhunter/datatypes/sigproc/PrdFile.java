@@ -89,6 +89,8 @@ public class PrdFile extends BasicSearchResultData {
             if (line.trim().equalsIgnoreCase("##BEGIN HEADER##")) {
                 header.readHeader(reader);
                 line = reader.readLine();
+		tsamp = header.getTsamp();
+
             }
 
             if (line.trim().startsWith("DM:")) {
@@ -200,6 +202,7 @@ public class PrdFile extends BasicSearchResultData {
                         searchResult.setJerk(ad);
 
                         searchResult.setTsamp(tsamp);
+
 
                         searchResult.setHarmfold(harmfold);
                         this.addSearchResult(searchResult);

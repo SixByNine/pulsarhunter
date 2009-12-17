@@ -132,7 +132,7 @@ public class InsertFakeSignal implements PulsarHunterProcess{
         if(data instanceof SigprocTimeSeries && outTS instanceof SigprocTimeSeries ){
             // Both headers are the same so copy them!
             ((SigprocTimeSeries)outTS).copySigprocHeader(((SigprocTimeSeries)data).getSigprocHeader());
-            outTS.getHeader().setSourceID(data.getHeader().getSourceID()+" PH-INSERTFAKE");
+//            outTS.getHeader().setSourceID(data.getHeader().getSourceID()+" PH-INSERTFAKE");
         }
         
         
