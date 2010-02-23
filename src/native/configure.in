@@ -1,0 +1,50 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.57)
+AC_INIT([PULSARHUNTER_NATIVE],[1.00],[mkeith@pulsarastronomy.net])
+
+AC_CONFIG_AUX_DIR([autoconf])
+
+
+# Enable large-file support
+AC_SYS_LARGEFILE
+
+# Determine the machine endian
+AC_C_BIGENDIAN
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_CC
+AC_PROG_CPP
+AM_PROG_CC_C_O
+
+AC_PROG_F77
+AC_PROG_F77_C_O
+AC_F77_LIBRARY_LDFLAGS
+
+
+AC_PROG_INSTALL
+AC_PROG_LIBTOOL
+
+JAVA=java
+JAVAC=javac
+JAVAPREFIX=$JDK_HOME
+
+AC_PROG_JAVAC
+AC_JNI_INCLUDE_DIR
+for JNI_INCLUDE_DIR in $JNI_INCLUDE_DIRS
+do
+	JNI_I="$JNI_I -I$JNI_INCLUDE_DIR"
+done
+AC_SUBST(JNI_I)
+
+SWIN_LIB_PGPLOT
+
+AM_INIT_AUTOMAKE([foreign subdir-objects])
+
+AM_CONFIG_HEADER([config.h])
+AC_CONFIG_FILES([Makefile jpgplot/Makefile sla/Makefile])
+
+AC_OUTPUT
