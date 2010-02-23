@@ -73,8 +73,8 @@ import pulsarhunter.recipies.RecipeParser;
  */
 public class PulsarHunter {
 
-    public static final String VERSION = "1.3t57";
-    public static final String DATE = "2009-10-30";
+    public static final String VERSION = "1.3t60";
+    public static final String DATE = "2010-01-13";
     private PulsarHunterRegistry registry;
     private String recipe = null;
     private String[] recipeArgs = new String[0];

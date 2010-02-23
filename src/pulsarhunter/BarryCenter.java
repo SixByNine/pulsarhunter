@@ -88,7 +88,7 @@ public class BarryCenter{
         try{
             
             
-            PulsarHunter.loadLibrary("barrycentre"); // this has to be spelt wrong as the lib name is wrong
+            PulsarHunter.loadLibrary("barycentre"); 
             avaliable = true;
         } catch(java.lang.UnsatisfiedLinkError err){
             System.err.println(err.getMessage());

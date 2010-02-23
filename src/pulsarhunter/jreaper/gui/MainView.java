@@ -170,7 +170,6 @@ public class MainView extends javax.swing.JFrame {
         super.dispose();
     }
 
-    
     private class RefreshThread extends Thread {
 
         private boolean stop = false;
@@ -190,7 +189,7 @@ public class MainView extends javax.swing.JFrame {
                     Runnable r = new Runnable() {
 
                         public void run() {
-                            MainView.this.jLabel_precache.setText("PreCache: "+jreaper.getPrecacheStatus());
+                            MainView.this.jLabel_precache.setText("PreCache: " + jreaper.getPrecacheStatus());
                             MainView.this.jProgressBar_precache.setMaximum(jreaper.getPrecacheTotal());
                             MainView.this.jProgressBar_precache.setValue(jreaper.getPrecacheCounter());
 
@@ -202,7 +201,6 @@ public class MainView extends javax.swing.JFrame {
 
                 } catch (InterruptedException interruptedException) {
                 } catch (InvocationTargetException e) {
-
                 }
 
 
@@ -257,7 +255,6 @@ public class MainView extends javax.swing.JFrame {
                 frameQueue.put(plotFrame);
                 c.setViewed(true);
             } catch (InterruptedException e) {
-
             }
             jButton3.setEnabled(true);
             jButton3.setText("Display Held (" + MainView.this.frameQueue.size() + ")");
@@ -283,7 +280,6 @@ public class MainView extends javax.swing.JFrame {
             frameQueue.put(plotFrame);
             c.setViewed(true);
         } catch (InterruptedException e) {
-
         }
         jButton3.setEnabled(true);
         jButton3.setText("Display Held (" + MainView.this.frameQueue.size() + ")");
@@ -300,16 +296,46 @@ public class MainView extends javax.swing.JFrame {
 
             public void run() {
                 JFrame f = frameQueue.poll();
-                while (f != null) {
-                    f.setVisible(true);
-                    while (f.isVisible()) {
-                        try {
-                            this.sleep(500);
-                        } catch (InterruptedException e) {
+                CandidateDisplayFrame cdf = null;
+                CandidateDisplayFrame pcdf = null;
 
+                while (f != null) {
+                    if (f instanceof CandidateDisplayFrame) {
+                        cdf = (CandidateDisplayFrame) f;
+                        if (pcdf != null && !pcdf.isVisible()) {
+                            pcdf = null;
+                        }
+                    }
+                    if (pcdf != null) {
+                        pcdf.swap(cdf);
+                        pcdf.closed = false;
+                        cdf = pcdf;
+                    } else {
+                        f.setVisible(true);
+                    }
+                    if (cdf != null && pcdf == null) {
+                        pcdf = cdf;
+                    }
+
+                    if (pcdf != null) {
+                        pcdf.setNremaining(frameQueue.size());
+                    }
+
+
+                    while (true) {
+                        if (pcdf==null && !f.isVisible()) {
+                            break;
+                        }
+                        if (pcdf != null && pcdf.closed) {
+                            break;
+                        }
+                        try {
+                            this.sleep(10);
+                        } catch (InterruptedException e) {
                         }
                     }
                     f = frameQueue.poll();
+
                 }
                 MainView.this.clickOnReleaseRunning = false;
                 replot();
@@ -1391,7 +1417,7 @@ public class MainView extends javax.swing.JFrame {
             }
         };
         task.start();
-        
+
     }//GEN-LAST:event_jButton_removeBeamsActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
@@ -1436,7 +1462,6 @@ public class MainView extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        
     }//GEN-LAST:event_formWindowClosed
 
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
@@ -1515,7 +1540,7 @@ public class MainView extends javax.swing.JFrame {
     private void excludeBeamsSelectFromList(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_excludeBeamsSelectFromList
         this.customBeamSelectionFrame.setSize(300, 400);
         this.customBeamSelectionFrame.setVisible(true);
-        
+
     }//GEN-LAST:event_excludeBeamsSelectFromList
 
     private void customBeamCloseButtonPressed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customBeamCloseButtonPressed
@@ -1567,7 +1592,7 @@ public class MainView extends javax.swing.JFrame {
     }//GEN-LAST:event_zCapCheckItemStateChanged
 
     private void zAxisCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zAxisCheckActionPerformed
-    // TODO add your handling code here:
+        // TODO add your handling code here:
     }//GEN-LAST:event_zAxisCheckActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
@@ -1589,8 +1614,8 @@ public class MainView extends javax.swing.JFrame {
             }
         };
         new Thread(runnable).start();
-        
-        
+
+
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void zAxisCheckItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_zAxisCheckItemStateChanged
@@ -1634,7 +1659,7 @@ public class MainView extends javax.swing.JFrame {
     }//GEN-LAST:event_zAxisChooserItemStateChanged
 
     private void zAxisChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zAxisChooserActionPerformed
-    // TODO add your handling code here:
+        // TODO add your handling code here:
     }//GEN-LAST:event_zAxisChooserActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -1645,7 +1670,7 @@ public class MainView extends javax.swing.JFrame {
             }
         };
         SwingUtilities.invokeLater(task);
-        
+
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void yAxisChooserItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_yAxisChooserItemStateChanged
@@ -1685,7 +1710,6 @@ public class MainView extends javax.swing.JFrame {
     }//GEN-LAST:event_xAxisChooserItemStateChanged
 
     private void xAxisChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xAxisChooserActionPerformed
-        
     }//GEN-LAST:event_xAxisChooserActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -1733,13 +1757,15 @@ public class MainView extends javax.swing.JFrame {
         StringBuffer memstr = new StringBuffer();
         Formatter formatter = new Formatter(memstr);
         String enabled = "Memclear off";
-        if(memClearActive)enabled = "Memclear on";
-        formatter.format("Mem: %d/%d MB (%s)", (int)(memused / 1e6), (int)(totalmem / 1e6),enabled);
+        if (memClearActive) {
+            enabled = "Memclear on";
+        }
+        formatter.format("Mem: %d/%d MB (%s)", (int) (memused / 1e6), (int) (totalmem / 1e6), enabled);
         this.jProgressBar_mem.setMaximum(100);
         this.jProgressBar_mem.setValue((int) (100 * ((double) memused / (double) totalmem)));
         this.jLabel_mem.setText(memstr.toString());
-     //   System.out.println(memstr);
-       if (memClearActive) {
+        //   System.out.println(memstr);
+        if (memClearActive) {
             if ((double) memused / (double) totalmem > 0.80) {
 
                 System.out.printf(" --- ATEMPTING TO CLEAR MEM ---");
@@ -1751,9 +1777,9 @@ public class MainView extends javax.swing.JFrame {
                 System.gc();
 
             }
-        formatter.format("Mem: %d/%d MB (%s)", (int)(memused / 1e6), (int)(totalmem / 1e6),enabled);
+            formatter.format("Mem: %d/%d MB (%s)", (int) (memused / 1e6), (int) (totalmem / 1e6), enabled);
             this.jLabel_mem.setText(memstr.toString());
-           // System.out.println(memstr);
+        // System.out.println(memstr);
         }
     }
     /**

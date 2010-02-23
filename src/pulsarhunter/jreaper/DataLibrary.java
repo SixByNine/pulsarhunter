@@ -255,7 +255,7 @@ public class DataLibrary{
     
     private void importClistFromFile(final File f,String group) {
         try {
-            String clname = f.getName().substring(0,f.getName().indexOf("."));
+            String clname = f.getName().substring(0,f.getName().indexOf(".clist"));
             Hashtable<String, CandListHeader> groupTable = this.groups.get(group);
             if(groupTable == null){
                 groupTable = new Hashtable<String, CandListHeader>();
@@ -339,7 +339,7 @@ public class DataLibrary{
         File infile = data.get(groupname).get(name);
         
         if(infile == null) throw new RuntimeException("Cannot load Data "+name+", data file not in this data library");
-        String clname = infile.getName().substring(0,infile.getName().indexOf("."));
+        String clname = infile.getName().substring(0,infile.getName().indexOf(".clist"));
         try{
             
             BufferedReader instream = new BufferedReader(this.getReader(infile));

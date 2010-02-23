@@ -69,7 +69,7 @@ public class FilterCandidatesFactory implements ProcessFactory {
         boolean useAccn = false;
         boolean dumpHarmonics = false;
 	boolean writesum=false;
-        double matchfactor = 0.0025;
+        double matchfactor = 0.001;
         double minProfileBins = 4.0;
         boolean nophcx=false;
         PeriodSearchResultGroup.SortField snrField =  PeriodSearchResultGroup.SortField.SPECTRAL_SNR;

@@ -41,6 +41,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
 import pulsarhunter.BarryCenter;
 import pulsarhunter.FrequencyFilter;
 import pulsarhunter.PulsarHunter;
@@ -86,7 +87,7 @@ public class FilterCandidates implements PulsarHunterProcess {
         this.snrMin = snrMin;
         this.maxResults = maxResults;
         this.dumpHamonics = dumpHarmonics;
-	this.writesum = writesum;
+        this.writesum = writesum;
         this.minProfileBins = minProfileBins;
         this.nophcx = nophcx;
     }
@@ -116,6 +117,12 @@ public class FilterCandidates implements PulsarHunterProcess {
                     ignorecount++;
                     continue;
                 }
+
+//                if (r.getPeriod() < 1.2e-6 * r.getDM() * minProfileBins) {
+//                    ignorecount++;
+//                    continue;
+//                }
+
             }
 
             boolean inserted = false;
@@ -227,7 +234,8 @@ public class FilterCandidates implements PulsarHunterProcess {
                 }
                 double period2 = g2.getBestPeriod();
 
-                if (isHarmonic(period1, period2)) {
+                if (dmHarm(period1, g1.getBestDM(), g2.getBestDM(), dataFile) && isHarmonic(period1, period2, harmout)) {
+//                if (isHarmonic(period1, period2, harmout)) {
 //                                    if(period2 > 0.000778 && period2 < 0.000779){
 //                                        System.out.println(period1+" SNR:"+g1.getBestSuspect().getSpectralSignalToNoise());
 //
@@ -235,9 +243,8 @@ public class FilterCandidates implements PulsarHunterProcess {
 
 
                     if (this.dumpHamonics) {
-                        harmout.printf("\t%f\t%f\t%f\t%f (%f)\n", g2.getBestPeriod() * 1000.0,
-                                g2.getBestSuspect().getSpectralSignalToNoise(), g2.getBestDM(),
-                                (period1 / period2), ((period1 / period2) - (int) (period1 / period2)));
+                        harmout.printf("\t%f\t%f\n",
+                                g2.getBestSuspect().getSpectralSignalToNoise(), g2.getBestDM());
                     }
 
                     g1.addHarmonic(g2);
@@ -254,9 +261,22 @@ public class FilterCandidates implements PulsarHunterProcess {
 
         PulsarHunter.out.println("Done");
 
+
+        int i = 0;
+        for (PeriodSearchResultGroup g : (List<PeriodSearchResultGroup>) resultGroups.clone()) {
+            if (g.getBestPeriod() < 1e-3 && g.getBestSuspect().getSpectralSignalToNoise() < 8) {
+                resultGroups.remove(g);
+                harmout.printf("REJECTED %f %f %f\n", g.getBestPeriod(), g.getBestDM(), g.getBestSuspect().getSpectralSignalToNoise());
+                i++;
+            }
+        }
+        System.out.printf("Rejected %d sub-ms candidates\n", i);
+
         if (this.dumpHamonics) {
             harmout.close();
         }
+
+
 
 
         double[] dmIndex = dataFile.getDmIndex();
@@ -333,50 +353,74 @@ public class FilterCandidates implements PulsarHunterProcess {
                 fname = fileRoot + "_" + nStr + ".phcx.gz";
             //System.out.printf("%f\t%f\t%f\t%f\t%e\t%d\t%d\n",sr.getSpectralSignalToNoise(),sr.getPeriod()*1000.0,sr.getDM(),Convert.pdotToAcc(sr.getPeriod(),sr.getAccn()),Convert.pddotToJerk(sr.getPeriod(),sr.getJerk(),sr.getAccn()),g.getHarmonics().size(),sr.getHarmfold());
             }
-            System.out.printf("%f\t%f\t%f %c\t%f\t%e\t%e\t%d\t%d\n", sr.getSpectralSignalToNoise(), bestRecon, sr.getPeriod() * 1000.0, zapChar, sr.getDM(), sr.getAccn(), sr.getJerk(), g.getHarmonics().size(), sr.getHarmfold());
+
+            double dopp = 1.0;
+            if (BarryCenter.isAvaliable()) {
+
+                BarryCenter bc = new BarryCenter(dataFile.getHeader().getMjdStart(),
+                        dataFile.getHeader().getTelescope(),
+                        dataFile.getHeader().getCoord().getRA().toDegrees(),
+                        dataFile.getHeader().getCoord().getDec().toDegrees());
+
+                dopp = bc.getDopplerFactor();
+
+            }
+
+            /*
+             * Here we write out topocentric period, because
+             * other tools expect topocentric values
+             * independant of whether the input file was barycentred.
+             */
+            double convFactor = 1.0;
+            if (dataFile.getHeader().isBarryCentered()) {
+                convFactor = dopp;
+            }
+
+
+            System.out.printf("%f\t%f\t%f %c\t%f\t%e\t%e\t%d\t%d\n", sr.getSpectralSignalToNoise(), bestRecon, convFactor * sr.getPeriod() * 1000.0, zapChar, sr.getDM(), sr.getAccn(), sr.getJerk(), g.getHarmonics().size(), sr.getHarmfold());
 
 
 
             if (listFile != null) {
-                listFile.printf("%s\t%f\t%f\t%f\t%e\t%e\t%d\t%d\n", fname, sr.getSpectralSignalToNoise(), sr.getPeriod() * 1000.0, sr.getDM(), sr.getAccn(), sr.getJerk(), g.getHarmonics().size(), sr.getHarmfold());
+                listFile.printf("%s\t%f\t%f\t%f\t%e\t%e\t%d\t%d\n", fname, sr.getSpectralSignalToNoise(), convFactor * sr.getPeriod() * 1000.0, sr.getDM(), sr.getAccn(), sr.getJerk(), g.getHarmonics().size(), sr.getHarmfold());
             }
             if (dmIndex.length == 0) {
                 dmIndex = new double[]{sr.getDM()};
             }
 
-	    if (writesum){
-		    File sumfile = new File(fileRoot + "_" + nStr + ".sum");
-		    try{
-			    PrintStream sumout = new PrintStream(new FileOutputStream(sumfile));
-			    sumout.println("\t"+fname);
-			    sumout.printf("%f\t%f\t%f\t%d\n",sr.getPeriod(),sr.getDM(), sr.getSpectralSignalToNoise(),sr.getHarmfold());
-			    HashMap<Double,Double> dmsnr = new HashMap<Double,Double>();
-			    for (BasicSearchResult searchResult : g.getDmPdotPddotCube()) {
-				    Double oldv = dmsnr.get((Double)searchResult.getDM());
-				    if (oldv!=null){
-					    if(oldv.doubleValue() < searchResult.getSpectralSignalToNoise()){
-						    dmsnr.remove(searchResult.getDM());
-						    dmsnr.put(searchResult.getDM(),searchResult.getSpectralSignalToNoise());
-					    }
-				    } else {
-					    dmsnr.put(searchResult.getDM(),searchResult.getSpectralSignalToNoise());
-				    }
-			    }
-			    int v=0;
-			    ArrayList<Double> sorted = new ArrayList<Double>(dmsnr.keySet());
-			    Collections.sort(sorted);
-			    for (Double key : sorted){
-				    v++;
-				    sumout.printf("\t%d\t%f\t%f\n",v,key.doubleValue(),dmsnr.get(key).doubleValue());
+            if (writesum) {
+                File sumfile = new File(fileRoot + "_" + nStr + ".sum");
+                try {
+                    PrintStream sumout = new PrintStream(new FileOutputStream(sumfile));
+                    sumout.println("\t" + fname);
+                    sumout.printf("%f\t%f\t%f\t%d\n", sr.getPeriod(), sr.getDM(), sr.getSpectralSignalToNoise(), sr.getHarmfold());
+                    HashMap<Double, Double> dmsnr = new HashMap<Double, Double>();
+                    for (BasicSearchResult searchResult : g.getDmPdotPddotCube()) {
+                        Double oldv = dmsnr.get((Double) searchResult.getDM());
+                        if (oldv != null) {
+                            if (oldv.doubleValue() < searchResult.getSpectralSignalToNoise()) {
+                                dmsnr.remove(searchResult.getDM());
+                                dmsnr.put(searchResult.getDM(), searchResult.getSpectralSignalToNoise());
+                            }
+                        } else {
+                            dmsnr.put(searchResult.getDM(), searchResult.getSpectralSignalToNoise());
+                        }
+                    }
+                    int v = 0;
+                    ArrayList<Double> sorted = new ArrayList<Double>(dmsnr.keySet());
+                    Collections.sort(sorted);
+                    for (Double key : sorted) {
+                        v++;
+                        sumout.printf("\t%d\t%f\t%f\n", v, key.doubleValue(), dmsnr.get(key).doubleValue());
 
-			    }
+                    }
 
-			    sumout.close();
-		    } catch (FileNotFoundException e){
-			    e.printStackTrace();
-		    }
+                    sumout.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
 
-	    }
+            }
 
             if (!nophcx) {
                 PHCSection sec = new PHCSection("FFT");
@@ -389,31 +433,9 @@ public class FilterCandidates implements PulsarHunterProcess {
                 sec.setExtraValue("SPECSNR", String.valueOf(sr.getSpectralSignalToNoise()));
 
                 if (dataFile.getHeader().isBarryCentered()) {
-                    double dopp = 1.0;
-                    if (BarryCenter.isAvaliable()) {
-
-                        BarryCenter bc = new BarryCenter(dataFile.getHeader().getMjdStart(),
-                                dataFile.getHeader().getTelescope(),
-                                dataFile.getHeader().getCoord().getRA().toDegrees(),
-                                dataFile.getHeader().getCoord().getDec().toDegrees());
-
-                        dopp = bc.getDopplerFactor();
-
-                    }
                     sec.setBestBaryPeriod(sr.getPeriod());
                     sec.setBestTopoPeriod(sr.getPeriod() * dopp);
                 } else {
-                    double dopp = 1.0;
-                    if (BarryCenter.isAvaliable()) {
-
-                        BarryCenter bc = new BarryCenter(dataFile.getHeader().getMjdStart(),
-                                dataFile.getHeader().getTelescope(),
-                                dataFile.getHeader().getCoord().getRA().toDegrees(),
-                                dataFile.getHeader().getCoord().getDec().toDegrees());
-
-                        dopp = bc.getDopplerFactor();
-
-                    }
                     sec.setBestBaryPeriod(sr.getPeriod() / dopp);
                     sec.setBestTopoPeriod(sr.getPeriod());
 
@@ -479,13 +501,128 @@ public class FilterCandidates implements PulsarHunterProcess {
 
     }
 
-    private boolean isHarmonic(double p1, double p2) {
+    private boolean dmHarm(double p1, double dm1, double dm2, BasicSearchResultData datafile) {
+        double dmr = 30 * p1;
+        return (Math.abs(dm1 - dm2) < dmr);
+
+    }
+
+    private boolean isHarmonic_pmminifind(double p1, double p2, PrintStream write) {
+
+        double f1 = 1 / p2;
+        double f2 = 1 / p1;
+
+
+        if (f1 > f2) {
+            double ratio = f1 / f2;
+
+            if (ratio < 64) {
+                if (Math.abs(ratio) - (int) (ratio + 0.5) < matchRangeFactor * (int) (ratio + 0.5)) {
+                    write.printf("\t%f\t%f\tINT", p2 * 1000.0, (p1 / p2));
+                    return true;
+                } else {
+                    for (int k = 1; k < 8; k++) {
+                        if (Math.abs(ratio * k - (int) (k * ratio + 0.5)) < matchRangeFactor * (int) (ratio * k + 0.5)) {
+                            write.printf("\t%f\t%f\tNonI %d", p2 * 1000.0, ratio, k);
+
+                            return true;
+                        }
+                    }
+                }
+            }
+        } else {
+            double ratio = f2 / f1;
+            if (ratio < 20) {
+                if (Math.abs(ratio - 1) < matchRangeFactor) {
+                    write.printf("\t%f\t%f\tH1", p2 * 1000.0, (p1 / p2));
+
+                    return true;
+                }
+                for (int k = 1; k < 8; k++) {
+                    if (Math.abs(ratio * k - (int) (k * ratio + 0.5)) < matchRangeFactor * (int) (ratio * k + 0.5)) {
+                        write.printf("\t%f\t%f\tSUB", p2 * 1000.0, (p1 / p2));
+
+                        return true;
+                    }
+                }
+
+            }
+        }
+        return false;
+    }
+    private HashMap<String, Double> ratios = null;
+
+    private boolean isHarmonic(double p1, double p2, PrintStream write) {
+
+        if (ratios == null) {
+            ratios = new HashMap<String, Double>();
+            for (int i = 1; i < 64; i++) {
+                ratios.put(String.valueOf(i), (double) i);
+                System.out.print(i + ", ");
+                if (i % 8 == 0) {
+                    System.out.println();
+                }
+            }
+
+            for (int top = 1; top <= 19; top++) {
+                System.out.println();
+                for (int bottom = 1; bottom < top; bottom++) {
+                    double ratio = (double) top / (double) bottom;
+                    boolean ok = true;
+                    for (double r : ratios.values()) {
+                        if (Math.abs(ratio - r) < 0.00001) {
+//                            System.out.println("XXXXX "+top+" "+bottom+" "+Math.abs(ratio - r) );
+                            ok = false;
+                            break;
+                        }
+                    }
+                    if (ok) {
+                        ratios.put(top + "/" + bottom, ratio);
+                        System.out.print(top + "/" + bottom + ", ");
+                    }
+                }
+            }
+            System.out.println();
+        }
+
+
+
+        double f1 = 1.0 / p1;
+        double f2 = 1.0 / p2;
+
+
+
+
+        for (String k : ratios.keySet()) {
+            if (isHarmonic(f1, f2, ratios.get(k))) {
+                if (write != null) {
+                    write.printf("\t%f\t%f\t%s", p2 * 1000.0, (f2 / f1), k);
+                }
+                return true;
+            }
+
+        }
+
+
+        return false;
+    }
+
+    private boolean isHarmonic(double f1, double f2, double ratio) {
+        if (Math.abs(f2 / f1 - ratio) < matchRangeFactor * ratio) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean OLDisHarmonic(double p1, double p2) {
 
 
         // Stop really large harmonics
         if (((p1 / p2) > 10) || ((p2 / p1) > 10)) {
             return false;
         }
+
         if (harmCalc(p1, p2)) {
             return true;
         } else if (harmCalc(p1, 3 * p2)) {
@@ -511,6 +648,7 @@ public class FilterCandidates implements PulsarHunterProcess {
         } else {
             return false;
         }
+
     }
 
     private boolean harmCalc(double p1, double p2) {
@@ -525,6 +663,14 @@ public class FilterCandidates implements PulsarHunterProcess {
         } else {
             return false;
         }
+
+
+
+
+
+
+
+
     }
 
     private class PeriodSearchResultGroupComaprator implements Comparator<PeriodSearchResultGroup> {

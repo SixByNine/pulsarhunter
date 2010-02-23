@@ -1,37 +1,38 @@
 /*
 Copyright (C) 2005-2007 Michael Keith, University Of Manchester
- 
+
 email: mkeith@pulsarastronomy.net
 www  : www.pulsarastronomy.net/wiki/Software/PulsarHunter
- 
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
- 
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
- 
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- 
+
  */
 /*
  * CandidateDisplayFrame.java
  *
  * Created on 29 January 2007, 14:47
  */
-
 package pulsarhunter.jreaper.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import pulsarhunter.jreaper.Cand;
 import pulsarhunter.jreaper.Score;
 
@@ -40,50 +41,108 @@ import pulsarhunter.jreaper.Score;
  * @author  mkeith
  */
 public class CandidateDisplayFrame extends javax.swing.JFrame {
+
     Cand cand;
     JPanel displayPanel;
     MainView master;
+    private int nremaining = 0;
+    boolean closed = false;
+
     /** Creates new form CandidateDisplayFrame */
     public CandidateDisplayFrame(MainView master, Cand cand, JPanel displayPanel) {
         initComponents();
-        this.cand = cand;
-        this.displayPanel = displayPanel;
+        java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        if (screenSize.width > 2 * screenSize.height) {
+            setBounds((screenSize.width / 2 - this.getWidth()) / 2, (screenSize.height - this.getHeight()) / 2, this.getWidth(), this.getHeight());
+        } else {
+            setBounds((screenSize.width - this.getWidth()) / 2, (screenSize.height - this.getHeight()) / 2, this.getWidth(), this.getHeight());
+        }
         this.master = master;
-        this.add(displayPanel,BorderLayout.CENTER);
-        this.jToggleButton1.setSelected(cand.isDud());
-        this.setTitle(cand.getName());
-        
-        noclassbutton.setEnabled(true);
-        
-       
-        
-        if(cand.getCandClass()<1){
-            noclassbutton.setEnabled(false);
-        }
-        //this.jLabel_header1.setText("Name: "+cand.getName()+"  Period: "+cand.getPeriod()+"  DM: "+cand.getDM()+"  Score: "+cand.getScore());
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter out = new PrintWriter(stringWriter);
-        out.printf("Name: %s  Period: %10.4f  DM: %5.1f  Score: %5.2f ",cand.getName(),cand.getPeriod(),cand.getDM(),cand.getScore());
-        this.jLabel_header1.setText(stringWriter.toString());
-        
-        if(cand.getDetectionList()!=null)this.jComboBox_history.setModel(new DefaultComboBoxModel(cand.getDetectionList().toArray()));
-        else {
-            this.jComboBox_history.setEnabled(false);
-        }
-        
-        if(cand.getComments()!=null)this.jComboBox_comments.setModel(new DefaultComboBoxModel(cand.getComments().toArray()));
-        
-        
-        
+        setup(cand, displayPanel);
     }
-    
+
+    public void swap(CandidateDisplayFrame cdf) {
+        this.remove(this.displayPanel);
+        this.setup(cdf.cand, cdf.displayPanel);
+    }
+
+    public void setNremaining(int nremaining) {
+        this.nremaining = nremaining;
+        if (nremaining != 0) {
+            this.jButton1.setText("Next (" + nremaining + ")");
+        } else {
+            this.jButton1.setText("Close");
+        }
+    }
+
+    private void setup(final Cand cand, final JPanel displayPanel) {
+
+
+        Runnable run = new Runnable() {
+
+            public void run() {
+                CandidateDisplayFrame.this.cand = cand;
+                if (CandidateDisplayFrame.this.displayPanel != null) {
+                    CandidateDisplayFrame.this.remove(CandidateDisplayFrame.this.displayPanel);
+                }
+
+
+                CandidateDisplayFrame.this.displayPanel = displayPanel;
+
+
+                CandidateDisplayFrame.this.add(displayPanel, BorderLayout.CENTER);
+                CandidateDisplayFrame.this.jToggleButton1.setSelected(cand.isDud());
+
+                noclassbutton.setEnabled(true);
+
+
+
+                if (cand.getCandClass() < 1) {
+                    noclassbutton.setEnabled(false);
+                }
+                //this.jLabel_header1.setText("Name: "+cand.getName()+"  Period: "+cand.getPeriod()+"  DM: "+cand.getDM()+"  Score: "+cand.getScore());
+                StringWriter stringWriter = new StringWriter();
+                PrintWriter out = new PrintWriter(stringWriter);
+                out.printf("Name: %s  Period: %10.4f  DM: %5.1f  Score: %5.2f ", cand.getName(), cand.getPeriod(), cand.getDM(), cand.getScore());
+                CandidateDisplayFrame.this.jLabel_header1.setText(stringWriter.toString());
+
+                if (cand.getDetectionList() != null) {
+                    CandidateDisplayFrame.this.jComboBox_history.setModel(new DefaultComboBoxModel(cand.getDetectionList().toArray()));
+                } else {
+                    CandidateDisplayFrame.this.jComboBox_history.setEnabled(false);
+                }
+
+                if (cand.getComments() != null) {
+                    CandidateDisplayFrame.this.jComboBox_comments.setModel(new DefaultComboBoxModel(cand.getComments().toArray()));
+                }
+
+                CandidateDisplayFrame.this.validate();
+                CandidateDisplayFrame.this.repaint();
+            }
+        };
+
+        SwingUtilities.invokeLater(run);
+
+    }
+
+    private void done() {
+        if (this.nremaining == 0) {
+            this.setVisible(false);
+            this.dispose();
+            closed = true;
+        } else {
+            closed = true;
+        }
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         jPanel2 = new javax.swing.JPanel();
         jLabel_header1 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
@@ -107,15 +166,13 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jComboBox_comments = new javax.swing.JComboBox();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("JReaper Candidate");
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 click(evt);
             }
         });
 
-        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.X_AXIS));
+        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.LINE_AXIS));
 
         jLabel_header1.setText("jLabel3");
         jPanel2.add(jLabel_header1);
@@ -124,7 +181,7 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
 
         jPanel3.setLayout(new java.awt.GridLayout(2, 1));
 
-        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.X_AXIS));
+        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.LINE_AXIS));
 
         class1button.setText("Re-Classify");
         class1button.addActionListener(new java.awt.event.ActionListener() {
@@ -132,7 +189,6 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 class1buttonActionPerformed(evt);
             }
         });
-
         jPanel1.add(class1button);
 
         noclassbutton.setText("De-Classify");
@@ -141,7 +197,6 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 noclassbuttonActionPerformed(evt);
             }
         });
-
         jPanel1.add(noclassbutton);
 
         jToggleButton1.setText("Add to RFI List");
@@ -150,7 +205,6 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 jToggleButton1ActionPerformed(evt);
             }
         });
-
         jPanel1.add(jToggleButton1);
 
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
@@ -165,7 +219,6 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 jButton_showScoresActionPerformed(evt);
             }
         });
-
         jPanel1.add(jButton_showScores);
 
         jButton_showHarms.setText("Harmonics");
@@ -174,7 +227,6 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 jButton_showHarmsActionPerformed(evt);
             }
         });
-
         jPanel1.add(jButton_showHarms);
 
         jSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
@@ -189,7 +241,6 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 jButton5ActionPerformed(evt);
             }
         });
-
         jPanel1.add(jButton5);
 
         jButton6.setText("Only This");
@@ -198,7 +249,6 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
-
         jPanel1.add(jButton6);
 
         jButton7.setText("All But This");
@@ -207,12 +257,11 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 jButton7ActionPerformed(evt);
             }
         });
-
         jPanel1.add(jButton7);
 
         jPanel3.add(jPanel1);
 
-        jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.X_AXIS));
+        jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.LINE_AXIS));
 
         jButton1.setText("Close");
         jButton1.setFocusCycleRoot(true);
@@ -221,7 +270,6 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-
         jPanel4.add(jButton1);
 
         jLabel3.setText("Detections:");
@@ -241,7 +289,6 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
                 jComboBox_commentsActionPerformed(evt);
             }
         });
-
         jPanel4.add(jComboBox_comments);
 
         jPanel3.add(jPanel4);
@@ -251,48 +298,51 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         setBounds((screenSize.width-1024)/2, (screenSize.height-768)/2, 1024, 768);
     }// </editor-fold>//GEN-END:initComponents
-    
+
     private void jComboBox_commentsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_commentsActionPerformed
-        if(evt.getActionCommand().equalsIgnoreCase("comboBoxEdited")){
+        if (evt.getActionCommand().equalsIgnoreCase("comboBoxEdited")) {
             this.cand.addComment(this.jComboBox_comments.getSelectedItem().toString());
-            if(cand.getComments()!=null)this.jComboBox_comments.setModel(new DefaultComboBoxModel(cand.getComments().toArray()));
+            if (cand.getComments() != null) {
+                this.jComboBox_comments.setModel(new DefaultComboBoxModel(cand.getComments().toArray()));
+            }
         }
     }//GEN-LAST:event_jComboBox_commentsActionPerformed
-    
+
     private void jButton_showHarmsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_showHarmsActionPerformed
         new MessageBox("Sorry...\nFunction not implemented (yet)").setVisible(true);
     }//GEN-LAST:event_jButton_showHarmsActionPerformed
-    
+
     private void jButton_showScoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_showScoresActionPerformed
         Score s = cand.getScoreObject();
-        if(s!=null)new ScoreDisplayFrame(cand,s).setVisible(true);
-        else new MessageBox("No score object associated with this candidate").setVisible(true);
+        if (s != null) {
+            new ScoreDisplayFrame(cand, s).setVisible(true);
+        } else {
+            new MessageBox("No score object associated with this candidate").setVisible(true);
+        }
     }//GEN-LAST:event_jButton_showScoresActionPerformed
-    
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        this.setVisible(false);
-        this.dispose();
+        done();
     }//GEN-LAST:event_jButton1ActionPerformed
-    
+
     private void click(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_click
-        this.setVisible(false);
-        this.dispose();
+        done();
     }//GEN-LAST:event_click
-    
+
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         master.selectAllBeams();
         master.toggleSpecificBeam(cand.getBeam().getName());
     }//GEN-LAST:event_jButton7ActionPerformed
-    
+
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         master.selectNoBeams();
         master.toggleSpecificBeam(cand.getBeam().getName());
     }//GEN-LAST:event_jButton6ActionPerformed
-    
+
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         master.toggleSpecificBeam(cand.getBeam().getName());
     }//GEN-LAST:event_jButton5ActionPerformed
-    
+
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
 //        cand.addComment("Candidate Declasified");
 //        class1button.setEnabled(true);
@@ -308,38 +358,33 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
 //        };
 //        task.start();
 //        
-        
-        new AddToZapFile(master,1000.0/this.cand.getPeriod(),0.001,10,10).setVisible(true);
-        
-        
-        this.setVisible(false);
-        this.dispose();
+
+        new AddToZapFile(master, 1000.0 / this.cand.getPeriod(), 0.001, 10, 10).setVisible(true);
+
+
+        done();
     }//GEN-LAST:event_jToggleButton1ActionPerformed
-    
+
     private void noclassbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_noclassbuttonActionPerformed
         cand.addComment("Candidate Declasified");
         noclassbutton.setEnabled(false);
-        Thread task = new Thread(){
-            public void run(){
-                master.findHarmonics(cand,-1,cand.getCandidateFile().getUniqueIdentifier());
+        Thread task = new Thread() {
+
+            public void run() {
+                master.findHarmonics(cand, -1, cand.getCandidateFile().getUniqueIdentifier());
                 master.replot();
             }
         };
         task.start();
-        this.setVisible(false);
-        this.dispose();
+        done();
     }//GEN-LAST:event_noclassbuttonActionPerformed
-            
+
     private void class1buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_class1buttonActionPerformed
-        
-        new MakeCandidatePanel(cand,master).setVisible(true);
-        
-        
-        this.setVisible(false);
-        this.dispose();
+
+        new MakeCandidatePanel(cand, master).setVisible(true);
+
+        done();
     }//GEN-LAST:event_class1buttonActionPerformed
-    
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton class1button;
     private javax.swing.JButton jButton1;
@@ -364,5 +409,4 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JButton noclassbutton;
     // End of variables declaration//GEN-END:variables
-    
 }

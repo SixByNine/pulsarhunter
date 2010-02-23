@@ -48,7 +48,8 @@ public class PrdFile extends BasicSearchResultData {
 
     private enum HeaderElems {
 
-        SOURCEID, FREF, TSTART, TELESCOPE, RAJ, DECJ, TSAMP, PROGRAM, VERSION, HARM_FOLDS, COLS
+        SOURCEID, FREF, TSTART, TELESCOPE, RAJ, DECJ, TSAMP, PROGRAM, VERSION,
+        HARM_FOLDS, COLS, BARYCENTRIC
     };
     
     public enum ColumnLabel {
@@ -279,6 +280,7 @@ public class PrdFile extends BasicSearchResultData {
 
         private double tsamp = -1;
         private int[] harmFolds = new int[]{1, 2, 4, 8, 16};
+
         private ColumnLabel[] columns = new ColumnLabel[]{PrdFile.ColumnLabel.SNR_SPEC, PrdFile.ColumnLabel.PERIOD};
 
         void readHeader(BufferedReader reader) throws IOException {
@@ -349,6 +351,12 @@ public class PrdFile extends BasicSearchResultData {
                             }
 
                             break;
+                        case BARYCENTRIC:
+                            if(value.equalsIgnoreCase("T")){
+                                this.setBarryCentered(true);
+                            } else {
+                                this.setBarryCentered(false);
+                            }
                         default:
                             break;
 

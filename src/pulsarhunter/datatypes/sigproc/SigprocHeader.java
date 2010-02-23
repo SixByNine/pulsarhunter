@@ -273,7 +273,8 @@ public class  SigprocHeader{
             
         }
         this.writeASCII(bb,"HEADER_END");
-        
+
+        out.getChannel().truncate(bb.position());
         this.setHeaderLength(bb.position());
         out.close();
         
