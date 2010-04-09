@@ -52,7 +52,7 @@ NEW_VER="${PREV_MV}${R_TYPE}$NEW_REL"
 NEW_FILE="pulsarhunter_v${PREV_MV}${R_TYPE}$NEW_REL.tar.gz"
 
 cp dist/pulsarhunter.jar .
-tar --exclude='*CVS*' -chzf $NEW_FILE pulsarhunter.jar scripts/* help/* recipies/* lib/*.jar
+tar --exclude='*CVS*' -chzf $NEW_FILE pulsarhunter.jar scripts/* help/* recipies/* lib/*.jar native/*
 
 rm pulsarhunter.jar
 mv $NEW_FILE $OUT_DIR/

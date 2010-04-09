@@ -1,23 +1,23 @@
 /*
 Copyright (C) 2005-2007 Michael Keith, University Of Manchester
- 
+
 email: mkeith@pulsarastronomy.net
 www  : www.pulsarastronomy.net/wiki/Software/PulsarHunter
- 
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
- 
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
- 
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- 
+
  */
 /*
  * FilterCandidatesFactory.java
@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package pulsarhunter.processes;
 
 import java.io.File;
@@ -49,85 +48,94 @@ import pulsarhunter.datatypes.ZapFile;
  * @author mkeith
  */
 public class FilterCandidatesFactory implements ProcessFactory {
-    
+
     /** Creates a new instance of FilterCandidatesFactory */
     public FilterCandidatesFactory() {
     }
-    
+
     public PulsarHunterProcess createProcess(String[] params, Hashtable<String, Data> dataFiles, PulsarHunterRegistry reg) throws ProcessCreationException {
-        
-        if (params.length < 3) throw new ProcessCreationException("Too few arguments to create process "+this.getName());
-        
-        
+
+        if (params.length < 3) {
+            throw new ProcessCreationException("Too few arguments to create process " + this.getName());
+        }
+
+
         Data dat = dataFiles.get(params[1]);
-        if(! (dat instanceof BasicSearchResultData))  throw new ProcessCreationException("Argument 1 must be a BasicSearchResultData for process "+this.getName());
+        if (!(dat instanceof BasicSearchResultData)) {
+            throw new ProcessCreationException("Argument 1 must be a BasicSearchResultData for process " + this.getName());
+        }
         String rootname = params[2];
-        
-        
+
+
         double minsnr = 7.0;
         int maxResults = 999;
         boolean useAccn = false;
         boolean dumpHarmonics = false;
-	boolean writesum=false;
+        boolean writesum = false;
         double matchfactor = 0.001;
         double minProfileBins = 4.0;
-        boolean nophcx=false;
-        PeriodSearchResultGroup.SortField snrField =  PeriodSearchResultGroup.SortField.SPECTRAL_SNR;
-        
+        boolean nophcx = false;
+        boolean mjk_sigproc_fix = false;
+        PeriodSearchResultGroup.SortField snrField = PeriodSearchResultGroup.SortField.SPECTRAL_SNR;
+
         FrequencyFilter[] filters = new FrequencyFilter[0];
-        
-        if (reg.getOptions().getArg(Option.nophcx)!=null){
-            nophcx = (Boolean)reg.getOptions().getArg(Option.nophcx);
+
+        if (reg.getOptions().getArg(Option.mjksigprocfix) != null) {
+            mjk_sigproc_fix = (Boolean) reg.getOptions().getArg(Option.mjksigprocfix);
         }
-        if (reg.getOptions().getArg(Option.minsnr)!=null){
-            minsnr = (Double)reg.getOptions().getArg(Option.minsnr);
+
+        if (reg.getOptions().getArg(Option.nophcx) != null) {
+            nophcx = (Boolean) reg.getOptions().getArg(Option.nophcx);
         }
-        if (reg.getOptions().getArg(Option.matchfactor)!=null){
-            matchfactor = (Double)reg.getOptions().getArg(Option.matchfactor);
+        if (reg.getOptions().getArg(Option.minsnr) != null) {
+            minsnr = (Double) reg.getOptions().getArg(Option.minsnr);
         }
-        if (reg.getOptions().getArg(Option.minprofilebins)!=null){
-            minProfileBins = (Double)reg.getOptions().getArg(Option.minprofilebins);
+        if (reg.getOptions().getArg(Option.matchfactor) != null) {
+            matchfactor = (Double) reg.getOptions().getArg(Option.matchfactor);
         }
-        if (reg.getOptions().getArg(Option.maxresults)!=null){
-            maxResults = (Integer)reg.getOptions().getArg(Option.maxresults);
+        if (reg.getOptions().getArg(Option.minprofilebins) != null) {
+            minProfileBins = (Double) reg.getOptions().getArg(Option.minprofilebins);
         }
-        if (reg.getOptions().getArg(Option.useaccn)!=null){
-            useAccn = (Boolean)reg.getOptions().getArg(Option.useaccn);
+        if (reg.getOptions().getArg(Option.maxresults) != null) {
+            maxResults = (Integer) reg.getOptions().getArg(Option.maxresults);
         }
-        if (reg.getOptions().getArg(Option.userecon)!=null){
+        if (reg.getOptions().getArg(Option.useaccn) != null) {
+            useAccn = (Boolean) reg.getOptions().getArg(Option.useaccn);
+        }
+        if (reg.getOptions().getArg(Option.userecon) != null) {
             snrField = PeriodSearchResultGroup.SortField.RECONSTRUCTED_SNR;
         }
-        if (reg.getOptions().getArg(Option.dumpharmonics)!=null){
-            dumpHarmonics = (Boolean)reg.getOptions().getArg(Option.dumpharmonics);
+        if (reg.getOptions().getArg(Option.dumpharmonics) != null) {
+            dumpHarmonics = (Boolean) reg.getOptions().getArg(Option.dumpharmonics);
         }
-	if (reg.getOptions().getArg(Option.writesum)!=null){
-		writesum = (Boolean)reg.getOptions().getArg(Option.writesum);
-	}
-        if (reg.getOptions().getArg(Option.zapfile)!=null){
-            String zapfilename = (String)reg.getOptions().getArg(Option.zapfile);
+        if (reg.getOptions().getArg(Option.writesum) != null) {
+            writesum = (Boolean) reg.getOptions().getArg(Option.writesum);
+        }
+        if (reg.getOptions().getArg(Option.zapfile) != null) {
+            String zapfilename = (String) reg.getOptions().getArg(Option.zapfile);
             ZapFile zapFile = null;
             try {
                 zapFile = (ZapFile) dataFiles.get(zapfilename);
-            } catch(ClassCastException e) {
-                zapfilename = zapfilename+".zap";
+            } catch (ClassCastException e) {
+                zapfilename = zapfilename + ".zap";
             }
-            if(zapFile==null){
+            if (zapFile == null) {
                 try {
                     zapFile = new ZapFile(new File(zapfilename));
                     zapFile.read();
-                    dataFiles.put(zapfilename,zapFile);
+                    dataFiles.put(zapfilename, zapFile);
                 } catch (IOException ex) {
                     ex.printStackTrace();
-                    
+
                 }
-                
+
             }
             filters = zapFile.getFilters().toArray(filters);
         }
-        
-        
-        
-        
+
+
+
+
 //        for(int i = 3; i < params.length; i++){
 //            if(params[i].trim().equalsIgnoreCase("-minsnr")){
 //                minsnr = Double.parseDouble(params[++i]);
@@ -162,18 +170,17 @@ public class FilterCandidatesFactory implements ProcessFactory {
 //                filters = zapFile.getFilters().toArray(filters);
 //            }
 //        }
-        
-        
-        FilterCandidates proc =  new FilterCandidates((BasicSearchResultData)dat,snrField,matchfactor,rootname,minsnr,maxResults,dumpHarmonics,minProfileBins,nophcx,writesum);
+
+
+        FilterCandidates proc = new FilterCandidates((BasicSearchResultData) dat, snrField, matchfactor, rootname, minsnr, maxResults, dumpHarmonics, minProfileBins, nophcx, writesum, mjk_sigproc_fix);
         proc.setUseAccn(useAccn);
         proc.setFilters(filters);
         return proc;
-        
-        
+
+
     }
-    
+
     public String getName() {
         return "FILTER";
     }
-    
 }

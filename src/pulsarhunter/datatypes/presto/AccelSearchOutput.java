@@ -110,7 +110,7 @@ public class AccelSearchOutput extends BasicSearchResultData {
 
                 double snr = Double.parseDouble(elems[1]);
                 double reconSnr = Double.parseDouble(elems[3]);
-                double ac = Double.parseDouble(fixString(elems[10]));
+                double ac = -Double.parseDouble(fixString(elems[10]));
                 double ad = 0;
                 double period = Double.parseDouble(fixString(elems[5])) / 1000.0;
 

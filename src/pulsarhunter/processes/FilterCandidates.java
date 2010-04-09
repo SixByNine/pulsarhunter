@@ -75,10 +75,11 @@ public class FilterCandidates implements PulsarHunterProcess {
     private int maxResults = Integer.MAX_VALUE;
     private double minProfileBins;
     private boolean nophcx = false;
+    private boolean mjk_sigproc_fix = false;
     private FrequencyFilter[] filters = new FrequencyFilter[0];
 
     /** Creates a new instance of FilterCandidates */
-    public FilterCandidates(BasicSearchResultData dataFile, PeriodSearchResultGroup.SortField snrField, double matchRangeFactor, String fileRoot, double snrMin, int maxResults, boolean dumpHarmonics, double minProfileBins, boolean nophcx, boolean writesum) {
+    public FilterCandidates(BasicSearchResultData dataFile, PeriodSearchResultGroup.SortField snrField, double matchRangeFactor, String fileRoot, double snrMin, int maxResults, boolean dumpHarmonics, double minProfileBins, boolean nophcx, boolean writesum, boolean mjk_sigproc_fix) {
         this.rawSearchResults = dataFile.getSearchResults();
         this.dataFile = dataFile;
         this.snrField = snrField;
@@ -90,6 +91,7 @@ public class FilterCandidates implements PulsarHunterProcess {
         this.writesum = writesum;
         this.minProfileBins = minProfileBins;
         this.nophcx = nophcx;
+        this.mjk_sigproc_fix = mjk_sigproc_fix;
     }
 
     public void run() {
@@ -123,6 +125,36 @@ public class FilterCandidates implements PulsarHunterProcess {
 //                    continue;
 //                }
 
+            }
+
+            if (mjk_sigproc_fix) {
+                double sp_snr = r.getSpectralSignalToNoise();
+                double sp_freq = 1.0 / r.getPeriod();
+                double fres = 1.0 / 540.0; //1.0/dataFile.getHeader().getTobs();
+                double limit = 500;
+                if (sp_freq < limit) {
+                    sp_freq = limit;
+                }
+                double fmax = 0.5 / r.getTsamp();
+
+                double A = 8000;
+                double b = -12;
+                if (r.getHarmfold() > 15) {
+                    A = 401058635;
+                    b = -18;
+                } else if (r.getHarmfold() > 7) {
+                    A = 7453033;
+                    b = -16;
+                } else if (r.getHarmfold() >  3) {
+                    A = 307620;
+                    b = -14;
+                } else if (r.getHarmfold() > 1) {
+                    A = 36720;
+                    b = -13;
+                }
+                double p = (sp_freq / fres) * A * Math.pow(sp_snr, b);
+//                r.setReconstructedSignalToNoise(r.getSpectralSignalToNoise());
+                r.setSpectralSignalToNoise(Math.log(1.0 / p));
             }
 
             boolean inserted = false;
@@ -262,15 +294,6 @@ public class FilterCandidates implements PulsarHunterProcess {
         PulsarHunter.out.println("Done");
 
 
-        int i = 0;
-        for (PeriodSearchResultGroup g : (List<PeriodSearchResultGroup>) resultGroups.clone()) {
-            if (g.getBestPeriod() < 1e-3 && g.getBestSuspect().getSpectralSignalToNoise() < 8) {
-                resultGroups.remove(g);
-                harmout.printf("REJECTED %f %f %f\n", g.getBestPeriod(), g.getBestDM(), g.getBestSuspect().getSpectralSignalToNoise());
-                i++;
-            }
-        }
-        System.out.printf("Rejected %d sub-ms candidates\n", i);
 
         if (this.dumpHamonics) {
             harmout.close();
@@ -563,6 +586,14 @@ public class FilterCandidates implements PulsarHunterProcess {
                     System.out.println();
                 }
             }
+            System.out.println();
+            for (int i = 3; i < 9; i++) {
+                ratios.put(String.valueOf(i), (double) i);
+                System.out.print("1/" + i + ", ");
+                if (i % 8 == 0) {
+                    System.out.println();
+                }
+            }
 
             for (int top = 1; top <= 19; top++) {
                 System.out.println();
@@ -571,7 +602,6 @@ public class FilterCandidates implements PulsarHunterProcess {
                     boolean ok = true;
                     for (double r : ratios.values()) {
                         if (Math.abs(ratio - r) < 0.00001) {
-//                            System.out.println("XXXXX "+top+" "+bottom+" "+Math.abs(ratio - r) );
                             ok = false;
                             break;
                         }
@@ -583,6 +613,26 @@ public class FilterCandidates implements PulsarHunterProcess {
                 }
             }
             System.out.println();
+            for (int bottom = 1; bottom < 8; bottom++) {
+                System.out.println();
+                for (int top = 1; top < bottom; top++) {
+                    double ratio = (double) top / (double) bottom;
+                    boolean ok = true;
+                    for (double r : ratios.values()) {
+                        if (Math.abs(ratio - r) < 0.00001) {
+                            ok = false;
+                            break;
+                        }
+                    }
+                    if (ok) {
+                        ratios.put(top + "/" + bottom, ratio);
+                        System.out.print(top + "/" + bottom + ", ");
+                    }
+                }
+            }
+            System.out.println();
+
+
         }
 
 

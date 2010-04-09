@@ -23,7 +23,7 @@ public class GlobalOptions {
         // FilterCandidates
         minsnr(Double.class),maxresults(Integer.class),userecon(Boolean.class),zapfile(String.class),
         minprofilebins(Double.class),dumpharmonics(Boolean.class),matchfactor(Double.class),
-        nophcx(Boolean.class),writesum(Boolean.class),
+        nophcx(Boolean.class),writesum(Boolean.class),mjksigprocfix(Boolean.class),
         // PeriodTune
         period(Double.class),baryperiod(Double.class),periodstep(Double.class),periodrange(Double.class),periodrangepercent(Double.class),
         useaccn(Boolean.class),accn(Double.class),accnstep(Double.class),accnrange(Double.class),
