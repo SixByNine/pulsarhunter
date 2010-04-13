@@ -84,7 +84,7 @@ public class SigprocDataFactory implements DataFactory {
                 if (head.getNbits() != 32) {
                     if (head.getNbits() == 8) {
                         // Use the new 8-bit reader.
-                        System.err.printf("Warning: Using prototype 8-bit sigproc file reader. Bugs may exist!");
+                        System.err.println("\n\nWarning: Using prototype 8-bit sigproc file reader. Bugs may exist!");
                         if (head.getNchans() > 1) {
                             if (type == SigprocDataType.SigprocTimeSeries) {
                                 throw new IncorrectDataTypeException("SigprocDataFactory: This should be read as type SIGPROC-8BIT-TIMESERIES.");
@@ -101,20 +101,21 @@ public class SigprocDataFactory implements DataFactory {
                         throw new IncorrectDataTypeException("SigprocDataFactory: Currently PulsarHunter can only read 32 bit float sigproc data.");
                     }
 
-                }
-                // head.setNchans(1);
-                //System.out.println(head.getNchans());
-                if (head.getNchans() > 1) {
-                    if (type == SigprocDataType.SigprocTimeSeries) {
-                        throw new IncorrectDataTypeException("SigprocDataFactory: This should be read as type SIGPROCTIMESERIES.");
-                    }
-                    data = new SigprocBandedTimeSeries(file, bufSize);
                 } else {
-                    if (type == SigprocDataType.SigprocBandedTimeSeries) {
-                        throw new IncorrectDataTypeException("SigprocDataFactory: This should be read as type SIGPROCBANDEDTIMESERIES.");
-                    }
-                    data = new Sigproc32bitTimeSeries(file, bufSize);
+                    // head.setNchans(1);
+                    //System.out.println(head.getNchans());
+                    if (head.getNchans() > 1) {
+                        if (type == SigprocDataType.SigprocTimeSeries) {
+                            throw new IncorrectDataTypeException("SigprocDataFactory: This should be read as type SIGPROCTIMESERIES.");
+                        }
+                        data = new SigprocBandedTimeSeries(file, bufSize);
+                    } else {
+                        if (type == SigprocDataType.SigprocBandedTimeSeries) {
+                            throw new IncorrectDataTypeException("SigprocDataFactory: This should be read as type SIGPROCBANDEDTIMESERIES.");
+                        }
+                        data = new Sigproc32bitTimeSeries(file, bufSize);
 
+                    }
                 }
             } catch (IOException ex) {
                 throw new IncorrectDataTypeException("SigprocDataFactory: Cannot read body of specified file", ex);

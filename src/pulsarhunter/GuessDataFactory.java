@@ -61,7 +61,7 @@ public class GuessDataFactory implements DataFactory{
             } catch (IncorrectDataTypeException e){
                 System.out.println("FAIL");
                 result = null;
-                e.printStackTrace();
+//                e.printStackTrace();
                 continue;
             }
 //            System.out.println("OK");

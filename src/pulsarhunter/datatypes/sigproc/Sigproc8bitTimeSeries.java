@@ -110,7 +110,7 @@ public class Sigproc8bitTimeSeries extends SigprocTimeSeries {
 
             currentFilePos = bin;
         //System.out.println(fb.order().toString() + " Native "+ByteOrder.nativeOrder().toString());
-        //  System.out.println("N");
+//          System.out.println("N");
         }
         if (bin + nbins >= currentFilePos + bb.capacity()) {
 
@@ -146,7 +146,7 @@ public class Sigproc8bitTimeSeries extends SigprocTimeSeries {
         }
 
         if (bin > currentFilePos + bb.position()) {
-            //  System.out.println(">");
+//              System.out.println(">");
             while (bin != currentFilePos + bb.position()) {
                 bb.get();
 
@@ -157,7 +157,7 @@ public class Sigproc8bitTimeSeries extends SigprocTimeSeries {
         if (bin < bb.position()) {
 
 
-            //System.out.println("<<");
+//            System.out.println("<<");
             raStream.close();
             raStream = new RandomAccessFile(this.timFile, "rw");
 
@@ -167,7 +167,7 @@ public class Sigproc8bitTimeSeries extends SigprocTimeSeries {
 //                int bufs = (int)(RecipeParser.getMem(bufferSize*4)/4);
                 addj = (int) ((long) (getSigprocHeader().getHeaderLength() + bin + bufs) - this.timFile.length());
             }
-            ByteBuffer bb = null;
+            bb = null;
             try {
                 bb = raStream.getChannel().map(MapMode.READ_WRITE, getSigprocHeader().getHeaderLength() + bin - addj, this.bufferSize);
             } catch (IOException ex) {
@@ -192,7 +192,7 @@ public class Sigproc8bitTimeSeries extends SigprocTimeSeries {
 
             this.checkBuffers(bin, 0, true);
 
-            //System.out.println("ts: " + bin);
+//            System.out.println("ts: " + bin + " cfp: "+currentFilePos+" pos: "+bb.position());
             if (bin == currentFilePos + bb.position()) {
                 try {
                     f = (float) bb.get();
@@ -203,14 +203,21 @@ public class Sigproc8bitTimeSeries extends SigprocTimeSeries {
                     System.exit(-2);
                 }
             } else {
-                // System.out.println("<.");
+//                 System.out.println("<.");
                 try {
-                    f = (float) bb.get((int) (bin - bb.position()));
+                    f = (float) bb.get((int) (bin - currentFilePos));
 
 
                 } catch (java.nio.BufferUnderflowException e) {
                     System.out.println("Ran over end of file");
                     System.out.println("bin:" + bin + "\ncfp:" + currentFilePos + "\npos:" + bb.position() + "\ncap:" + bb.capacity() + "\nbfs:" + this.bufferSize);
+                    System.exit(-2);
+                } catch (java.lang.IndexOutOfBoundsException e){
+                    System.out.println("Buffer exception");
+                    e.printStackTrace();
+                    System.out.println("bin:" + bin + "\ncfp:" + currentFilePos +
+                            "\npos:" + bb.position() + "\ncap:" + bb.capacity() +
+                            "\nbfs:" + this.bufferSize + "\nptr:"+(int) (bin - currentFilePos));
                     System.exit(-2);
                 }
             }

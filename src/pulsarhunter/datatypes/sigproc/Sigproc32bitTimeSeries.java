@@ -294,7 +294,7 @@ public class Sigproc32bitTimeSeries  extends SigprocTimeSeries implements Writab
             }else {
                 // System.out.println("<.");
                 try{
-                    f = fb.get((int)(bin-fb.position()));
+                    f = fb.get((int)(bin-currentFilePos));
                     
                     
                 } catch(java.nio.BufferUnderflowException e){
