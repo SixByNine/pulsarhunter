@@ -33,6 +33,7 @@ package pulsarhunter.processes;
 import pulsarhunter.Convert;
 import pulsarhunter.PulsarHunterProcess;
 import pulsarhunter.datatypes.TimeSeries;
+import pulsarhunter.datatypes.sigproc.Sigproc32bitTimeSeries;
 import pulsarhunter.datatypes.sigproc.SigprocTimeSeries;
 import pulsarhunter.processes.folding.PdotFoldingModel;
 
@@ -57,7 +58,7 @@ public class TimeseriesResampler implements PulsarHunterProcess{
         
         
         
-        SigprocTimeSeries outts = (SigprocTimeSeries)output;
+        Sigproc32bitTimeSeries outts = (Sigproc32bitTimeSeries)output;
         
         outts.getHeader().setSourceID(input.getHeader().getSourceID());
         outts.getHeader().setNPoints(input.getHeader().getNPoints());

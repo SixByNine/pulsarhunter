@@ -56,12 +56,12 @@ public class GuessDataFactory implements DataFactory{
         for(String name : this.registry.getDataFactoryList()){
             if(name.equals(this.getName())) continue;
             try{
-//                System.out.print("Trying: "+name);
+                System.out.print("Trying: "+name);
                 result = this.registry.getDataFactory(name).loadData(filename,buf);
             } catch (IncorrectDataTypeException e){
-//                System.out.println("FAIL");
+                System.out.println("FAIL");
                 result = null;
-//                e.printStackTrace();
+                e.printStackTrace();
                 continue;
             }
 //            System.out.println("OK");

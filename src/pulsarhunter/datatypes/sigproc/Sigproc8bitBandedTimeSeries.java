@@ -44,17 +44,17 @@ import pulsarhunter.datatypes.WritableTimeSeries;
  *
  * @author mkeith
  */
-public class SigprocBandedTimeSeries extends MultiChannelTimeSeries implements WritableMultiChannelTimeSeries, BulkReadable<MultiChannelTimeSeries.Header> {
+public class Sigproc8bitBandedTimeSeries extends MultiChannelTimeSeries  {
 
     private File subFile;
     private Header header;
-    private Sigproc32bitTimeSeries fakeTS;
+    private Sigproc8bitTimeSeries fakeTS;
     private VirtualTimeSeries[] virtTS;
 
-    public SigprocBandedTimeSeries(File subFile, int buffersize, boolean create) throws IOException {
+    public Sigproc8bitBandedTimeSeries(File subFile, int buffersize, boolean create) throws IOException {
         this.subFile = subFile;
 
-        this.fakeTS = new Sigproc32bitTimeSeries(subFile, buffersize);
+        this.fakeTS = new Sigproc8bitTimeSeries(subFile, buffersize);
 
 
         if (!create) {
@@ -63,7 +63,7 @@ public class SigprocBandedTimeSeries extends MultiChannelTimeSeries implements W
     }
 
     /** Creates a new instance of SigprocBandedTimeSeries */
-    public SigprocBandedTimeSeries(File subFile, int buffersize) throws IOException {
+    public Sigproc8bitBandedTimeSeries(File subFile, int buffersize) throws IOException {
         this(subFile, buffersize, false);
 
 
@@ -124,13 +124,6 @@ public class SigprocBandedTimeSeries extends MultiChannelTimeSeries implements W
         this.fakeTS.getBulkReadableInterface().read(startPosn, data);
     }
 
-    public BulkReadable getBulkReadableInterface() {
-        if (this.fakeTS.getBulkReadableInterface() != null) {
-            return this;
-        } else {
-            return null;
-        }
-    }
 
     public DataRecordType getDataRecordType() {
         return this.fakeTS.getBulkReadableInterface().getDataRecordType();
@@ -146,25 +139,6 @@ public class SigprocBandedTimeSeries extends MultiChannelTimeSeries implements W
         }
     }
 
-    public void writeBin(long bin, int channel, float value) {
-        this.makeHeaders();
-        this.virtTS[channel].writeBin(bin, value);
-    }
-
-    public void writeBins(long startBin, float[][] value) {
-        this.makeHeaders();
-        if (value.length != this.getHeader().getNumChannel()) {
-            throw new IllegalArgumentException("Length of value array must be the same as the number of channels");
-        }
-        float[] singleFloatArr = new float[value.length * value[0].length];
-        for (int c = 0; c < value.length; c++) {
-            for (int b = 0; b < value[0].length; c++) {
-                singleFloatArr[b * value.length + c] = value[c][b];
-            }
-        }
-        long masterbin = startBin * this.getHeader().getNumChannel();
-        this.fakeTS.writeBins(masterbin, singleFloatArr, 0, singleFloatArr.length);
-    }
 
     public int getBufferSize() {
         return this.fakeTS.getBufferSize();
@@ -256,13 +230,13 @@ public class SigprocBandedTimeSeries extends MultiChannelTimeSeries implements W
         }
     }
 
-    private class VirtualTimeSeries extends TimeSeries implements WritableTimeSeries {
+    private class VirtualTimeSeries extends TimeSeries {
 
-        Sigproc32bitTimeSeries masterTS;
+        Sigproc8bitTimeSeries masterTS;
         int chanNum, nchans;
         TimeSeries.Header header;
 
-        VirtualTimeSeries(Sigproc32bitTimeSeries masterTS, int chanNum, int nchans) {
+        VirtualTimeSeries(Sigproc8bitTimeSeries masterTS, int chanNum, int nchans) {
             this.masterTS = masterTS;
             this.chanNum = chanNum;
             this.nchans = nchans;
@@ -299,15 +273,6 @@ public class SigprocBandedTimeSeries extends MultiChannelTimeSeries implements W
 
         public void flush() throws IOException {
             masterTS.flush();
-        }
-
-        public void writeBin(long bin, float value) {
-            long masterBin = bin * nchans + chanNum;
-            masterTS.writeBin(masterBin, value);
-        }
-
-        public void writeBins(long startBin, float[] value, int srcStart, int nbins) {
-            throw new java.lang.NoSuchMethodError("This method should never have been called!");
         }
 
         public int getBufferSize() {
