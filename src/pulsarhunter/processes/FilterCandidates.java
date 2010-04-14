@@ -402,10 +402,8 @@ public class FilterCandidates implements PulsarHunterProcess {
 
             System.out.printf("%f\t%f\t%f %c\t%f\t%e\t%e\t%d\t%d\n", sr.getSpectralSignalToNoise(), bestRecon, convFactor * sr.getPeriod() * 1000.0, zapChar, sr.getDM(), sr.getAccn(), sr.getJerk(), g.getHarmonics().size(), sr.getHarmfold());
 
-
-
             if (listFile != null) {
-                listFile.printf("%s\t%f\t%f\t%f\t%e\t%e\t%d\t%d\n", fname, sr.getSpectralSignalToNoise(), convFactor * sr.getPeriod() * 1000.0, sr.getDM(), sr.getAccn(), sr.getJerk(), g.getHarmonics().size(), sr.getHarmfold());
+                listFile.printf("%s\t%f\t%12.8f\t%f\t%e\t%e\t%d\t%d\n", fname, sr.getSpectralSignalToNoise(), convFactor * sr.getPeriod() * 1000.0, sr.getDM(), sr.getAccn(), sr.getJerk(), g.getHarmonics().size(), sr.getHarmfold());
             }
             if (dmIndex.length == 0) {
                 dmIndex = new double[]{sr.getDM()};
