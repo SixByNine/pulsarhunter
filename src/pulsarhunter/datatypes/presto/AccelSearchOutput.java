@@ -144,16 +144,22 @@ public class AccelSearchOutput extends BasicSearchResultData {
             }
             line = reader2.readLine();
             // now at start of header
-            header = new AccelSearchOutput.Header(reader2);
-            dm = header.dm;
-            int posn = Collections.binarySearch(dmList, dm);
-            if (posn < 0) {
-                dmList.add(-posn - 1, dm);
-            }
-            for (BasicSearchResult searchResult : tmplist) {
-                searchResult.setDM(header.dm);
-                searchResult.setTsamp(header.getTSamp());
-                this.addSearchResult(searchResult);
+            try {
+                header = new AccelSearchOutput.Header(reader2);
+
+                dm = header.dm;
+                int posn = Collections.binarySearch(dmList, dm);
+                if (posn < 0) {
+                    dmList.add(-posn - 1, dm);
+                }
+                for (BasicSearchResult searchResult : tmplist) {
+                    searchResult.setDM(header.dm);
+                    searchResult.setTsamp(header.getTSamp());
+                    this.addSearchResult(searchResult);
+                }
+            } catch (Exception e) {
+                System.err.println("BAD file:"+ infile);
+                e.printStackTrace();
             }
             // go to the next file
             infile = reader.readLine();
