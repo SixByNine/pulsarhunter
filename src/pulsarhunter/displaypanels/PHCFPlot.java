@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package pulsarhunter.displaypanels;
 
+import coordlib.Coordinate;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -629,12 +630,18 @@ public class PHCFPlot extends javax.swing.JPanel {
 
     private void jButton_imageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_imageActionPerformed
 
+
+        double p0 = this.phcf.getOptimisedSec().getBestBaryPeriod();
+        double dm = this.phcf.getOptimisedSec().getBestDm();
+        double snr = this.phcf.getOptimisedSec().getBestSnr();
+        Coordinate coord = this.phcf.getHeader().getCoord();
+        System.out.printf("%s\t%s\t%s\t%s\t%f\t%f\t%f\n",phcf.getName(), phcf.getHeader().getSourceID(),coord.toString(false),coord.toString(true),p0,dm,snr);
+
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("PNG Images", "png");
         chooser.setFileFilter(filter);
         chooser.setSelectedFile(new File(this.phcf.getName() + ".png"));
         int returnVal = chooser.showSaveDialog(this);
-
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             DisplayPHCF displayer = new DisplayPHCF(phcf, true);
             displayer.setOutputFileName(chooser.getSelectedFile().getAbsolutePath());
