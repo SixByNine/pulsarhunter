@@ -31,6 +31,8 @@ import java.util.Formatter;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -69,6 +71,8 @@ public class MainView extends javax.swing.JFrame {
     private PlotType pType = new PlotType(PlotType.axisType.Period, PlotType.axisType.FoldSNR);
     private boolean memClearActive = false;
     private RefreshThread refreshThread;
+    private double lowx,  highx,  lowy,  highy;
+    private boolean zoomed = false;
 
     /** Creates new form MainView */
     public MainView(Cand[][] masterData, DataLibrary dataLibrary, JReaper jreaper) {
@@ -162,6 +166,7 @@ public class MainView extends javax.swing.JFrame {
         refreshThread.start();
         this.reZap();
         this.repaint();
+
     }
 
     @Override
@@ -323,7 +328,7 @@ public class MainView extends javax.swing.JFrame {
 
 
                     while (true) {
-                        if (pcdf==null && !f.isVisible()) {
+                        if (pcdf == null && !f.isVisible()) {
                             break;
                         }
                         if (pcdf != null && pcdf.closed) {
@@ -580,8 +585,6 @@ public class MainView extends javax.swing.JFrame {
 
         return true;
     }
-    double lowx, highx, lowy, highy;
-    boolean zoomed = false;
 
     public void zoom(double lowx, double highx, double lowy, double highy) {
         /*curData = pType.zoom(masterData,lowx,highx,lowy,highy);
@@ -596,12 +599,34 @@ public class MainView extends javax.swing.JFrame {
     public void rezoom() {
         if (zoomed) {
             plot.zoom(lowx, lowy, highx, highy);
+        } else {
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    zoomed=true;
+                    lowx = plot.getXRange()[0];
+                    highx = plot.getXRange()[1];
+                    lowy = plot.getYRange()[0];
+                    highy = plot.getYRange()[1];
+                }
+            });
         }
+    }
+
+    public void deZoom() {
+        zoomed = true;
+        this.lowx -= 0.1 * (this.highx - this.lowx);
+        this.highx += 0.1 * (this.highx - this.lowx);
+        this.lowy -= 0.1 * (this.highy - this.lowy);
+        this.highy += 0.1 * (this.highy - this.lowy);
+        replot();
     }
 
     public void autoZoom() {
         zoomed = false;
         replot();
+
+
+
     }
 
     public void refine() {
@@ -815,6 +840,7 @@ public class MainView extends javax.swing.JFrame {
         jToggleButton1 = new javax.swing.JToggleButton();
         jSeparator1 = new javax.swing.JSeparator();
         galacticPlotButton = new javax.swing.JToggleButton();
+        jButton7 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         paneChooser = new javax.swing.JComboBox();
         customPanel = new javax.swing.JPanel();
@@ -1143,7 +1169,7 @@ public class MainView extends javax.swing.JFrame {
         jPanel4.add(jPanel2);
 
         jPanel5.setBackground(new java.awt.Color(255, 249, 230));
-        jPanel5.setLayout(new java.awt.GridLayout(9, 1));
+        jPanel5.setLayout(new java.awt.GridLayout(10, 1));
 
         zCapCheck.setBackground(new java.awt.Color(255, 249, 230));
         zCapCheck.setText("Cap Z vals");
@@ -1200,6 +1226,14 @@ public class MainView extends javax.swing.JFrame {
             }
         });
         jPanel5.add(galacticPlotButton);
+
+        jButton7.setText("Zoom Out");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButton7);
 
         jButton4.setText("Reset Zoom");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -1750,6 +1784,20 @@ public class MainView extends javax.swing.JFrame {
         this.jMenuItem_dis_memclear.setEnabled(this.memClearActive);
 }//GEN-LAST:event_jMenuItem_dis_memclearActionPerformed
 
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        Runnable task = new Runnable() {
+
+            public void run() {
+                MainView.this.deZoom();
+            }
+        };
+        SwingUtilities.invokeLater(task);
+
+
+
+
+    }//GEN-LAST:event_jButton7ActionPerformed
+
     private void checkmem() {
         long memused = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long totalmem = Runtime.getRuntime().maxMemory();
@@ -1811,6 +1859,7 @@ public class MainView extends javax.swing.JFrame {
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton_removeBeams;
     private javax.swing.JButton jButton_selectBeams_invert;
     private javax.swing.JButton jButton_selectBeams_selectAll;
