@@ -52,9 +52,10 @@ import pulsarhunter.jreaper.peckscorer.PeckScorer;
  */
 public class DisplayPHCF extends javax.swing.JFrame implements PulsarHunterProcess {
 
-    PulsarHunterCandidate phcf = null;
-    RawCandidate rawc = null;
-    boolean makeImage = false;
+    private PulsarHunterCandidate phcf = null;
+    private RawCandidate rawc = null;
+    private boolean makeImage = false;
+    private String outputFileName = null;
 
     /** Creates new form DisplayPHCF */
     public DisplayPHCF(PulsarHunterCandidate phcf, boolean image) {
@@ -70,6 +71,12 @@ public class DisplayPHCF extends javax.swing.JFrame implements PulsarHunterProce
         this.makeImage = image;
 
     }
+
+    public void setOutputFileName(String outputFileName) {
+        this.outputFileName = outputFileName;
+    }
+
+
 
     public void run() {
 
@@ -94,8 +101,13 @@ public class DisplayPHCF extends javax.swing.JFrame implements PulsarHunterProce
 
                 PHCFImagePlot imgPlot = new PHCFImagePlot(Colourmap.defaultGreyColmap, Color.RED, Color.GREEN);
                 imgPlot.draw(phcf, img);
-                System.out.println("\nWriting " + phcf.getName() + ".png\n");
-                ImageIO.write(img, "png", new File(phcf.getName() + ".png"));
+
+                if(outputFileName == null){
+                    outputFileName = phcf.getName() + ".png";
+                }
+
+                System.out.println("\nWriting " + outputFileName + "\n");
+                ImageIO.write(img, "png", new File(outputFileName));
             // end test
             } catch (IOException ex) {
                 ex.printStackTrace();
