@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import pulsarhunter.PulsarHunter;
 import pulsarhunter.PulsarHunterProcess;
 import coordlib.Telescope;
+import java.util.Arrays;
 import pulsarhunter.datatypes.PulsarHunterCandidate;
 import pulsarhunter.jreaper.Cand;
 import pulsarhunter.jreaper.CandList;
@@ -90,7 +91,10 @@ private final boolean reswd;
             PulsarHunter.out.println("Dir2Candist - |0%                        100%|");
             PulsarHunter.out.print("Dir2Candist - [");
 
-            for (File file : loadFromDir.listFiles()) {
+            File[] files = loadFromDir.listFiles();
+            Arrays.sort(files);
+
+            for (File file : files) {
                 complete += completeEta;
                 while (complete > 1) {
                     PulsarHunter.out.print(".");
@@ -102,6 +106,7 @@ private final boolean reswd;
                 String filename = file.getName();
                 String[] elems = filename.split("\\.");
                 String ext = elems[elems.length - 1];
+
 
                 Cand c = null;
 
@@ -281,6 +286,7 @@ String localname = name;
             }
 
             beam = new Beam(localname, beam.getCoord());
+            
 
             CandList clist = new CandList(localname, cands, beam);
             clist.setFch1(freq);

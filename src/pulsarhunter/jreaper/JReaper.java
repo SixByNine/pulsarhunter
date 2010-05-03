@@ -8,6 +8,7 @@
  */
 package pulsarhunter.jreaper;
 
+import coordlib.CoordinateDistanceComparitor;
 import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,6 +41,8 @@ import pulsarhunter.jreaper.pmsurv.PulsarCandFile;
 public class JReaper {
 
     private static boolean sod_the_db_sync = false;
+    private static String external_cand_file = null;
+    private static String wd = ".";
     private static boolean noGuiTestMode = false;
     public final static String VERSION = "4.0 (beta 7)";
     public final static String WINDOWTITLE = "JReaper v" + VERSION;
@@ -76,8 +79,16 @@ public class JReaper {
     public static void main(String[] args) {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
         if (args.length > 0) {
-            if (args[0].equalsIgnoreCase("--sod-the-db-sync")) {
-                sod_the_db_sync = true;
+            for (int i = 0; i < args.length; i++) {
+                if (args[i].equalsIgnoreCase("--sod-the-db-sync")) {
+                    sod_the_db_sync = true;
+                }
+                if (args[i].equalsIgnoreCase("--wd")) {
+                    wd=args[++i];
+                }
+                if (args[i].equalsIgnoreCase("--extpsrs")) {
+                    external_cand_file = new File(wd+File.separatorChar+args[++i]).getAbsolutePath();
+                }
             }
         }
         JReaper jreaper = new JReaper();
@@ -304,8 +315,34 @@ public class JReaper {
          */
         int ii = 0;
         final int max = this.loadedCandLists.size();
+
+
+        ArrayList<KnownPSR> extPsrs = null;
+        if (external_cand_file != null) {
+            extPsrs = this.currentDataLibrary.getKnownPulsarsFromFile(new File(external_cand_file));
+            System.out.println("Read "+extPsrs.size()+" pulsars to flag from external source");
+        }
+
         for (Pair<String, CandList> pair : this.loadedCandLists) {
             final CandList clist = pair.getB();
+            //
+            if (extPsrs != null) {
+
+                final CandRefine cr = this.currentDataLibrary.getRefiner();
+                final CoordinateDistanceComparitor cc = new CoordinateDistanceComparitor();
+                for (KnownPSR kp : extPsrs) {
+
+                    System.out.println(clist.getBeam().getCoord().toString(false) + " *** " + kp.getPosition().toString(false) );
+                    if (cc.difference(clist.getBeam().getCoord(), kp.getPosition()) > this.currentDataLibrary.getOptions().getDistmax()) {
+                        continue;
+                    }
+                    cr.findHarmonics(clist.getCands(), kp.getPeriod(), kp.getName(), kp.getPosition(), 3);
+                }
+                if (this.currentDataLibrary instanceof WebDataLibrary && !sod_the_db_sync) {
+                    ((WebDataLibrary) this.currentDataLibrary).webSync(pair.getB());
+                }
+            }
+
             final int count = ii++;
             if (this.currentDataLibrary.getOptions().isAlwaysCheckForKnownPSRs() || !clist.getHeader().isKnownpsrSearched()) {
                 // need to check this candlist...
@@ -389,7 +426,7 @@ public class JReaper {
         }
         precacheThread = precache(masterData);
 
-        
+
 
 
         System.gc();

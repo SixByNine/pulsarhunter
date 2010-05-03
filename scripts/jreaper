@@ -2,6 +2,8 @@
 ARGS=$*
 DEBUG_SWITCH=''
 
+wd=`pwd`
+
 source ${PULSARHUNTER_HOME}/scripts/includes/env
 
 cd ${PULSARHUNTER_HOME}/jreaper/
@@ -23,7 +25,7 @@ umask 002
 if [[ "x$ARGS" == "xnew" ]] ; then
 	${JAVA_HOME}/bin/java $DEBUG_SWITCH -Xmx1024M  -classpath $CLASSPATH pulsarhunter.bookkeepr.jreaper.JReaper
 else
-	${JAVA_HOME}/bin/java $DEBUG_SWITCH -Xmx1024M  -classpath $CLASSPATH pulsarhunter.jreaper.JReaper "$1" "$2" "$3" "$4" "$5" "$6" "$7"
+	${JAVA_HOME}/bin/java $DEBUG_SWITCH -Xmx1024M  -classpath $CLASSPATH pulsarhunter.jreaper.JReaper --wd "$wd" "$1" "$2" "$3" "$4" "$5" "$6" "$7"
 fi
 umask $mask
 
