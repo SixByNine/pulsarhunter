@@ -12,7 +12,7 @@ fi
 
 if [[ $nn -lt  1 ]]
 then
-echo "Please specify [phcffile]"
+	cat $PULSARHUNTER_HOME/help/ph-view-phcx
 exit
 fi
 

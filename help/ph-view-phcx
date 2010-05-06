@@ -1,0 +1,6 @@
+ph-view-phcx file [options]
+
+views a PHCX file (either *.phcx.gz or *.phcx) with an interactive window.
+
+Options are:
+--imageouput	Write a png file of the plot rather than viewing
