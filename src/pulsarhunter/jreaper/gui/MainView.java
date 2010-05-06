@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -585,6 +586,14 @@ public class MainView extends javax.swing.JFrame {
 
         return true;
     }
+    private Stack<double[]> oldZooms = new Stack<double[]>();
+
+    public void zoomU(double lowx, double highx, double lowy, double highy) {
+
+        oldZooms.push(new double[]{this.lowx, this.highx, this.lowy, this.highy});
+
+        zoom(lowx, highx, lowy, highy);
+    }
 
     public void zoom(double lowx, double highx, double lowy, double highy) {
         /*curData = pType.zoom(masterData,lowx,highx,lowy,highy);
@@ -598,11 +607,12 @@ public class MainView extends javax.swing.JFrame {
 
     public void rezoom() {
         if (zoomed) {
-            plot.zoom(lowx, lowy, highx, highy);
+            plot.zoomN(lowx, lowy, highx, highy);
         } else {
             java.awt.EventQueue.invokeLater(new Runnable() {
+
                 public void run() {
-                    zoomed=true;
+                    zoomed = true;
                     lowx = plot.getXRange()[0];
                     highx = plot.getXRange()[1];
                     lowy = plot.getYRange()[0];
@@ -614,10 +624,20 @@ public class MainView extends javax.swing.JFrame {
 
     public void deZoom() {
         zoomed = true;
-        this.lowx -= 0.1 * (this.highx - this.lowx);
-        this.highx += 0.1 * (this.highx - this.lowx);
-        this.lowy -= 0.1 * (this.highy - this.lowy);
-        this.highy += 0.1 * (this.highy - this.lowy);
+        if (oldZooms.empty()) {
+            autoZoom();
+        } else {
+            double[] old = oldZooms.pop();
+            this.lowx = old[0];
+            this.highx = old[1];
+            this.lowy = old[2];
+            this.highy = old[3];
+        }
+
+//        this.lowx -= 0.1 * (this.highx - this.lowx);
+//        this.highx += 0.1 * (this.highx - this.lowx);
+//        this.lowy -= 0.1 * (this.highy - this.lowy);
+//        this.highy += 0.1 * (this.highy - this.lowy);
         replot();
     }
 
@@ -1227,7 +1247,7 @@ public class MainView extends javax.swing.JFrame {
         });
         jPanel5.add(galacticPlotButton);
 
-        jButton7.setText("Zoom Out");
+        jButton7.setText("Undo Zoom");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton7ActionPerformed(evt);

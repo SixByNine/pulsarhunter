@@ -226,9 +226,18 @@ public class ClickableGraph extends Plot {
         
         
     }
-    
-    public void zoom(double lowx, double lowy, double highx, double highy) {
+
+    public void zoomN(double lowx, double lowy, double highx, double highy) {
         master.zoom(lowx,highx,lowy,highy);
+        super.zoom(lowx, lowy, highx, highy);
+        setXRange(lowx,highx);
+        setYRange(lowy,highy);
+        repaint();
+    }
+
+
+    public void zoom(double lowx, double lowy, double highx, double highy) {
+        master.zoomU(lowx,highx,lowy,highy);
         super.zoom(lowx, lowy, highx, highy);
         setXRange(lowx,highx);
         setYRange(lowy,highy);
