@@ -131,7 +131,7 @@ public class FilterCandidates implements PulsarHunterProcess {
                 double sp_snr = r.getSpectralSignalToNoise();
                 double sp_freq = 1.0 / r.getPeriod();
                 double fres = 1.0 / 540.0; //1.0/dataFile.getHeader().getTobs();
-                double limit = 500;
+                double limit = 10;
                 if (sp_freq < limit) {
                     sp_freq = limit;
                 }
