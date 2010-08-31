@@ -831,10 +831,10 @@ public class  SigprocHeader{
             double rasec = getSrc_raj() - rahr*10000 - ramin*100;
             
             int decdeg = (int)Math.abs(getSrc_dej()/10000);
-            int decamin = Math.abs((int)(getSrc_dej()/100) - decdeg*100);
+            int decamin = Math.abs((int)(getSrc_dej()/100)) - decdeg*100;
             double decasec = Math.abs(Math.abs(getSrc_dej()) - Math.abs(decdeg*10000.0
                     ) - decamin*100.0);
-            
+
             
             RA ra = new RA(rahr,ramin,rasec);
             Dec dec= new Dec(decdeg,decamin,decasec,getSrc_dej()<0);
