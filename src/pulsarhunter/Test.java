@@ -9,12 +9,9 @@
 
 package pulsarhunter;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
-import pulsarhunter.datatypes.PulsarHunterCandidate;
+import coordlib.Coordinate;
+import coordlib.Dec;
+import coordlib.RA;
 
 /**
  *
@@ -24,24 +21,34 @@ public class Test {
     
     
     public static void main(String[] args){
-        try {
-            
-            System.out.println("testing...");
-            
-            PulsarHunterCandidate phcf = new PulsarHunterCandidate(new File("test.phcf"));
-            
-            phcf.read();
-            
-            phcf.writeXML(new GZIPOutputStream(new FileOutputStream("test.phcx.gz")));
-            phcf.writeOldPHCF(new GZIPOutputStream(new FileOutputStream("test.phcf.gz")));
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+//        try {
+//
+//            System.out.println("testing...");
+//
+//            PulsarHunterCandidate phcf = new PulsarHunterCandidate(new File("test.phcf"));
+//
+//            phcf.read();
+//
+//            phcf.writeXML(new GZIPOutputStream(new FileOutputStream("test.phcx.gz")));
+//            phcf.writeOldPHCF(new GZIPOutputStream(new FileOutputStream("test.phcf.gz")));
+//        } catch (FileNotFoundException ex) {
+//            ex.printStackTrace();
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        }
         
-        
-        
+        Coordinate coord= new Coordinate(new RA(113.07083333), new Dec(-32.105));
+
+        System.out.println(coord.getGl()+", "+coord.getGb());
+
+        System.out.println(coord.getRA().toDegrees()+", "+coord.getDec().toDegrees());
+
+
+
+        coord= new Coordinate(new RA("07:32:17.0"), new Dec("-32:06:18.8"));
+
+        System.out.println(coord.getGl()+", "+coord.getGb());
+
         
     }
 }

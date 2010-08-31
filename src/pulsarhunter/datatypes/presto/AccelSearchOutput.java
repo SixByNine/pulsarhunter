@@ -80,88 +80,96 @@ public class AccelSearchOutput extends BasicSearchResultData {
         String infile = reader.readLine();
         while (infile != null) {
 
-            BufferedReader reader2 = new BufferedReader(new FileReader(infile));
 
-            // read the header, which is at the end!
-
-            String line = reader2.readLine();
-
-
-            // first read the human header off the top...
-            while (line != null && !line.startsWith("-------")) {
-                line = reader2.readLine();
-            }
-            line = reader2.readLine();
-
-            double dm = 0;
-            double tsamp = 0;
-            ArrayList<BasicSearchResult> tmplist = new ArrayList<BasicSearchResult>();
-            while (line != null) {
-
-
-                String[] elems = line.trim().split("\\s+");
-                if (elems.length < 11) {
-                    // we have finished this bit of the file
-                    break;
-                }
-
-
-                int harmfold = Integer.parseInt(elems[4]);
-
-                double snr = Double.parseDouble(elems[1]);
-                double reconSnr = Double.parseDouble(elems[3]);
-                double ac = -Double.parseDouble(fixString(elems[10]));
-                double ad = 0;
-                double period = Double.parseDouble(fixString(elems[5])) / 1000.0;
-
-
-
-                if (Math.abs(snr) > 0.001) {
-
-                    BasicSearchResult searchResult = new BasicSearchResult(period, dm);
-                    searchResult.setSpectralSignalToNoise(snr);
-                    searchResult.setReconstructedSignalToNoise(reconSnr);
-                    searchResult.setAccn(ac);
-                    searchResult.setJerk(ad);
-
-                    searchResult.setTsamp(tsamp);
-
-                    searchResult.setHarmfold(harmfold);
-                    tmplist.add(searchResult);
-
-
-                }
-                line = reader2.readLine();
-            }
-
-            // now skip to the 'inf' content at the bottom...
-            while (line != null && !line.startsWith("-------")) {
-                line = reader2.readLine();
-            }
-            line = reader2.readLine();
-            while (line != null && line.length() > 10) {
-                line = reader2.readLine();
-            }
-            line = reader2.readLine();
-            // now at start of header
             try {
-                header = new AccelSearchOutput.Header(reader2);
+                BufferedReader reader2 = new BufferedReader(new FileReader(infile));
 
-                dm = header.dm;
-                int posn = Collections.binarySearch(dmList, dm);
-                if (posn < 0) {
-                    dmList.add(-posn - 1, dm);
+
+                // read the header, which is at the end!
+
+                String line = reader2.readLine();
+
+
+                // first read the human header off the top...
+                while (line != null && !line.startsWith("-------")) {
+                    line = reader2.readLine();
                 }
-                for (BasicSearchResult searchResult : tmplist) {
-                    searchResult.setDM(header.dm);
-                    searchResult.setTsamp(header.getTSamp());
-                    this.addSearchResult(searchResult);
+                line = reader2.readLine();
+
+                double dm = 0;
+                double tsamp = 0;
+                ArrayList<BasicSearchResult> tmplist = new ArrayList<BasicSearchResult>();
+                while (line != null) {
+
+
+                    String[] elems = line.trim().split("\\s+");
+                    if (elems.length < 11) {
+                        // we have finished this bit of the file
+                        break;
+                    }
+
+
+                    int harmfold = Integer.parseInt(elems[4]);
+
+                    double snr = Double.parseDouble(elems[1]);
+                    double reconSnr = Double.parseDouble(elems[3]);
+                    double ac = -Double.parseDouble(fixString(elems[10]));
+                    double ad = 0;
+                    double period = Double.parseDouble(fixString(elems[5])) / 1000.0;
+
+
+
+                    if (Math.abs(snr) > 0.001) {
+
+                        BasicSearchResult searchResult = new BasicSearchResult(period, dm);
+                        searchResult.setSpectralSignalToNoise(snr);
+                        searchResult.setReconstructedSignalToNoise(reconSnr);
+                        searchResult.setAccn(ac);
+                        searchResult.setJerk(ad);
+
+                        searchResult.setTsamp(tsamp);
+
+                        searchResult.setHarmfold(harmfold);
+                        tmplist.add(searchResult);
+
+
+                    }
+                    line = reader2.readLine();
                 }
-            } catch (Exception e) {
-                System.err.println("BAD file:"+ infile);
-                e.printStackTrace();
+
+                // now skip to the 'inf' content at the bottom...
+                while (line != null && !line.startsWith("-------")) {
+                    line = reader2.readLine();
+                }
+                line = reader2.readLine();
+                while (line != null && line.length() > 10) {
+                    line = reader2.readLine();
+                }
+                line = reader2.readLine();
+                // now at start of header
+                try {
+                    header = new AccelSearchOutput.Header(reader2);
+
+                    dm = header.dm;
+                    int posn = Collections.binarySearch(dmList, dm);
+                    if (posn < 0) {
+                        dmList.add(-posn - 1, dm);
+                    }
+                    for (BasicSearchResult searchResult : tmplist) {
+                        searchResult.setDM(header.dm);
+                        searchResult.setTsamp(header.getTSamp());
+                        this.addSearchResult(searchResult);
+                    }
+                } catch (Exception e) {
+                    System.err.println("BAD file:" + infile);
+                    e.printStackTrace();
+                }
+            } catch (FileNotFoundException ex) {
+                System.err.println("Non-existing file:" + infile);
+                ex.printStackTrace();
             }
             // go to the next file
+
             infile = reader.readLine();
 
         }

@@ -873,6 +873,7 @@ public class MainView extends javax.swing.JFrame {
         jProgressBar_mem = new javax.swing.JProgressBar();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        jMenuItem12 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         dataMenu = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -1301,6 +1302,15 @@ public class MainView extends javax.swing.JFrame {
         getContentPane().add(jPanel6, java.awt.BorderLayout.SOUTH);
 
         jMenu1.setText("JReaper");
+
+        jMenuItem12.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem12.setText("Save");
+        jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem12ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem12);
 
         jMenuItem3.setText("Exit");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
@@ -1818,6 +1828,19 @@ public class MainView extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jButton7ActionPerformed
 
+    private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
+
+        new Thread(){
+
+            @Override
+            public void run() {
+                super.run();
+                jreaper.saveCandLists();
+            }
+
+        }.start();
+    }//GEN-LAST:event_jMenuItem12ActionPerformed
+
     private void checkmem() {
         long memused = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long totalmem = Runtime.getRuntime().maxMemory();
@@ -1903,6 +1926,7 @@ public class MainView extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
+    private javax.swing.JMenuItem jMenuItem12;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
