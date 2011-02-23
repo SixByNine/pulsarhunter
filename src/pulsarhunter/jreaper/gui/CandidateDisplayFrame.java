@@ -43,6 +43,8 @@ import pulsarhunter.jreaper.Score;
 public class CandidateDisplayFrame extends javax.swing.JFrame {
 
     Cand cand;
+
+
     JPanel displayPanel;
     MainView master;
     private int nremaining = 0;
@@ -74,7 +76,9 @@ public class CandidateDisplayFrame extends javax.swing.JFrame {
             this.jButton1.setText("Close");
         }
     }
-
+public Cand getCand() {
+        return cand;
+    }
     private void setup(final Cand cand, final JPanel displayPanel) {
 
 

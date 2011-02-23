@@ -74,6 +74,7 @@ public class MainView extends javax.swing.JFrame {
     private RefreshThread refreshThread;
     private double lowx,  highx,  lowy,  highy;
     private boolean zoomed = false;
+    private Cand lastViewed=null;
 
     /** Creates new form MainView */
     public MainView(Cand[][] masterData, DataLibrary dataLibrary, JReaper jreaper) {
@@ -237,6 +238,7 @@ public class MainView extends javax.swing.JFrame {
             JFrame plotFrame = c.getCandidateFile().getCandDisplayFrame(c, this);
             plotFrame.setVisible(true);
             c.setViewed(true);
+            this.setLastViewed(c);
         }
         replot();
     }
@@ -311,6 +313,7 @@ public class MainView extends javax.swing.JFrame {
                         if (pcdf != null && !pcdf.isVisible()) {
                             pcdf = null;
                         }
+                        MainView.this.setLastViewed(cdf.getCand());
                     }
                     if (pcdf != null) {
                         pcdf.swap(cdf);
@@ -341,6 +344,7 @@ public class MainView extends javax.swing.JFrame {
                         }
                     }
                     f = frameQueue.poll();
+
 
                 }
                 MainView.this.clickOnReleaseRunning = false;
@@ -447,6 +451,10 @@ public class MainView extends javax.swing.JFrame {
             }
         }
         refine();
+    }
+
+    public void setLastViewed(Cand last){
+        this.lastViewed=last;
     }
 
     public void clickArea(final double x1, final double x2, final double y1, final double y2, final boolean viewed) {
@@ -756,7 +764,7 @@ public class MainView extends javax.swing.JFrame {
                         }
                     }
                     //Test!!!
-                    plot.changeData(curData, pType, true);
+                    plot.changeData(curData, pType, true,lastViewed);
                 }
                 MainView.this.repaint();
             }
