@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import pulsarhunter.PulsarHunter;
 import pulsarhunter.PulsarHunterProcess;
 import coordlib.Telescope;
@@ -55,9 +57,10 @@ public class CandListCreation implements PulsarHunterProcess {
     private final File[] loadFromDirs;
     private final String resultsRootRoot;
     private final String name;
-private final boolean reswd;
+    private final boolean reswd;
+
     /** Creates a new instance of CandListCreation */
-    public CandListCreation(File[] loadFromDirs, String resultsRootRoot, String name,boolean reswd) {
+    public CandListCreation(File[] loadFromDirs, String resultsRootRoot, String name, boolean reswd) {
         this.loadFromDirs = loadFromDirs;
         this.resultsRootRoot = resultsRootRoot;
         this.name = name;
@@ -66,12 +69,19 @@ private final boolean reswd;
 
     public void run() {
         for (int ff = 0; ff < loadFromDirs.length; ff++) {
-            
+
             File loadFromDir = loadFromDirs[ff];
             String resultsRoot;
-            if(reswd)resultsRoot = resultsRootRoot + loadFromDir.getPath();
-            else resultsRoot = resultsRootRoot;
-            
+            if (reswd) {
+                try {
+                    resultsRoot = new File(resultsRootRoot + loadFromDir.getPath()).getCanonicalPath();
+                } catch (IOException ex) {
+                    resultsRoot = resultsRootRoot + loadFromDir.getPath();
+                }
+            } else {
+                resultsRoot = resultsRootRoot;
+            }
+
             ArrayList<Cand> cands0 = new ArrayList<Cand>();
             ArrayList<Cand> cands1 = new ArrayList<Cand>();
             ArrayList<Cand> cands2 = new ArrayList<Cand>();
@@ -87,7 +97,7 @@ private final boolean reswd;
             double completeEta = 30.0 * 1.0 / (double) totalTrials;
             CandList dummyClist = null;
             PulsarHunter.out.println("Dir2Candist - Reading Candidates");
-                        PulsarHunter.out.println("Dir2Candist - JReaper Path: "+resultsRoot+"");
+            PulsarHunter.out.println("Dir2Candist - JReaper Path: " + resultsRoot + "");
             PulsarHunter.out.println("Dir2Candist - |0%                        100%|");
             PulsarHunter.out.print("Dir2Candist - [");
 
@@ -270,6 +280,10 @@ private final boolean reswd;
                 }
             }
             PulsarHunter.out.println("] done.");
+            if (beam == null) {
+                PulsarHunter.out.println("Dir2Candist - Empty Clist, ignoring.");
+                continue;
+            }
             PulsarHunter.out.println("Dir2Candist - Writing clist");
             Cand[][] cands = new Cand[5][0];
             cands[0] = cands0.toArray(cands[0]);
@@ -280,13 +294,14 @@ private final boolean reswd;
 
 
 
-String localname = name;
+
+            String localname = name;
             if (name == null) {
                 localname = beam.getName().trim();
             }
 
             beam = new Beam(localname, beam.getCoord());
-            
+
 
             CandList clist = new CandList(localname, cands, beam);
             clist.setFch1(freq);

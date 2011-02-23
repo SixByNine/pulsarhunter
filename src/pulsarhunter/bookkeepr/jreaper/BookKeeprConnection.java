@@ -22,6 +22,8 @@ import bookkeepr.xmlable.ViewedCandidates;
 import bookkeepr.xmlable.ViewedCandidatesIndex;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -402,6 +404,9 @@ public class BookKeeprConnection {
                 HttpPost req = new HttpPost(remoteHost.getUrl() + "/cand/viewed");
                 req.setHeader("Accept-Encoding", "gzip");
                 ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
+                FileOutputStream xxx = new FileOutputStream("/tmp/xxx.xml");
+                XMLWriter.write(xxx, viewedCandidates);
+                xxx.close();
                 XMLWriter.write(out, viewedCandidates);
                 ByteArrayInputStream in2 = new ByteArrayInputStream(out.toByteArray());
                 req.setEntity(new InputStreamEntity(in2, -1));
@@ -432,6 +437,7 @@ public class BookKeeprConnection {
                         throw new BookKeeprCommunicationException(ex);
                     }
                 } else {
+                    resp.getEntity().consumeContent();
                     throw new BookKeeprCommunicationException("Got a " + resp.getStatusLine().getStatusCode() + " from the BookKeepr");
                 }
             }

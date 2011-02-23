@@ -32,7 +32,15 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Formatter;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -635,18 +643,58 @@ public class PHCFPlot extends javax.swing.JPanel {
         double dm = this.phcf.getOptimisedSec().getBestDm();
         double snr = this.phcf.getOptimisedSec().getBestSnr();
         Coordinate coord = this.phcf.getHeader().getCoord();
-        System.out.printf("%s\t%s\t%s\t%s\t%f\t%f\t%f\n",phcf.getName(), phcf.getHeader().getSourceID(),coord.toString(false),coord.toString(true),p0,dm,snr);
+        System.out.printf("%s\t%s\t%s\t%s\t%f\t%f\t%f\n", phcf.getName(), phcf.getHeader().getSourceID(), coord.toString(false), coord.toString(true), p0, dm, snr);
+        System.out.println();
+        String rastr = phcf.getHeader().getCoord().getRA().toString(false);
+        String destr = phcf.getHeader().getCoord().getDec().toString(false);
+        String candname = "J" + rastr.substring(0, 2) + rastr.substring(3, 5) + destr.substring(0, 3) + destr.substring(4, 6);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String type = "Normal";
+        if (p0 < 0.03) {
+            type = "MSP";
+        }
 
+
+        String path = "";
+        File candloc = new File(System.getProperty("user.home")+File.separatorChar+".ph-candloc");
+        try {
+            if (candloc.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(candloc));
+                path = reader.readLine();
+            }
+        } catch (IOException ex) {
+        }
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("PNG Images", "png");
         chooser.setFileFilter(filter);
-        chooser.setSelectedFile(new File(this.phcf.getName() + ".png"));
+        chooser.setSelectedFile(new File(path + this.phcf.getName() + ".png"));
         int returnVal = chooser.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             DisplayPHCF displayer = new DisplayPHCF(phcf, true);
             displayer.setOutputFileName(chooser.getSelectedFile().getAbsolutePath());
             displayer.run();
+            try {
+                PrintStream out = new PrintStream(new FileOutputStream(candloc));
+                out.println(chooser.getSelectedFile().getParent()+File.separatorChar);
+                out.close();
+                out = new PrintStream(new FileOutputStream(System.getProperty("user.home")+File.separatorChar+"ph-cands", true));
+                out.printf("%s\t%s\t%s\t%s\t%s\t%s\t%f\t%f\t%f\t%s\t%d\t%s\n", candname,
+                        df.format(new Date()), type, "Weak", coord.getRA().toString(false),
+                        coord.getDec().toString(false), p0,
+                        dm, snr, phcf.getHeader().getSourceID(),0,
+                        chooser.getSelectedFile().getAbsolutePath());
+                out.close();
+            } catch (IOException ex) {
+                System.err.println(ex.toString());
+            }
+            System.out.printf("%s\t%s\t%s\t%s\t%s\t%s\t%f\t%f\t%f\t%s\t%d\t%s\n", candname,
+                    df.format(new Date()), type, "Weak", coord.getRA().toString(false),
+                    coord.getDec().toString(false), p0,
+                    dm, snr, phcf.getHeader().getSourceID(),0,
+                    chooser.getSelectedFile().getAbsolutePath());
         }
+
+
 
 }//GEN-LAST:event_jButton_imageActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables

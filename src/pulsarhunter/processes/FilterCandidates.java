@@ -41,7 +41,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
-import java.util.Map;
 import pulsarhunter.BarryCenter;
 import pulsarhunter.FrequencyFilter;
 import pulsarhunter.PulsarHunter;
@@ -50,11 +49,11 @@ import pulsarhunter.datatypes.BasicSearchResult;
 import pulsarhunter.datatypes.BasicSearchResultData;
 import pulsarhunter.datatypes.PHCSection;
 import pulsarhunter.datatypes.PeriodSearchResultGroup;
-import pulsarhunter.datatypes.PeriodSearchResultGroup.SortField;
 import pulsarhunter.datatypes.PulsarHunterCandidate;
 import pulsarhunter.datatypes.SNRBlock;
 import pulsarhunter.datatypes.SearchResultComparator;
-import pulsarhunter.datatypes.sigproc.PrdFile;
+import pulsarhunter.jreaper.peckscorer.*;
+import pulsarhunter.jreaper.Score;
 
 /**
  *
@@ -77,6 +76,7 @@ public class FilterCandidates implements PulsarHunterProcess {
     private boolean nophcx = false;
     private boolean mjk_sigproc_fix = false;
     private FrequencyFilter[] filters = new FrequencyFilter[0];
+    private PeckScorer scorer = new PeckScorer();
 
     /** Creates a new instance of FilterCandidates */
     public FilterCandidates(BasicSearchResultData dataFile, PeriodSearchResultGroup.SortField snrField, double matchRangeFactor, String fileRoot, double snrMin, int maxResults, boolean dumpHarmonics, double minProfileBins, boolean nophcx, boolean writesum, boolean mjk_sigproc_fix) {
@@ -145,7 +145,7 @@ public class FilterCandidates implements PulsarHunterProcess {
                 } else if (r.getHarmfold() > 7) {
                     A = 7453033;
                     b = -16;
-                } else if (r.getHarmfold() >  3) {
+                } else if (r.getHarmfold() > 3) {
                     A = 307620;
                     b = -14;
                 } else if (r.getHarmfold() > 1) {
@@ -266,7 +266,7 @@ public class FilterCandidates implements PulsarHunterProcess {
                 }
                 double period2 = g2.getBestPeriod();
 
-                if (dmHarm(period1, g1.getBestDM(), g2.getBestDM(), dataFile) && isHarmonic(period1, period2, harmout)) {
+                if (dmHarm(g1, g2, dataFile) && isHarmonic(period1, period2, harmout)) {
 //                if (isHarmonic(period1, period2, harmout)) {
 //                                    if(period2 > 0.000778 && period2 < 0.000779){
 //                                        System.out.println(period1+" SNR:"+g1.getBestSuspect().getSpectralSignalToNoise());
@@ -522,9 +522,42 @@ public class FilterCandidates implements PulsarHunterProcess {
 
     }
 
-    private boolean dmHarm(double p1, double dm1, double dm2, BasicSearchResultData datafile) {
-        double dmr = 30 * p1;
-        return (Math.abs(dm1 - dm2) < dmr);
+    private boolean dmHarm(PeriodSearchResultGroup g1, PeriodSearchResultGroup g2, BasicSearchResultData datafile) {
+       
+        double snrCut=0.75*g1.getBestSuspect().getSpectralSignalToNoise();
+        double minDM=10000;
+        double maxDM=0;
+        for (Object o : g1.getDmPdotPddotCube()){
+            BasicSearchResult r = (BasicSearchResult)o;
+            if (r.getSpectralSignalToNoise() > snrCut){
+                if (r.getDM() < minDM)minDM=r.getDM();
+                if (r.getDM() > maxDM)maxDM=r.getDM();
+            }
+        }
+//        double p1 = g1.getBestPeriod();
+//        double dm1 = g1.getBestDM();
+//        double dm2 = g2.getBestDM();
+//
+//        double dmr = 100; //@TODO: Fix this!
+//
+//        // return (Math.abs(dm1 - dm2) < dmr);
+//
+//        double snr1 = g1.getSnrInDmRange(dm2, dmr);
+//        double snr2 = g2.getSnrInDmRange(dm1, dmr);
+////        if(isHarmonic(p1, g2.getBestPeriod(), null)){
+////            System.out.printf("HH %f %f %f %f .. %f %f\n",p1,g2.getBestPeriod(),snr1,snr2, g1.getSnrInDmRange(dm1, dmr),g2.getSnrInDmRange(dm2, dmr));
+////        }
+//
+//
+//        if (snr1 < 0.9 * g1.getBestSuspect().getSpectralSignalToNoise()) {
+//            return false;
+//        }
+//
+//        if (snr2 < 0.9 * g2.getBestSuspect().getSpectralSignalToNoise()) {
+//            return false;
+//        }
+
+        return (g2.getBestSuspect().getDM() > minDM && g1.getBestSuspect().getDM() < maxDM);
 
     }
 
@@ -542,12 +575,14 @@ public class FilterCandidates implements PulsarHunterProcess {
                     write.printf("\t%f\t%f\tINT", p2 * 1000.0, (p1 / p2));
                     return true;
                 } else {
-                    for (int k = 1; k < 8; k++) {
+                    for (int k = 1; k <
+                            8; k++) {
                         if (Math.abs(ratio * k - (int) (k * ratio + 0.5)) < matchRangeFactor * (int) (ratio * k + 0.5)) {
                             write.printf("\t%f\t%f\tNonI %d", p2 * 1000.0, ratio, k);
 
                             return true;
                         }
+
                     }
                 }
             }
@@ -559,12 +594,15 @@ public class FilterCandidates implements PulsarHunterProcess {
 
                     return true;
                 }
-                for (int k = 1; k < 8; k++) {
+
+                for (int k = 1; k <
+                        8; k++) {
                     if (Math.abs(ratio * k - (int) (k * ratio + 0.5)) < matchRangeFactor * (int) (ratio * k + 0.5)) {
                         write.printf("\t%f\t%f\tSUB", p2 * 1000.0, (p1 / p2));
 
                         return true;
                     }
+
                 }
 
             }
@@ -577,63 +615,77 @@ public class FilterCandidates implements PulsarHunterProcess {
 
         if (ratios == null) {
             ratios = new HashMap<String, Double>();
-            for (int i = 1; i < 64; i++) {
+            for (int i = 1; i <
+                    64; i++) {
                 ratios.put(String.valueOf(i), (double) i);
                 System.out.print(i + ", ");
                 if (i % 8 == 0) {
                     System.out.println();
                 }
+
             }
             System.out.println();
-            for (int i = 3; i < 9; i++) {
+            for (int i = 3; i <
+                    9; i++) {
                 ratios.put(String.valueOf(i), (double) i);
                 System.out.print("1/" + i + ", ");
                 if (i % 8 == 0) {
                     System.out.println();
                 }
+
             }
 
-            for (int top = 1; top <= 19; top++) {
+            for (int top = 1; top <=
+                    19; top++) {
                 System.out.println();
-                for (int bottom = 1; bottom < top; bottom++) {
+                for (int bottom = 1; bottom <
+                        top; bottom++) {
                     double ratio = (double) top / (double) bottom;
                     boolean ok = true;
                     for (double r : ratios.values()) {
                         if (Math.abs(ratio - r) < 0.00001) {
                             ok = false;
                             break;
+
                         }
+
+
                     }
                     if (ok) {
                         ratios.put(top + "/" + bottom, ratio);
                         System.out.print(top + "/" + bottom + ", ");
                     }
+
                 }
             }
             System.out.println();
-            for (int bottom = 1; bottom < 8; bottom++) {
+            for (int bottom = 1; bottom <
+                    8; bottom++) {
                 System.out.println();
-                for (int top = 1; top < bottom; top++) {
+                for (int top = 1; top <
+                        bottom; top++) {
                     double ratio = (double) top / (double) bottom;
                     boolean ok = true;
                     for (double r : ratios.values()) {
                         if (Math.abs(ratio - r) < 0.00001) {
                             ok = false;
                             break;
+
                         }
+
+
                     }
                     if (ok) {
                         ratios.put(top + "/" + bottom, ratio);
                         System.out.print(top + "/" + bottom + ", ");
                     }
+
                 }
             }
             System.out.println();
 
 
         }
-
-
 
         double f1 = 1.0 / p1;
         double f2 = 1.0 / p2;
@@ -646,6 +698,7 @@ public class FilterCandidates implements PulsarHunterProcess {
                 if (write != null) {
                     write.printf("\t%f\t%f\t%s", p2 * 1000.0, (f2 / f1), k);
                 }
+
                 return true;
             }
 
@@ -661,6 +714,7 @@ public class FilterCandidates implements PulsarHunterProcess {
         } else {
             return false;
         }
+
     }
 
     private boolean OLDisHarmonic(double p1, double p2) {

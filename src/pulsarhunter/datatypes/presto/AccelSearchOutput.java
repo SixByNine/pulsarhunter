@@ -487,6 +487,13 @@ public class AccelSearchOutput extends BasicSearchResultData {
         }
 
         @Override
+        public boolean isBarryCentered() {
+            return this.bary!=0;
+        }
+
+
+
+        @Override
         public Coordinate getCoord() {
             return new Coordinate(new RA(ra_h, ra_m, ra_s), new Dec(dec_d, ra_m, ra_s, negdec));
         }

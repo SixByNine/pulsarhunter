@@ -798,10 +798,15 @@ private void jComboBox2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIR
         ClassifiedCandidate c = (ClassifiedCandidate) o;
         this.jLabel_existingCandClass1.setText(c.getCandClass().toString());
         this.jLabel_existingCandName1.setText(c.getName());
-        this.jLabel_period1.setText(String.valueOf(c.getPreferedCandidate().getBaryPeriod() * 1000.0) + "  (" + String.valueOf(this.cand.getBaryPeriod() / c.getPreferedCandidate().getBaryPeriod()) + ")");
-        this.jLabel_dm1.setText(String.valueOf(c.getPreferedCandidate().getDm()));
+        double period2=0;
+        if (c.getPreferedCandidate() != null) {
+            this.jLabel_period1.setText(String.valueOf(c.getPreferedCandidate().getBaryPeriod() * 1000.0) + "  (" + String.valueOf(this.cand.getBaryPeriod() / c.getPreferedCandidate().getBaryPeriod()) + ")");
+
+            this.jLabel_dm1.setText(String.valueOf(c.getPreferedCandidate().getDm()));
+            period2 = c.getPreferedCandidate().getBaryPeriod();
+        }
         double period1 = this.cand.getBaryPeriod();
-        double period2 = c.getPreferedCandidate().getBaryPeriod();
+
         double eta = 0.001;
         if (Math.abs(period1 - period2) < eta * period2) {
 

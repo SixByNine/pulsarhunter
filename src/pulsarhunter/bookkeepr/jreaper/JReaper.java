@@ -123,17 +123,19 @@ public class JReaper {
     }
 
     public void goToPlot(ArrayList<CandidateListStub> clistStubs) {
+                System.out.println(user);
+
         this.clistIdToPsrxmlHeaders = new HashMap<Long, Psrxml>();
         this.clistIdToCandListHeaders = new HashMap<Long, CandidateListStub>();
         recentViewed = new ArrayBlockingQueue<RawCandidateBasic>(100);
         JReaperSetupFrame gui = null;
 
 //        if (this.currentWindow instanceof JReaperSetupFrame) {
-//            gui = (JReaperSetupFrame) this.currentWindow;
+            gui = (JReaperSetupFrame) this.currentWindow;
 //        } else {
-            closeWindow();
-            gui = new JReaperSetupFrame(this, connection);
-            this.currentWindow = gui;
+//            closeWindow();
+//            gui = new JReaperSetupFrame(this, connection);
+//            this.currentWindow = gui;
 //        }
         gui.setVisible(false);
         gui.showLoadingPane();
@@ -188,6 +190,7 @@ public class JReaper {
     public void goToPlotDone() {
         // Make the main view appear!
         closeWindow();
+        System.out.println(user);
 
         currentWindow = new MainView(this);
         currentWindow.setVisible(true);

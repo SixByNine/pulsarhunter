@@ -478,7 +478,7 @@ public class PeckScorer implements CandScorer{
     
     
     private final double kdm = 8.3e6;
-    private float getDMCurveScore( float[] dmidex,float[] dmcurv,double centerDM,double period,double width,float frequency,float bandwidth){
+    public float getDMCurveScore( float[] dmidex,float[] dmcurv,double centerDM,double period,double width,float frequency,float bandwidth){
         // Generate theoretical DM Curve
 //        float[] model = new float[dmidex.length];  // create result array
 //        float max = 0.0f;
@@ -536,7 +536,7 @@ public class PeckScorer implements CandScorer{
         return (float) (1.0f - score);
     }
     
-    private float getNewDMCurveScore( float[] dmidex,float[] dmcurv,double centerDM,double period,double width,float frequency,float bandwidth,Cand cand){
+    public float getNewDMCurveScore( float[] dmidex,float[] dmcurv,double centerDM,double period,double width,float frequency,float bandwidth,Cand cand){
         
         double[] xaxis = new double[dmidex.length];
         for(int i = 0; i < dmidex.length; i++){

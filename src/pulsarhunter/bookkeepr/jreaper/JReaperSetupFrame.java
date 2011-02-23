@@ -740,7 +740,7 @@ private void jComboBox_startDateActionPerformed(java.awt.event.ActionEvent evt) 
         Object[] processings = this.jComboBox_startDate.getSelectedObjects();
 
         for (Object proc : processings) {
-            clists.addAll(this.procCandListStubs.get((Long) proc));
+            clists.addAll(this.procCandListStubs.get(((Processing) proc).getId()));
         }
 
         processes = new HashMap<Long, Processing>();
@@ -814,7 +814,7 @@ private void jComboBox_startDateActionPerformed(java.awt.event.ActionEvent evt) 
             }
             list.add(cl);
         }
-        this.jComboBox_startDate.setModel(new DefaultComboBoxModel(processes.keySet().toArray()));
+        this.jComboBox_startDate.setModel(new DefaultComboBoxModel(processes.values().toArray()));
         this.jComboBox_startDate.setSelectedIndex(0);
 
         this.jLabel_user.setText(jreaper.getUser());
