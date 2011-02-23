@@ -314,6 +314,7 @@ public class MainView extends javax.swing.JFrame {
                             pcdf = null;
                         }
                         MainView.this.setLastViewed(cdf.getCand());
+                        replot();
                     }
                     if (pcdf != null) {
                         pcdf.swap(cdf);
