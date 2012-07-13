@@ -77,6 +77,9 @@ public class FilterCandidates implements PulsarHunterProcess {
     private boolean mjk_sigproc_fix = false;
     private FrequencyFilter[] filters = new FrequencyFilter[0];
     private PeckScorer scorer = new PeckScorer();
+    boolean verbose=false;
+
+
 
     /** Creates a new instance of FilterCandidates */
     public FilterCandidates(BasicSearchResultData dataFile, PeriodSearchResultGroup.SortField snrField, double matchRangeFactor, String fileRoot, double snrMin, int maxResults, boolean dumpHarmonics, double minProfileBins, boolean nophcx, boolean writesum, boolean mjk_sigproc_fix) {
@@ -111,8 +114,12 @@ public class FilterCandidates implements PulsarHunterProcess {
         Date start;
         Date end;
         int ignorecount = 0;
-        for (BasicSearchResult r : rawSearchResults) {
+        int counter=0;
 
+        for (BasicSearchResult r : rawSearchResults) {
+            if(verbose && (counter % 1000 == 0)){
+                System.out.printf("%d/%d\n",counter,rawSearchResults.size());
+            }
             if (r.getTsamp() > 0 && this.ignorePeriodLessThan4Tsamp) {
 
                 if (r.getPeriod() < r.getTsamp() * minProfileBins) {
@@ -181,6 +188,7 @@ public class FilterCandidates implements PulsarHunterProcess {
                 group.addSearchResult(r);
                 resultGroups.add(group);
             }
+	    counter++;
 
         /*
         
@@ -242,8 +250,13 @@ public class FilterCandidates implements PulsarHunterProcess {
                 ex.printStackTrace();
             }
         }
+	counter=0;
         // for(PeriodSearchResultGroup g1 : (List<PeriodSearchResultGroup>)resultGroups.clone()){
         for (int i = 0; i < resultGroups.size(); i++) {
+            if(verbose && (i % 1000 == 0)){
+                System.out.printf("%d/%d\n",counter,resultGroups.size());
+            }
+	    counter++;
             PeriodSearchResultGroup g1 = resultGroups.get(i);
 
             if (this.dumpHamonics) {
@@ -534,6 +547,8 @@ public class FilterCandidates implements PulsarHunterProcess {
                 if (r.getDM() > maxDM)maxDM=r.getDM();
             }
         }
+	minDM-=1;
+	maxDM+=1;
 //        double p1 = g1.getBestPeriod();
 //        double dm1 = g1.getBestDM();
 //        double dm2 = g2.getBestDM();
@@ -618,26 +633,26 @@ public class FilterCandidates implements PulsarHunterProcess {
             for (int i = 1; i <
                     64; i++) {
                 ratios.put(String.valueOf(i), (double) i);
-                System.out.print(i + ", ");
+                if(verbose)System.out.print(i + ", ");
                 if (i % 8 == 0) {
-                    System.out.println();
+                    if(verbose)System.out.println();
                 }
 
             }
-            System.out.println();
+            if(verbose)System.out.println();
             for (int i = 3; i <
                     9; i++) {
                 ratios.put(String.valueOf(i), (double) i);
-                System.out.print("1/" + i + ", ");
+                if(verbose)System.out.print("1/" + i + ", ");
                 if (i % 8 == 0) {
-                    System.out.println();
+                    if(verbose)System.out.println();
                 }
 
             }
 
             for (int top = 1; top <=
                     19; top++) {
-                System.out.println();
+                if(verbose)System.out.println();
                 for (int bottom = 1; bottom <
                         top; bottom++) {
                     double ratio = (double) top / (double) bottom;
@@ -653,15 +668,15 @@ public class FilterCandidates implements PulsarHunterProcess {
                     }
                     if (ok) {
                         ratios.put(top + "/" + bottom, ratio);
-                        System.out.print(top + "/" + bottom + ", ");
+                        if(verbose)System.out.print(top + "/" + bottom + ", ");
                     }
 
                 }
             }
-            System.out.println();
+            if(verbose)System.out.println();
             for (int bottom = 1; bottom <
                     8; bottom++) {
-                System.out.println();
+                if(verbose)System.out.println();
                 for (int top = 1; top <
                         bottom; top++) {
                     double ratio = (double) top / (double) bottom;
@@ -677,12 +692,12 @@ public class FilterCandidates implements PulsarHunterProcess {
                     }
                     if (ok) {
                         ratios.put(top + "/" + bottom, ratio);
-                        System.out.print(top + "/" + bottom + ", ");
+                        if(verbose)System.out.print(top + "/" + bottom + ", ");
                     }
 
                 }
             }
-            System.out.println();
+            if(verbose)System.out.println();
 
 
         }
@@ -816,6 +831,15 @@ public class FilterCandidates implements PulsarHunterProcess {
 
     public void setFilters(FrequencyFilter[] filters) {
         this.filters = filters;
+    }
+
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(boolean verbose) {
+	    System.out.println("FILTERCANDIDATES: VERBOSE MODE");
+        this.verbose = verbose;
     }
 }
 

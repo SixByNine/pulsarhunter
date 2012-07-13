@@ -37,7 +37,9 @@ public class GlobalOptions {
         fakepulsetimescale(Double.class),fakenullvariance(Double.class),fakenullstatistics(String.class),
         pulsewidth(Double.class), 
         // viewphcf
-        imageoutput(Boolean.class);
+        imageoutput(Boolean.class),
+        // generic
+        verbose(Boolean.class);
         
         
         private Class objectType;

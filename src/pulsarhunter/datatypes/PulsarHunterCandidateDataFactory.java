@@ -51,6 +51,7 @@ public class PulsarHunterCandidateDataFactory implements DataFactory{
         try {
             data.read();
         } catch (IOException ex) {
+            ex.printStackTrace();
             throw new IncorrectDataTypeException("IOException trying to read osrf file "+filename+" Perhaps wrong file type",ex);
         }
         

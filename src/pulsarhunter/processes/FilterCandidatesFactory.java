@@ -76,6 +76,7 @@ public class FilterCandidatesFactory implements ProcessFactory {
         double minProfileBins = 4.0;
         boolean nophcx = false;
         boolean mjk_sigproc_fix = false;
+        boolean verbose = false;
         PeriodSearchResultGroup.SortField snrField = PeriodSearchResultGroup.SortField.SPECTRAL_SNR;
 
         FrequencyFilter[] filters = new FrequencyFilter[0];
@@ -110,6 +111,9 @@ public class FilterCandidatesFactory implements ProcessFactory {
         }
         if (reg.getOptions().getArg(Option.writesum) != null) {
             writesum = (Boolean) reg.getOptions().getArg(Option.writesum);
+        }
+        if (reg.getOptions().getArg(Option.verbose) != null) {
+            verbose=true;
         }
         if (reg.getOptions().getArg(Option.zapfile) != null) {
             String zapfilename = (String) reg.getOptions().getArg(Option.zapfile);
@@ -175,6 +179,7 @@ public class FilterCandidatesFactory implements ProcessFactory {
         FilterCandidates proc = new FilterCandidates((BasicSearchResultData) dat, snrField, matchfactor, rootname, minsnr, maxResults, dumpHarmonics, minProfileBins, nophcx, writesum, mjk_sigproc_fix);
         proc.setUseAccn(useAccn);
         proc.setFilters(filters);
+        proc.setVerbose(true);
         return proc;
 
 
