@@ -77,9 +77,8 @@ public class FilterCandidates implements PulsarHunterProcess {
     private boolean mjk_sigproc_fix = false;
     private FrequencyFilter[] filters = new FrequencyFilter[0];
     private PeckScorer scorer = new PeckScorer();
-    boolean verbose=false;
-
-
+    boolean verbose = false;
+    private boolean skipdm=false;
 
     /** Creates a new instance of FilterCandidates */
     public FilterCandidates(BasicSearchResultData dataFile, PeriodSearchResultGroup.SortField snrField, double matchRangeFactor, String fileRoot, double snrMin, int maxResults, boolean dumpHarmonics, double minProfileBins, boolean nophcx, boolean writesum, boolean mjk_sigproc_fix) {
@@ -114,11 +113,11 @@ public class FilterCandidates implements PulsarHunterProcess {
         Date start;
         Date end;
         int ignorecount = 0;
-        int counter=0;
+        int counter = 0;
 
         for (BasicSearchResult r : rawSearchResults) {
-            if(verbose && (counter % 1000 == 0)){
-                System.out.printf("%d/%d\n",counter,rawSearchResults.size());
+            if (verbose && (counter % 10000 == 0)) {
+                System.out.printf("%d/%d\n", counter, rawSearchResults.size());
             }
             if (r.getTsamp() > 0 && this.ignorePeriodLessThan4Tsamp) {
 
@@ -179,58 +178,19 @@ public class FilterCandidates implements PulsarHunterProcess {
             }
 
 
-//            if((int)(p1*1000.0) == 1244){
-//                System.out.println(p1+ " "+p2+ " "+inserted);
-//            }
 
             if (!inserted) {
                 PeriodSearchResultGroup<BasicSearchResult> group = new PeriodSearchResultGroup(snrField);
                 group.addSearchResult(r);
                 resultGroups.add(group);
             }
-	    counter++;
-
-        /*
-        
-        double matchRange = r.getPeriod()*matchRangeFactor;
-        
-        PeriodSearchResultGroupComaprator groupComp = new PeriodSearchResultGroupComaprator(SortField.PERIOD,matchRange);
-        
-        
-        
-        PeriodSearchResultGroup group = new PeriodSearchResultGroup(snrField);
-        group.addSearchResult(r);
-        
-        
-        
-        
-        int posn = Collections.binarySearch(resultGroups,group,groupComp);
-        
-        
-        
-        
-        if(posn >= 0){
-        group = resultGroups.get(posn);
-        
-        //                // TESTTESTTEST
-        //                if(r.getPeriod() > 0.000778 && r.getPeriod() < 0.000779){
-        //                    System.out.println("P:" + r.getPeriod()+ " Matched:"+group.getBestPeriod()+ " SNR:"+group.getBestSuspect().getSpectralSignalToNoise());
-        //                }
-        
-        group.addSearchResult(r);
-        } else {
-        
-        ////                if(r.getPeriod() > 0.000778 && r.getPeriod() < 0.000779){
-        ////                    System.out.println("P:" + r.getPeriod()+ " NEW");
-        ////                }
-        resultGroups.add(-posn-1,group);
-        }
-         */
-
+            counter++;
 
         }
 
 
+
+        PulsarHunter.out.println("Found " + resultGroups.size() + " periods.");
 
         PulsarHunter.out.println("Done");
         PulsarHunter.out.println("FilterCandidates: Ignored " + ignorecount + " detections with P<4*tsamp");
@@ -250,13 +210,13 @@ public class FilterCandidates implements PulsarHunterProcess {
                 ex.printStackTrace();
             }
         }
-	counter=0;
+        counter = 0;
         // for(PeriodSearchResultGroup g1 : (List<PeriodSearchResultGroup>)resultGroups.clone()){
         for (int i = 0; i < resultGroups.size(); i++) {
-            if(verbose && (i % 1000 == 0)){
-                System.out.printf("%d/%d\n",counter,resultGroups.size());
+            if (verbose && (i % 100 == 0)) {
+                System.out.printf("%d/%d\n", counter, resultGroups.size());
             }
-	    counter++;
+            counter++;
             PeriodSearchResultGroup g1 = resultGroups.get(i);
 
             if (this.dumpHamonics) {
@@ -268,7 +228,6 @@ public class FilterCandidates implements PulsarHunterProcess {
             for (PeriodSearchResultGroup g2 : (List<PeriodSearchResultGroup>) resultGroups.clone()) {
                 // cycle through a clone of the groups to prevent modification exceptions...
 
-
                 if (g2 == g1) {
                     first = true;
                     continue; // So we don't match ourself
@@ -279,13 +238,8 @@ public class FilterCandidates implements PulsarHunterProcess {
                 }
                 double period2 = g2.getBestPeriod();
 
-                if (dmHarm(g1, g2, dataFile) && isHarmonic(period1, period2, harmout)) {
-//                if (isHarmonic(period1, period2, harmout)) {
-//                                    if(period2 > 0.000778 && period2 < 0.000779){
-//                                        System.out.println(period1+" SNR:"+g1.getBestSuspect().getSpectralSignalToNoise());
-//
-//                                    }
-
+                if ((this.skipdm || dmHarm(g1, g2, dataFile)) && isHarmonic(period1, period2, harmout)) {
+                
 
                     if (this.dumpHamonics) {
                         harmout.printf("\t%f\t%f\n",
@@ -294,7 +248,6 @@ public class FilterCandidates implements PulsarHunterProcess {
 
                     g1.addHarmonic(g2);
                     resultGroups.remove(g2);
-                // System.out.println(period1+"\t"+period2);
                 }
 
             }
@@ -536,19 +489,23 @@ public class FilterCandidates implements PulsarHunterProcess {
     }
 
     private boolean dmHarm(PeriodSearchResultGroup g1, PeriodSearchResultGroup g2, BasicSearchResultData datafile) {
-       
-        double snrCut=0.75*g1.getBestSuspect().getSpectralSignalToNoise();
-        double minDM=10000;
-        double maxDM=0;
-        for (Object o : g1.getDmPdotPddotCube()){
-            BasicSearchResult r = (BasicSearchResult)o;
-            if (r.getSpectralSignalToNoise() > snrCut){
-                if (r.getDM() < minDM)minDM=r.getDM();
-                if (r.getDM() > maxDM)maxDM=r.getDM();
+
+        double snrCut = 0.75 * g1.getBestSuspect().getSpectralSignalToNoise();
+        double minDM = 10000;
+        double maxDM = 0;
+        for (Object o : g1.getDmPdotPddotCube()) {
+            BasicSearchResult r = (BasicSearchResult) o;
+            if (r.getSpectralSignalToNoise() > snrCut) {
+                if (r.getDM() < minDM) {
+                    minDM = r.getDM();
+                }
+                if (r.getDM() > maxDM) {
+                    maxDM = r.getDM();
+                }
             }
         }
-	minDM-=1;
-	maxDM+=1;
+        minDM -= 1;
+        maxDM += 1;
 //        double p1 = g1.getBestPeriod();
 //        double dm1 = g1.getBestDM();
 //        double dm2 = g2.getBestDM();
@@ -633,26 +590,38 @@ public class FilterCandidates implements PulsarHunterProcess {
             for (int i = 1; i <
                     64; i++) {
                 ratios.put(String.valueOf(i), (double) i);
-                if(verbose)System.out.print(i + ", ");
+                if (verbose) {
+                    System.out.print(i + ", ");
+                }
                 if (i % 8 == 0) {
-                    if(verbose)System.out.println();
+                    if (verbose) {
+                        System.out.println();
+                    }
                 }
 
             }
-            if(verbose)System.out.println();
+            if (verbose) {
+                System.out.println();
+            }
             for (int i = 3; i <
                     9; i++) {
                 ratios.put(String.valueOf(i), (double) i);
-                if(verbose)System.out.print("1/" + i + ", ");
+                if (verbose) {
+                    System.out.print("1/" + i + ", ");
+                }
                 if (i % 8 == 0) {
-                    if(verbose)System.out.println();
+                    if (verbose) {
+                        System.out.println();
+                    }
                 }
 
             }
 
             for (int top = 1; top <=
                     19; top++) {
-                if(verbose)System.out.println();
+                if (verbose) {
+                    System.out.println();
+                }
                 for (int bottom = 1; bottom <
                         top; bottom++) {
                     double ratio = (double) top / (double) bottom;
@@ -668,15 +637,21 @@ public class FilterCandidates implements PulsarHunterProcess {
                     }
                     if (ok) {
                         ratios.put(top + "/" + bottom, ratio);
-                        if(verbose)System.out.print(top + "/" + bottom + ", ");
+                        if (verbose) {
+                            System.out.print(top + "/" + bottom + ", ");
+                        }
                     }
 
                 }
             }
-            if(verbose)System.out.println();
+            if (verbose) {
+                System.out.println();
+            }
             for (int bottom = 1; bottom <
                     8; bottom++) {
-                if(verbose)System.out.println();
+                if (verbose) {
+                    System.out.println();
+                }
                 for (int top = 1; top <
                         bottom; top++) {
                     double ratio = (double) top / (double) bottom;
@@ -692,12 +667,16 @@ public class FilterCandidates implements PulsarHunterProcess {
                     }
                     if (ok) {
                         ratios.put(top + "/" + bottom, ratio);
-                        if(verbose)System.out.print(top + "/" + bottom + ", ");
+                        if (verbose) {
+                            System.out.print(top + "/" + bottom + ", ");
+                        }
                     }
 
                 }
             }
-            if(verbose)System.out.println();
+            if (verbose) {
+                System.out.println();
+            }
 
 
         }
@@ -790,6 +769,20 @@ public class FilterCandidates implements PulsarHunterProcess {
 
     }
 
+    /**
+     * @return the skipdm
+     */
+    public boolean isSkipdm() {
+        return skipdm;
+    }
+
+    /**
+     * @param skipdm the skipdm to set
+     */
+    public void setSkipdm(boolean skipdm) {
+        this.skipdm = skipdm;
+    }
+
     private class PeriodSearchResultGroupComaprator implements Comparator<PeriodSearchResultGroup> {
 
         private double matchrange;
@@ -838,7 +831,7 @@ public class FilterCandidates implements PulsarHunterProcess {
     }
 
     public void setVerbose(boolean verbose) {
-	    System.out.println("FILTERCANDIDATES: VERBOSE MODE");
+        System.out.println("FILTERCANDIDATES: VERBOSE MODE");
         this.verbose = verbose;
     }
 }

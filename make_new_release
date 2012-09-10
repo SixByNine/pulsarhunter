@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+ant=/data/RUBICON_2/kei041/usr/bin/ant
+
 OUT_DIR="/nfs/wwwpeople/Michael.Keith/pulsarhunter"
 EXT_URI="http://www.atnf.csiro.au/people/Michael.Keith/pulsarhunter"
 MAX_FILES=10
@@ -41,8 +44,8 @@ mv ./src/pulsarhunter/PulsarHunter.java.new ./src/pulsarhunter/PulsarHunter.java
 sed -e "s:$PREV_DATE:$NEW_DATE:" < ./src/pulsarhunter/PulsarHunter.java > ./src/pulsarhunter/PulsarHunter.java.new
  mv ./src/pulsarhunter/PulsarHunter.java.new ./src/pulsarhunter/PulsarHunter.java
 
-ant clean
-ant jar
+$ant clean
+$ant jar
 if [ $? != 0 ] ; then
 	echo "ANT error!"
 	exit 2

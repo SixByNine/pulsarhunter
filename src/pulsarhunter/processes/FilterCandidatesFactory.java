@@ -77,6 +77,7 @@ public class FilterCandidatesFactory implements ProcessFactory {
         boolean nophcx = false;
         boolean mjk_sigproc_fix = false;
         boolean verbose = false;
+        boolean skipdm=false;
         PeriodSearchResultGroup.SortField snrField = PeriodSearchResultGroup.SortField.SPECTRAL_SNR;
 
         FrequencyFilter[] filters = new FrequencyFilter[0];
@@ -115,6 +116,9 @@ public class FilterCandidatesFactory implements ProcessFactory {
         if (reg.getOptions().getArg(Option.verbose) != null) {
             verbose=true;
         }
+        if (reg.getOptions().getArg(Option.skipdm) != null) {
+            skipdm=true;
+        }
         if (reg.getOptions().getArg(Option.zapfile) != null) {
             String zapfilename = (String) reg.getOptions().getArg(Option.zapfile);
             ZapFile zapFile = null;
@@ -139,47 +143,11 @@ public class FilterCandidatesFactory implements ProcessFactory {
 
 
 
-
-//        for(int i = 3; i < params.length; i++){
-//            if(params[i].trim().equalsIgnoreCase("-minsnr")){
-//                minsnr = Double.parseDouble(params[++i]);
-//            }
-//
-//            if(params[i].trim().equalsIgnoreCase("-maxresults")){
-//                maxResults = Integer.parseInt(params[++i].trim());
-//            }
-//
-//            if(params[i].trim().equalsIgnoreCase("-showaccn"))useAccn = true;
-//            if(params[i].trim().equalsIgnoreCase("-userecon"))
-//            if(params[i].trim().equalsIgnoreCase("-zapfile")){
-//                i++;
-//                String zapfilename = params[i];
-//                ZapFile zapFile = null;
-//                try {
-//                    zapFile = (ZapFile) dataFiles.get(zapfilename);
-//                } catch(ClassCastException e) {
-//                    zapfilename = zapfilename+".zap";
-//                }
-//                if(zapFile==null){
-//                    try {
-//                        zapFile = new ZapFile(new File(zapfilename));
-//                        zapFile.read();
-//                        dataFiles.put(zapfilename,zapFile);
-//                    } catch (IOException ex) {
-//                        ex.printStackTrace();
-//
-//                    }
-//
-//                }
-//                filters = zapFile.getFilters().toArray(filters);
-//            }
-//        }
-
-
         FilterCandidates proc = new FilterCandidates((BasicSearchResultData) dat, snrField, matchfactor, rootname, minsnr, maxResults, dumpHarmonics, minProfileBins, nophcx, writesum, mjk_sigproc_fix);
         proc.setUseAccn(useAccn);
         proc.setFilters(filters);
         proc.setVerbose(true);
+        proc.setSkipdm(skipdm);
         return proc;
 
 

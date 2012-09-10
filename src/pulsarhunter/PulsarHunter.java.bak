@@ -30,6 +30,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import pulsarhunter.datatypes.AsciiPrdFileFactory;
 import pulsarhunter.datatypes.EpnFileFactory;
 import pulsarhunter.datatypes.OSRFAppendableJReaperCandListFactory;
 import pulsarhunter.datatypes.PolyCoFileDataFactory;
@@ -73,8 +74,8 @@ import pulsarhunter.recipies.RecipeParser;
  */
 public class PulsarHunter {
 
-    public static final String VERSION = "1.3r80";
-    public static final String DATE = "2011-05-08";
+    public static final String VERSION = "1.3r83";
+    public static final String DATE = "2012-09-10";
     private PulsarHunterRegistry registry;
     private String recipe = null;
     private String[] recipeArgs = new String[0];
@@ -123,6 +124,7 @@ public class PulsarHunter {
         this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.SigprocBandedTimeSeries));
         this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.BestSumFile));
         this.registry.addDataFactory(new SigprocDataFactory(SigprocDataType.PrdFile));
+        this.registry.addDataFactory(new AsciiPrdFileFactory());
         this.registry.addDataFactory(new PulsarHunterCandidateDataFactory());
         this.registry.addDataFactory(new BestSumFileFactory());
         this.registry.addDataFactory(new OSRFAppendableJReaperCandListFactory());
