@@ -17,7 +17,7 @@ done
 
 
 #${JAVA_HOME}/bin/java -Dsystem.load.path=${PULSARHUNTER_HOME}/lib:$LD_LIBRARY_PATH -jar ${PULSARHUNTER_HOME}/pulsarhunter.jar --libpath=${PULSARHUNTER_HOME}/lib $ARGS
-${JAVA_HOME}/bin/java -Xms256M -Xmx1024M -classpath $CLASSPATH pulsarhunter.PulsarHunter --libdir=${PULSARHUNTER_HOME}/lib --recdir=${PULSARHUNTER_HOME}/recipies "$1" "$2" "$3" "$4" "$5" "$6" "$7"
+${JAVA_HOME}/bin/java -Xms256M -Xmx8192M -classpath $CLASSPATH pulsarhunter.PulsarHunter --libdir=${PULSARHUNTER_HOME}/lib --recdir=${PULSARHUNTER_HOME}/recipies "$1" "$2" "$3" "$4" "$5" "$6" "$7"
 
 err=$?
 if [[ $err == 1 ]]
